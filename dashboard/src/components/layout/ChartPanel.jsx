@@ -14,6 +14,7 @@ export default function ChartPanel({ title, subtitle, children, height = 280, sp
       display: 'flex',
       flexDirection: 'column',
       gap: 4,
+      height: 'fit-content',
     }}>
       <div style={{ marginBottom: 8 }}>
         <div style={{
@@ -31,7 +32,7 @@ export default function ChartPanel({ title, subtitle, children, height = 280, sp
           </div>
         )}
       </div>
-      <div style={{ height, flex: 1 }}>
+      <div style={{ height, minHeight: height, width: '100%' }}>
         {children}
       </div>
     </div>

@@ -1,0 +1,35 @@
+// components/charts/TimeToFillLine.jsx — Chart 4: Time-to-Fill by Domain
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { timeToFillData, domains } from '../../data/notebookData';
+import { DOMAIN_COLORS, PALETTE } from '../../utils/theme';
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, minWidth: 160 }}>
+      <div style={{ color: PALETTE.muted, marginBottom: 6 }}>{label}</div>
+      {payload.map(p => (
+        <div key={p.dataKey} style={{ color: p.color, display: 'flex', justifyContent: 'space-between', gap: 16 }}>
+          <span>{p.name}</span><strong>{p.value}d</strong>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default function TimeToFillLine() {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={timeToFillData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
+        <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} />
+        <YAxis tick={{ fill: PALETTE.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} unit="d" />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: PALETTE.muted }} />
+        {domains.map(d => (
+          <Line key={d} type="monotone" dataKey={d} stroke={DOMAIN_COLORS[d]} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+        ))}
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}

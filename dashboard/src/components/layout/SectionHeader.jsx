@@ -12,7 +12,7 @@ export default function SectionHeader({ number, title, description }) {
           opacity: 0.7,
           letterSpacing: '0.12em',
         }}>
-          {String(number).padStart(2, '0')} ////
+          {String(number).padStart(2, '0')}
         </span>
         <h2 style={{
           fontFamily: "'JetBrains Mono', monospace",

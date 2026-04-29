@@ -157,9 +157,9 @@ export default function App() {
                 <ChartPanel title="1. Net Open Requirements" subtitle="Cumulative open positions by month" height={260}>
                   <NetOpenLine />
                 </ChartPanel>
-                <ChartPanel title="2. Fulfillment Velocity" subtitle="New roles opened vs closed each month" height={260}>
+                {/* <ChartPanel title="2. Fulfillment Velocity" subtitle="New roles opened vs closed each month" height={260}>
                   <FulfillmentVelocityBar />
-                </ChartPanel>
+                </ChartPanel> */}
               </div>
             </div>
           )}
@@ -189,9 +189,9 @@ export default function App() {
                 <ChartPanel title="9. Interview-to-Offer Ratio" subtitle="Step line — ratio of interviews conducted per offer made" height={240}>
                   <InterviewOfferLine />
                 </ChartPanel>
-                <ChartPanel title="12. Aging Buckets" subtitle="Open roles by days-open bucket (0–30, 31–60, 61–90, 90+)" height={240}>
+                {/* <ChartPanel title="12. Aging Buckets" subtitle="Open roles by days-open bucket (0–30, 31–60, 61–90, 90+)" height={240}>
                   <AgingBucketsBar />
-                </ChartPanel>
+                </ChartPanel> */}
               </div>
             </div>
           )}
@@ -242,9 +242,9 @@ export default function App() {
               </div>
 
               <div style={{ ...grid, marginTop: 16 }}>
-                <ChartPanel title="10. Skill Concentration Heatmap" subtitle="Demand level (30–70) per domain per month" height={240}>
+                {/* <ChartPanel title="10. Skill Concentration Heatmap" subtitle="Demand level (30–70) per domain per month" height={240}>
                   <SkillConcentrationHeatmap />
-                </ChartPanel>
+                </ChartPanel> */}
                 <ChartPanel title="12. Demand by Experience Level" subtitle="Job count across Fresher / Junior / Mid / Senior" height={240}>
                   <ExperienceDemandBar />
                 </ChartPanel>
@@ -315,9 +315,9 @@ export default function App() {
               </div>
 
               <div style={grid}>
-                <ChartPanel title="19. Forecasted Hiring Load" subtitle="Predicted hiring volume across months (area chart)" height={260}>
+                {/* <ChartPanel title="19. Forecasted Hiring Load" subtitle="Predicted hiring volume across months (area chart)" height={260}>
                   <ForecastedLoadLine />
-                </ChartPanel>
+                </ChartPanel> */}
                 <ChartPanel title="21. Forecasted Domain Demand Probability" subtitle="Probability of high demand per domain — next 6 months" height={260}>
                   <DomainDemandProbBar />
                 </ChartPanel>

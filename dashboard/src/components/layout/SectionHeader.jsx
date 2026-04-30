@@ -7,7 +7,7 @@ export default function SectionHeader({ number, title, description }) {
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
         <span style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
+          fontSize: 18,
           color: PALETTE.accent,
           opacity: 0.7,
           letterSpacing: '0.12em',
@@ -16,7 +16,7 @@ export default function SectionHeader({ number, title, description }) {
         </span>
         <h2 style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 16,
+          fontSize: 18,
           fontWeight: 700,
           color: PALETTE.text,
           margin: 0,
@@ -29,7 +29,7 @@ export default function SectionHeader({ number, title, description }) {
       {description && (
         <p style={{
           fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11,
+          fontSize: 14,
           color: PALETTE.muted,
           margin: '4px 0 0 0',
         }}>

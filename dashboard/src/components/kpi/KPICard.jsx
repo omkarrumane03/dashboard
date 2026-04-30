@@ -9,7 +9,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
     <div style={{
       background: PALETTE.surface,
       border: `1px solid ${PALETTE.border}`,
-      borderRadius: 12,
+      borderRadius: 14,
       padding: '20px 24px',
       display: 'flex',
       flexDirection: 'column',
@@ -25,7 +25,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontSize: 11, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" }}>
+        <span style={{ fontSize: 15, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" }}>
           {label}
         </span>
       </div>
@@ -35,7 +35,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
       </div>
 
       {sub && (
-        <div style={{ fontSize: 12, color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace" }}>
+        <div style={{ fontSize: 15, color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace" }}>
           {sub}
         </div>
       )}

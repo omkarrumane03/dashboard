@@ -16,7 +16,7 @@ export default function PredictedTTFLine() {
     if (!active || !payload?.length) return null;
     const isForecast = label.includes('_F');
     return (
-      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, minWidth: 160 }}>
+      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 13, minWidth: 160 }}>
         <div style={{ color: isForecast ? PALETTE.purple : PALETTE.muted, marginBottom: 4 }}>
           {label.replace('_F', ' (Forecast)')}
         </div>
@@ -35,12 +35,12 @@ export default function PredictedTTFLine() {
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={allData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
-        <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 9, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} tickFormatter={tickFormatter} />
-        <YAxis tick={{ fill: PALETTE.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} unit="d" />
+        <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} tickFormatter={tickFormatter} />
+        <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} unit="d" />
         <Tooltip content={<CustomTooltip />} />
-        <Legend wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: PALETTE.muted }} />
+        <Legend wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted }} />
         <ReferenceLine x={splitMonth} stroke={PALETTE.purple} strokeDasharray="6 3" opacity={0.5}
-          label={{ value: 'Forecast →', fill: PALETTE.purple, fontSize: 9, fontFamily: "'JetBrains Mono', monospace", position: 'insideTopRight' }} />
+          label={{ value: 'Forecast →', fill: PALETTE.purple, fontSize: 12, fontFamily: "'JetBrains Mono', monospace", position: 'insideTopRight' }} />
         {domains.map(d => (
           <Line key={d} type="monotone" dataKey={d} stroke={DOMAIN_COLORS[d]} strokeWidth={2}
             dot={(props) => {

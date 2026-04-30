@@ -14,7 +14,7 @@ const CustomTooltip = ({ active, payload }) => {
         borderRadius: 8,
         padding: '8px 12px',
         fontFamily: "'JetBrains Mono', monospace",
-        fontSize: 11,
+        fontSize: 13,
       }}
     >
       <div style={{ color: DOMAIN_COLORS[payload[0].name] }}>
@@ -40,7 +40,7 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, share }) => {
       fill="#fff"
       textAnchor="middle"
       dominantBaseline="central"
-      fontSize={11}
+      fontSize={13}
       fontFamily="'JetBrains Mono', monospace"
       fontWeight={600}
     >
@@ -93,7 +93,7 @@ export default function DomainHiringShareDonut() {
                 transition: 'all 0.25s ease',
                 color: PALETTE.muted,
                 fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 10,
+                fontSize: 13,
               }}
             >
               <span
@@ -121,7 +121,7 @@ export default function DomainHiringShareDonut() {
               cursor: 'pointer',
               color: '#fff',
               fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 10,
+              fontSize: 13,
             }}
           >
             Show All

@@ -36,8 +36,8 @@ function Gauge({ value, label, sub, color }) {
           return <circle cx={tx} cy={ty} r={4} fill={PALETTE.red} />;
         })()}
       </svg>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: PALETTE.text, textAlign: 'center' }}>{label}</div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: PALETTE.muted, marginTop: 2 }}>{sub}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.text, textAlign: 'center' }}>{label}</div>
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted, marginTop: 2 }}>{sub}</div>
     </div>
   );
 }

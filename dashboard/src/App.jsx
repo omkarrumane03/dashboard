@@ -18,6 +18,8 @@ import KPICard from "./components/kpi/KPICard";
 import ChartPanel from "./components/layout/ChartPanel";
 import SectionHeader from "./components/layout/SectionHeader";
 
+import {demandFlowKPIs, sourcingKPIs,financialKPIs,predictiveKPIs,} from './data/derivedKPIs';
+
 // Charts
 import NetOpenLine from "./components/charts/NetOpenLine";
 import FulfillmentVelocityBar from "./components/charts/FulfillmentVelocityBar";
@@ -145,14 +147,18 @@ export default function App() {
                 description="Open positions, hiring velocity, and fulfillment trends." />
 
               {/* KPI Row */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
-                {/* <KPICard icon="📋" label="Open Rate" value="24%" sub="Current open positions %" accent={PALETTE.orange} /> */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
+                {/* <KPICard icon="📋" label="Open Rate" value="24%" sub="Current open positions %" accent={PALETTE.orange} />
                 <KPICard icon="📈" label="Peak Net Open" value="230" sub="Dec — highest this year" />
-                {/* <KPICard icon="🔁" label="Total New Roles" value="592" sub="Across all 6 months" accent={PALETTE.green} /> */}
                 <KPICard icon="✅" label="Total Closed" value="505" sub="Across all 6 months" accent={PALETTE.purple} />
                 <KPICard icon="⏱️" label="Avg Time-to-Fill" value="33d" sub="All domains avg" accent={PALETTE.orange} />
-              </div>
+                <KPICard icon="🔁" label="Total New Roles" value="592" sub="Across all 6 months" accent={PALETTE.green} /> */}
+                <KPICard icon="📈" label="Peak Net Open" value={demandFlowKPIs.peakNetOpen} sub={`${demandFlowKPIs.peakNetOpenMonth} — highest this year`}/>
+                {/* <KPICard icon="🔁" label="Total New Roles" value={demandFlowKPIs.totalNewRoles}sub="Across all 6 months" accent={PALETTE.green}/> */}
+                <KPICard icon="✅" label="Total Closed" value={demandFlowKPIs.totalClosed} sub="Across all 6 months" accent={PALETTE.purple} />
+                <KPICard icon="⏱️" label="Avg Time-to-Fill" value={`${demandFlowKPIs.avgTimeToFill}d`} sub="All domains avg" accent={PALETTE.orange}/>
 
+              </div>
               <div style={{...grid, marginBottom: 16 }}>
                 <ChartPanel title="1. Net Open Requirements" subtitle="Cumulative open positions by month" height={260}>
                   <NetOpenLine />
@@ -182,18 +188,23 @@ export default function App() {
               <SectionHeader number={2} title="Sourcing & Conversion"
                 description="Source performance, funnel efficiency, and hire quality." />
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
                 {/* <KPICard icon="🔗" label="LinkedIn Hires" value="193" sub="550 interviews → 35% conv." accent={PALETTE.accent} />
                 <KPICard icon="🤝" label="Referral Hires" value="146" sub="380 interviews → 38% conv." accent={PALETTE.green} />
                 <KPICard icon="📰" label="Portal Hires" value="110" sub="332 interviews → 33% conv." accent={PALETTE.orange} />
                 <KPICard icon="📬" label="Career Site Hires" value="156" sub="387 interviews → 40% conv." accent={PALETTE.purple} /> */}
-                <KPICard icon="🎯" label="Offer Accept Rate" value="87%" sub="450 / 520 offers" accent={PALETTE.green} />
+                {/* <KPICard icon="🎯" label="Offer Accept Rate" value="87%" sub="450 / 520 offers" accent={PALETTE.green} />
                 <KPICard icon="🚀" label="Joining Rate" value="84%" sub="380 / 450 accepted" accent={PALETTE.accent} />
                 <KPICard icon="⚠️" label="Total Attrition" value="388" sub="Sum across 6 months" accent={PALETTE.red} />
                 <KPICard icon="📉" label="Peak Attrition" value="46" sub="April — highest month" accent={PALETTE.orange} />
                 <KPICard icon="🔽" label="Funnel Conversion" value="14.4%" sub="Applied → Joined (410/2850)" accent={PALETTE.green} />
-                <KPICard icon="📊" label="Avg I→O Ratio" value="3.8:1" sub="Interviews per offer" accent={PALETTE.purple} />
- 
+                <KPICard icon="📊" label="Avg I→O Ratio" value="3.8:1" sub="Interviews per offer" accent={PALETTE.purple} /> */}
+                <KPICard icon="🎯" label="Offer Accept Rate" value={`${sourcingKPIs.offerAcceptRate}%`} sub="450 / 520 offers" accent={PALETTE.green} />
+                <KPICard icon="🚀" label="Joining Rate" value={`${sourcingKPIs.joiningRate}%`} sub="380 / 450 accepted" accent={PALETTE.accent}/>
+                <KPICard icon="⚠️" label="Total Attrition" value={sourcingKPIs.totalAttrition} sub="Sum across 6 months" accent={PALETTE.red}/>
+                <KPICard icon="📉" label="Peak Attrition" value={sourcingKPIs.peakAttrition} sub={`${sourcingKPIs.peakAttritionMonth} — highest month`} accent={PALETTE.orange}/>
+                <KPICard icon="🔽" label="Funnel Conversion" value={`${sourcingKPIs.funnelConversion}%`} sub={`Applied → Joined (${sourcingKPIs.funnelJoined}/${sourcingKPIs.funnelApplied})`} accent={PALETTE.green}/>
+                <KPICard icon="📊" label="Avg I→O Ratio" value={`${sourcingKPIs.avgInterviewOfferRatio}:1`} sub="Interviews per offer" accent={PALETTE.purple}/>
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
@@ -226,14 +237,18 @@ export default function App() {
                 description="Cost per hire, revenue per employee, and domain salary benchmarks" />
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="💰" label="Avg Cost/Hire" value="$4.4K" sub="Across Quarters" accent={PALETTE.orange} />
-                <KPICard icon="📊" label="Best Quarter" value="Q4" sub="$4,100 per hire" accent={PALETTE.green} />
+                {/* <KPICard icon="💰" label="Avg Cost/Hire" value="$4.4K" sub="Across Months" accent={PALETTE.orange} />
+                <KPICard icon="📊" label="Best Month" value="Feb" sub="$4,100 per hire" accent={PALETTE.green} />
                 <KPICard icon="🏆" label="Top Paid Domain" value="Data Sci" sub="$115K avg salary" accent={PALETTE.accent} />
-                <KPICard icon="📈" label="Avg Rev/FTE" value="$20M" sub="Monthly range $15-24M" accent={PALETTE.purple} />
+                <KPICard icon="📈" label="Avg Rev/FTE" value="$20M" sub="Monthly range $15-24M" accent={PALETTE.purple} /> */}
+                <KPICard icon="💰" label="Avg Cost/Hire" value={`$${(financialKPIs.avgCostPerHire / 1000).toFixed(1)}K`} sub="Across Quarters" accent={PALETTE.orange}/>
+                <KPICard icon="📊" label="Best Month" value={financialKPIs.bestMonth.month} sub={`$${financialKPIs.bestMonth.cost.toLocaleString()} per hire`} accent={PALETTE.green} />
+                <KPICard icon="🏆" label="Top Paid Domain" value={financialKPIs.topPaidDomain.domain} sub={`$${financialKPIs.topPaidDomain.avgSalary}K avg salary`} accent={PALETTE.accent} />
+                <KPICard icon="📈" label="Avg Rev/FTE" value={`$${financialKPIs.avgRevenuePerEmployee}M`} sub={`Monthly range $${financialKPIs.minRevenuePerEmployee}-${financialKPIs.maxRevenuePerEmployee}M`} accent={PALETTE.purple}  />
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
-                <ChartPanel title="13. Cost Per Hire" subtitle="Q1-Q4 · green = below avg · red = above avg" height={260}>
+                <ChartPanel title="13. Cost Per Hire" subtitle="Nov-Apr · green = below avg · red = above avg" height={260}>
                   <CostPerHireBar />
                 </ChartPanel>
                 <ChartPanel title="14. Salary Trend Analysis" subtitle="Avg salary ($K) by domain" height={260}>
@@ -253,10 +268,13 @@ export default function App() {
                 description="Forecasted regional openings, domain demand probabilities, and predicted time-to-fill" />
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="🔮" label="Highest Demand" value="Data Sci" sub="91% probability" accent={PALETTE.accent} />
+                {/* <KPICard icon="🔮" label="Highest Demand" value="Data Sci" sub="91% probability" accent={PALETTE.accent} />
                 <KPICard icon="📍" label="Hot Region" value="Delhi" sub="Mobile: 113 forecast openings" accent={PALETTE.orange} />
-                <KPICard icon="⏳" label="Predicted fill-days" value="28" sub="Avg across domains" accent={PALETTE.purple} />
+                <KPICard icon="⏳" label="Predicted fill-days" value="28" sub="Avg across domains" accent={PALETTE.purple} /> */}
                 {/* <KPICard icon="⏳" label="Forecast Load Peak" value="Oct" sub="200 predicted roles" accent={PALETTE.purple} /> */}
+                <KPICard icon="⏳" label="Predicted Fill Days" value={`${predictiveKPIs.avgPredictedFillDays}d`} sub={`Best: ${predictiveKPIs.bestPredictedFillMonth.month} (${predictiveKPIs.bestPredictedFillMonth.days}d)`} accent={PALETTE.green}/>
+                <KPICard icon="🔮" label="Highest Demand" value={predictiveKPIs.highestDemand.domain} sub={`${Math.round(predictiveKPIs.highestDemand.probability * 100)}% probability`} accent={PALETTE.accent}/>
+                <KPICard icon="📍" label="Hot Region" value={predictiveKPIs.hottestRegion.region} sub={`${predictiveKPIs.hottestRegion.domain}: ${predictiveKPIs.hottestRegion.value} forecast openings`} accent={PALETTE.orange}  />
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>

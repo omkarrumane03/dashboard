@@ -3,19 +3,19 @@
 // numpy.random.seed(42) — reproducible
 // ============================================================
 
-export const months = ['Dec','Jan','Feb','Mar','Apr','May'];
+export const months =  ['Nov','Dec','Jan','Feb','Mar','Apr'];
 export const domains = ['Java','DevOps','Data Science','UI/UX','Mobile'];
 export const sources = ['LinkedIn','Referrals','Job Portals','Career Site'];
 export const regions = ['Mumbai','Pune','Bangalore','Delhi','Chennai'];
 
 // Chart 1 — Net Open Requirements (monthly)
 export const netOpenData = [
+  { month: 'Nov', netOpen: 160, newRoles: 47, closed: 41 },
   { month: 'Dec', netOpen: 230, newRoles: 42, closed: 41 },
   { month: 'Jan', netOpen: 120, newRoles: 46, closed: 51 },
   { month: 'Feb', netOpen: 135, newRoles: 59, closed: 50 },
   { month: 'Mar', netOpen: 150, newRoles: 54, closed: 31 },
   { month: 'Apr', netOpen: 145, newRoles: 50, closed: 53 },
-  { month: 'May', netOpen: 160, newRoles: 47, closed: 41 },
 ];
 
 // KPI — Open Rate
@@ -23,12 +23,12 @@ export const openRate = 24; // %
 
 // Chart 4 — Time-to-Fill by Domain (avg days per month)
 export const timeToFillData = [
+  { month:'Nov', Java:47, DevOps:26, 'Data Science':43, 'UI/UX':23, Mobile:22 },
   { month:'Dec', Java:20, DevOps:34, 'Data Science':49, 'UI/UX':46, Mobile:44 },
   { month:'Jan', Java:36, DevOps:31, 'Data Science':22, 'UI/UX':35, Mobile:20 },
   { month:'Feb', Java:21, DevOps:20, 'Data Science':21, 'UI/UX':24, Mobile:23 },
   { month:'Mar', Java:37, DevOps:20, 'Data Science':20, 'UI/UX':38, Mobile:49 },
   { month:'Apr', Java:35, DevOps:28, 'Data Science':25, 'UI/UX':41, Mobile:47 },
-  { month:'May', Java:47, DevOps:26, 'Data Science':43, 'UI/UX':23, Mobile:22 },
 ];
 
 // Chart 5 — Open vs Closed by Domain
@@ -69,18 +69,18 @@ export const offerMetrics = {
 
 // Chart 9 — Interview-to-Offer Ratio (monthly, step line)
 export const interviewOfferRatio = [
-  { month:'Dec', ratio:4 }, { month:'Jan', ratio:4 }, { month:'Feb', ratio:3 }, 
-  { month:'Mar', ratio:5 }, { month:'Apr', ratio:4 }, { month:'May', ratio:3 },
+  { month:'Nov', ratio:3 }, { month:'Dec', ratio:4 }, { month:'Jan', ratio:4 }, 
+  { month:'Feb', ratio:3 }, { month:'Mar', ratio:5 }, { month:'Apr', ratio:4 }, 
 ];
 
 // Chart 10 — Skill Concentration Heatmap (demand level)
 export const skillConcentration = [
+  { month:'Nov',  Java:69, DevOps:61, 'Data Science':46, 'UI/UX':67, Mobile:62 },
   { month:'Dec',  Java:52, DevOps:61, 'Data Science':64, 'UI/UX':56, Mobile:65 },
   { month:'Jan',  Java:65, DevOps:69, 'Data Science':66, 'UI/UX':31, Mobile:57 },
   { month:'Feb',  Java:35, DevOps:64, 'Data Science':57, 'UI/UX':61, Mobile:64 },
   { month:'Mar',  Java:55, DevOps:34, 'Data Science':30, 'UI/UX':45, Mobile:58 },
   { month:'Apr',  Java:44, DevOps:44, 'Data Science':61, 'UI/UX':62, Mobile:66 },
-  { month:'May',  Java:69, DevOps:61, 'Data Science':46, 'UI/UX':67, Mobile:62 },
 ];
 
 // Chart 11 — Domain-wise Hiring Share (donut)
@@ -118,8 +118,8 @@ export const sourceEffectiveness = [
 
 // Chart 14 — Early Attrition by Month
 export const earlyAttrition = [
-  { month:'Dec', count:34 }, { month:'Jan', count:16 }, { month:'Feb', count:30 }, 
-  { month:'Mar', count:28 }, { month:'Apr', count:46 }, { month:'May', count:32 },  
+  { month:'Nov', count:32 }, { month:'Dec', count:34 }, { month:'Jan', count:16 }, 
+  { month:'Feb', count:30 }, { month:'Mar', count:28 }, { month:'Apr', count:46 },   
 ];
 
 // Chart 15 — Candidate Funnel
@@ -141,8 +141,8 @@ export const costPerHire = [
 
 // Chart 17 — Revenue per Employee (monthly, random 15-25)
 export const revenuePerEmployee = [
-  { month:'Dec', revenue:24 }, { month:'Jan', revenue:21 }, { month:'Feb', revenue:18 }, 
-  { month:'Mar', revenue:23 }, { month:'Apr', revenue:16 }, { month:'May', revenue:24 },
+  { month:'Nov', revenue:24 },{ month:'Dec', revenue:24 }, { month:'Jan', revenue:21 }, 
+  { month:'Feb', revenue:18 }, { month:'Mar', revenue:23 }, { month:'Apr', revenue:16 },
 ];
 
 // Chart 18 — Salary Trend by Domain
@@ -156,8 +156,8 @@ export const salaryTrend = [
 
 // Chart 19 — Forecasted Hiring Load
 export const forecastedLoad = [
-  { month:'Dec', load:160 }, { month:'Jan', load:120 }, { month:'Feb', load:145 }, 
-  { month:'Mar', load:178 }, { month:'Apr', load:162 }, { month:'May', load:195 },
+  {month:'Nov', load : 130}, { month:'Dec', load:160 }, { month:'Jan', load:120 }, 
+  { month:'Feb', load:145 }, { month:'Mar', load:178 }, { month:'Apr', load:162 }
 ];
 
 // Chart 20 — Forecasted Job Openings by Region & Domain (next 6 months)
@@ -187,11 +187,11 @@ export const domainDemandProb = [
 export const predictedTTF = {
   historical: timeToFillData,
   forecast: [
+    { month:'May_F', Java:27, DevOps:30, 'Data Science':31, 'UI/UX':34, Mobile:32 },
     { month:'Jun_F', Java:28, DevOps:32, 'Data Science':33, 'UI/UX':37, Mobile:35 },
     { month:'Jul_F', Java:29, DevOps:31, 'Data Science':34, 'UI/UX':36, Mobile:34 },
     { month:'Aug_F', Java:30, DevOps:33, 'Data Science':35, 'UI/UX':38, Mobile:36 },
     { month:'Sep_F', Java:31, DevOps:30, 'Data Science':36, 'UI/UX':35, Mobile:37 },
     { month:'Oct_F', Java:29, DevOps:34, 'Data Science':32, 'UI/UX':39, Mobile:33 },
-    { month:'Nov_F', Java:32, DevOps:29, 'Data Science':37, 'UI/UX':36, Mobile:38 },
   ],
 };

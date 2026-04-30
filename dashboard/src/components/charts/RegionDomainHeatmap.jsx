@@ -26,8 +26,12 @@ export default function RegionDomainHeatmap() {
       <svg viewBox={`0 0 ${totalW} ${totalH}`} style={{ width: '100%', maxHeight: '100%', fontFamily: "'JetBrains Mono', monospace" }}>
         {/* Region headers */}
         {regions.map((r, ci) => (
-          <text key={r} x={labelW + ci * cellW + cellW / 2} y={headerH - 6}
-            textAnchor="middle" fill={PALETTE.muted} fontSize={9}>
+          <text key={r} 
+          x={labelW + ci * cellW + cellW / 2} 
+          y={headerH - 6}
+          textAnchor="middle" 
+          fill={PALETTE.muted} 
+          fontSize={9}>
             {r}
           </text>
         ))}

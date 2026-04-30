@@ -6,7 +6,7 @@ import { PALETTE } from '../../utils/theme';
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}>
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 13}}>
       <div style={{ color: PALETTE.muted, marginBottom: 4 }}>{label}</div>
       {payload.map(p => (
         <div key={p.dataKey} style={{ color: p.color }}>
@@ -22,8 +22,8 @@ export default function NetOpenLine() {
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={netOpenData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
-        <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} />
-        <YAxis tick={{ fill: PALETTE.muted, fontSize: 10, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} />
+        <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} />
+        <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
         <Line type="monotone" dataKey="netOpen" name="Net Open" stroke={PALETTE.accent} strokeWidth={2.5} dot={{ fill: PALETTE.accent, r: 3 }} activeDot={{ r: 5 }} />
       </LineChart>

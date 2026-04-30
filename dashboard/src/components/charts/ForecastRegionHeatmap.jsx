@@ -25,12 +25,12 @@ export default function ForecastRegionHeatmap() {
       <svg viewBox={`0 0 ${totalW} ${totalH}`} style={{ width: '100%', maxHeight: '100%', fontFamily: "'JetBrains Mono', monospace" }}>
         {regions.map((r, ci) => (
           <text key={r} x={labelW + ci * cellW + cellW / 2} y={headerH - 6}
-            textAnchor="middle" fill={PALETTE.muted} fontSize={9}>{r}</text>
+            textAnchor="middle" fill={PALETTE.muted} fontSize={12}>{r}</text>
         ))}
         {domains.map((d, ri) => (
           <g key={d}>
             <text x={labelW - 6} y={headerH + ri * cellH + cellH / 2 + 4}
-              textAnchor="end" fill={PALETTE.muted} fontSize={9}>{d}</text>
+              textAnchor="end" fill={PALETTE.muted} fontSize={13}>{d}</text>
             {regions.map((r, ci) => {
               const v = values[ri][ci];
               return (
@@ -43,7 +43,7 @@ export default function ForecastRegionHeatmap() {
                   <text
                     x={labelW + ci * cellW + cellW / 2}
                     y={headerH + ri * cellH + cellH / 2 + 4}
-                    textAnchor="middle" fill="#fff" fontSize={10} fontWeight={600}>
+                    textAnchor="middle" fill="#fff" fontSize={13} fontWeight={600}>
                     {v}
                   </text>
                 </g>

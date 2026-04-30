@@ -131,12 +131,14 @@ export const candidateFunnel = [
   { stage:'Joined',             count:410  },
 ];
 
-// Chart 16 — Cost Per Hire by Quarter
+// Chart 16 — Cost Per Hire by Months
 export const costPerHire = [
-  { quarter:'Q1', cost:4500 },
-  { quarter:'Q2', cost:4200 },
-  { quarter:'Q3', cost:4800 },
-  { quarter:'Q4', cost:4100 },
+  { month:'Nov', cost:4500 },
+  { month:'Dec', cost:4200 },
+  { month:'Jan', cost:4800 },
+  { month:'Feb', cost:4100 },
+  { month:'Mar', cost:4700 },
+  { month:'Apr', cost:4300 },
 ];
 
 // Chart 17 — Revenue per Employee (monthly, random 15-25)

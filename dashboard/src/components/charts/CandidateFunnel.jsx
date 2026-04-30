@@ -18,12 +18,12 @@ export default function CandidateFunnel() {
         return (
           <div key={d.stage}>
             {dropPct && (
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: PALETTE.red, marginBottom: 2, textAlign: 'center' }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: PALETTE.red, marginBottom: 2, textAlign: 'center' }}>
                 ▼ {dropPct}% drop-off
               </div>
             )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ width: 120, fontSize: 10, color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace", textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ width: 120, fontSize: 13, color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace", textAlign: 'right', flexShrink: 0 }}>
                 {d.stage}
               </div>
               <div style={{ flex: 1, position: 'relative', height: 28 }}>
@@ -35,7 +35,7 @@ export default function CandidateFunnel() {
                   opacity: 0.85,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700, color: '#fff' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, fontWeight: 700, color: '#fff' }}>
                     {d.count.toLocaleString()}
                   </span>
                 </div>

@@ -1,8 +1,3 @@
-// ============================================================
-// DATA SOURCE: plots.ipynb — all values extracted verbatim
-// numpy.random.seed(42) — reproducible
-// ============================================================
-
 export const months =  ['Nov','Dec','Jan','Feb','Mar','Apr'];
 export const domains = ['Java','DevOps','Data Science','UI/UX','Mobile'];
 export const sources = ['LinkedIn','Referrals','Job Portals','Career Site'];
@@ -21,17 +16,7 @@ export const netOpenData = [
 // KPI — Open Rate
 export const openRate = 24; // %
 
-// Chart 4 — Time-to-Fill by Domain (avg days per month)
-export const timeToFillData = [
-  { month:'Nov', Java:47, DevOps:26, 'Data Science':43, 'UI/UX':23, Mobile:22 },
-  { month:'Dec', Java:20, DevOps:34, 'Data Science':49, 'UI/UX':46, Mobile:44 },
-  { month:'Jan', Java:36, DevOps:31, 'Data Science':22, 'UI/UX':35, Mobile:20 },
-  { month:'Feb', Java:21, DevOps:20, 'Data Science':21, 'UI/UX':24, Mobile:23 },
-  { month:'Mar', Java:37, DevOps:20, 'Data Science':20, 'UI/UX':38, Mobile:49 },
-  { month:'Apr', Java:35, DevOps:28, 'Data Science':25, 'UI/UX':41, Mobile:47 },
-];
-
-// Chart 5 — Open vs Closed by Domain
+// Chart 2 — Open vs Closed by Domain
 export const domainSummary = [
   { domain: 'Java',         open: 489, closed: 356 },
   { domain: 'DevOps',       open: 476, closed: 393 },
@@ -40,15 +25,7 @@ export const domainSummary = [
   { domain: 'Mobile',       open: 427, closed: 409 },
 ];
 
-// Chart 6 — Sourcing Channel Impact (Sunburst source data)
-export const sourcingData = [
-  { source: 'LinkedIn',    interviews: 550, hires: 193 },
-  { source: 'Referrals',   interviews: 380, hires: 146 },
-  { source: 'Job Portals', interviews: 332, hires: 110 },
-  { source: 'Career Site', interviews: 387, hires: 156 },
-];
-
-// Chart 7 — Open Positions by Region and Domain (heatmap)
+// Chart 3 — Open Positions by Region and Domain (heatmap)
 export const regionDomainHeatmap = {
   domains: ['Java','DevOps','Data Science','UI/UX','Mobile'],
   regions: ['Mumbai','Pune','Bangalore','Delhi','Chennai'],
@@ -61,29 +38,7 @@ export const regionDomainHeatmap = {
   ],
 };
 
-// Chart 8 — Offer Acceptance & Joining Rate
-export const offerMetrics = {
-  accepted: 450, offered: 520, joined: 380,
-  acceptRate: 87, joinRate: 84,
-};
-
-// Chart 9 — Interview-to-Offer Ratio (monthly, step line)
-export const interviewOfferRatio = [
-  { month:'Nov', ratio:3 }, { month:'Dec', ratio:4 }, { month:'Jan', ratio:4 }, 
-  { month:'Feb', ratio:3 }, { month:'Mar', ratio:5 }, { month:'Apr', ratio:4 }, 
-];
-
-// Chart 10 — Skill Concentration Heatmap (demand level)
-export const skillConcentration = [
-  { month:'Nov',  Java:69, DevOps:61, 'Data Science':46, 'UI/UX':67, Mobile:62 },
-  { month:'Dec',  Java:52, DevOps:61, 'Data Science':64, 'UI/UX':56, Mobile:65 },
-  { month:'Jan',  Java:65, DevOps:69, 'Data Science':66, 'UI/UX':31, Mobile:57 },
-  { month:'Feb',  Java:35, DevOps:64, 'Data Science':57, 'UI/UX':61, Mobile:64 },
-  { month:'Mar',  Java:55, DevOps:34, 'Data Science':30, 'UI/UX':45, Mobile:58 },
-  { month:'Apr',  Java:44, DevOps:44, 'Data Science':61, 'UI/UX':62, Mobile:66 },
-];
-
-// Chart 11 — Domain-wise Hiring Share (donut)
+// Chart 4 — Domain-wise Hiring Share (donut)
 export const hiringShare = [
   { domain:'Java',         share:30 },
   { domain:'DevOps',       share:25 },
@@ -92,15 +47,7 @@ export const hiringShare = [
   { domain:'Mobile',       share:10 },
 ];
 
-// Chart 12 (first) — Aging Buckets
-export const agingBuckets = [
-  { bucket:'0-30',  count:40 },
-  { bucket:'31-60', count:30 },
-  { bucket:'61-90', count:20 },
-  { bucket:'90+',   count:10 },
-];
-
-// Chart 12 (second) — Demand by Experience Level
+// Chart 5 — Demand by Experience Level
 export const experienceDemand = [
   { level:'Fresher (0-2)', count:50 },
   { level:'Junior (3-7)',  count:100 },
@@ -108,21 +55,37 @@ export const experienceDemand = [
   { level:'Senior (11-15)',count:80 },
 ];
 
-// Chart 13 — Source Effectiveness (hires per channel)
-export const sourceEffectiveness = [
-  { source:'LinkedIn',    hires:450 },
-  { source:'Referrals',   hires:300 },
-  { source:'Job Portals', hires:200 },
-  { source:'Career Site', hires:100 },
+// Chart 6 — Time-to-Fill by Domain (avg days per month)
+export const timeToFillData = [
+  { month:'Nov', Java:47, DevOps:26, 'Data Science':43, 'UI/UX':23, Mobile:22 },
+  { month:'Dec', Java:20, DevOps:34, 'Data Science':49, 'UI/UX':46, Mobile:44 },
+  { month:'Jan', Java:36, DevOps:31, 'Data Science':22, 'UI/UX':35, Mobile:20 },
+  { month:'Feb', Java:21, DevOps:20, 'Data Science':21, 'UI/UX':24, Mobile:23 },
+  { month:'Mar', Java:37, DevOps:20, 'Data Science':20, 'UI/UX':38, Mobile:49 },
+  { month:'Apr', Java:35, DevOps:28, 'Data Science':25, 'UI/UX':41, Mobile:47 },
 ];
 
-// Chart 14 — Early Attrition by Month
+// Chart 7 — Sourcing Channel Impact (Sunburst source data)
+export const sourcingData = [
+  { source: 'LinkedIn',    interviews: 550, hires: 193 },
+  { source: 'Referrals',   interviews: 380, hires: 146 },
+  { source: 'Job Portals', interviews: 332, hires: 110 },
+  { source: 'Career Site', interviews: 387, hires: 156 },
+];
+
+// Chart 8 — Offer Acceptance & Joining Rate
+export const offerMetrics = {
+  accepted: 450, offered: 520, joined: 380,
+  acceptRate: 87, joinRate: 84,
+};
+
+// Chart 9 — Early Attrition by Month
 export const earlyAttrition = [
   { month:'Nov', count:32 }, { month:'Dec', count:34 }, { month:'Jan', count:16 }, 
   { month:'Feb', count:30 }, { month:'Mar', count:28 }, { month:'Apr', count:46 },   
 ];
 
-// Chart 15 — Candidate Funnel
+// Chart 10 — Candidate Funnel
 export const candidateFunnel = [
   { stage:'Applied',            count:2850 },
   { stage:'Screening',          count:1420 },
@@ -131,7 +94,13 @@ export const candidateFunnel = [
   { stage:'Joined',             count:410  },
 ];
 
-// Chart 16 — Cost Per Hire by Months
+// Chart 11 — Interview-to-Offer Ratio (monthly, step line)
+export const interviewOfferRatio = [
+  { month:'Nov', ratio:3 }, { month:'Dec', ratio:4 }, { month:'Jan', ratio:4 }, 
+  { month:'Feb', ratio:3 }, { month:'Mar', ratio:5 }, { month:'Apr', ratio:4 }, 
+];
+
+// Chart 12 — Cost Per Hire by Months
 export const costPerHire = [
   { month:'Nov', cost:4500 },
   { month:'Dec', cost:4200 },
@@ -141,13 +110,7 @@ export const costPerHire = [
   { month:'Apr', cost:4300 },
 ];
 
-// Chart 17 — Revenue per Employee (monthly, random 15-25)
-export const revenuePerEmployee = [
-  { month:'Nov', revenue:24 },{ month:'Dec', revenue:24 }, { month:'Jan', revenue:21 }, 
-  { month:'Feb', revenue:18 }, { month:'Mar', revenue:23 }, { month:'Apr', revenue:16 },
-];
-
-// Chart 18 — Salary Trend by Domain
+// Chart 13 — Salary Trend by Domain
 export const salaryTrend = [
   { domain:'Java',         avgSalary:85 },
   { domain:'DevOps',       avgSalary:95 },
@@ -156,13 +119,14 @@ export const salaryTrend = [
   { domain:'Mobile',       avgSalary:90 },
 ];
 
-// Chart 19 — Forecasted Hiring Load
-export const forecastedLoad = [
-  {month:'Nov', load : 130}, { month:'Dec', load:160 }, { month:'Jan', load:120 }, 
-  { month:'Feb', load:145 }, { month:'Mar', load:178 }, { month:'Apr', load:162 }
+// Chart 14 — Revenue per Employee (monthly, random 15-25)
+export const revenuePerEmployee = [
+  { month:'Nov', revenue:24 },{ month:'Dec', revenue:24 }, { month:'Jan', revenue:21 }, 
+  { month:'Feb', revenue:18 }, { month:'Mar', revenue:23 }, { month:'Apr', revenue:16 },
 ];
 
-// Chart 20 — Forecasted Job Openings by Region & Domain (next 6 months)
+
+// Chart 15 — Forecasted Job Openings by Region & Domain (next 6 months)
 // Values = df_region_domain * 1.2 rounded
 export const forecastRegionDomain = {
   domains: ['Java','DevOps','Data Science','UI/UX','Mobile'],
@@ -176,7 +140,7 @@ export const forecastRegionDomain = {
   ],
 };
 
-// Chart 21 — Forecasted Domain Demand Probability
+// Chart 16 — Forecasted Domain Demand Probability
 export const domainDemandProb = [
   { domain:'Java',         probability:0.68 },
   { domain:'DevOps',       probability:0.82 },
@@ -185,7 +149,7 @@ export const domainDemandProb = [
   { domain:'Mobile',       probability:0.73 },
 ];
 
-// Chart 21 (Predicted TTF) — Historical + Forecast dashed
+// Chart 17 (Predicted TTF) — Historical + Forecast dashed
 export const predictedTTF = {
   historical: timeToFillData,
   forecast: [

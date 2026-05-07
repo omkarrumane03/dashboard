@@ -1,6 +1,3 @@
-// components/charts/SourcingChannelBar.jsx — Chart 6: Sourcing Channel Impact (Interactive)
-// Bar chart showing Interviews vs Hires per source (sunburst data as grouped bars)
-// Click legend items to filter/highlight specific sources
 import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { sourcingData } from '../../data/notebookData';

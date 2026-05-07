@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { predictedTTF, domains } from '../../data/notebookData';
-import { DOMAIN_COLORS, PALETTE } from '../../utils/theme';
+import { predictedTTF, skills } from '../../data/notebookData';
+import { SKILL_COLORS, PALETTE } from '../../utils/theme';
 
 export default function PredictedTTFLine() {
-  const [selectedDomain, setSelectedDomain] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
   const allData = [...predictedTTF.historical, ...predictedTTF.forecast];
   const splitMonth = 'Jan_F';
@@ -28,22 +28,22 @@ export default function PredictedTTFLine() {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={allData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} onClick={() => selectedDomain && setSelectedDomain(null)}>
+      <LineChart data={allData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} onClick={() => selectedSkill && setSelectedSkill(null)}>
         <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
         <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} tickFormatter={(v) => v.replace('_F', '★')} />
         <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} unit="d" />
         <Tooltip content={<CustomTooltip />} />
-        <Legend onClick={(e) => setSelectedDomain(prev => prev === e.dataKey ? null : e.dataKey)} wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted, cursor: 'pointer' }} />
+        <Legend onClick={(e) => setSelectedSkill(prev => prev === e.dataKey ? null : e.dataKey)} wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted, cursor: 'pointer' }} />
         <ReferenceLine x={splitMonth} stroke={PALETTE.purple} strokeDasharray="6 3" opacity={0.5} />
-        {domains.map(d => (
+        {skills.map(s => (
           <Line
-            key={d}
+            key={s}
             type="monotone"
-            dataKey={d}
-            stroke={DOMAIN_COLORS[d]}
-            strokeWidth={selectedDomain === d ? 3 : 2}
-            hide={selectedDomain && selectedDomain !== d}
-            onClick={() => setSelectedDomain(prev => prev === d ? null : d)}
+            dataKey={s}
+            stroke={SKILL_COLORS[s]}
+            strokeWidth={selectedSkill === s ? 3 : 2}
+            hide={selectedSkill && selectedSkill !== s}
+            onClick={() => setSelectedSkill(prev => prev === s ? null : s)}
           />
         ))}
       </LineChart>

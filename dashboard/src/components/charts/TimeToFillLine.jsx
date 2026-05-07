@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { timeToFillData, domains } from '../../data/notebookData';
-import { DOMAIN_COLORS, PALETTE } from '../../utils/theme';
+import { timeToFillData, skills } from '../../data/notebookData';
+import { SKILL_COLORS, PALETTE } from '../../utils/theme';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -18,30 +18,30 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function TimeToFillLine() {
-  const [selectedDomain, setSelectedDomain] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={timeToFillData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} onClick={() => selectedDomain && setSelectedDomain(null)}>
+      <LineChart data={timeToFillData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} onClick={() => selectedSkill && setSelectedSkill(null)}>
         <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
         <XAxis dataKey="month" tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} />
         <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} unit="d" />
         <Tooltip content={<CustomTooltip />} />
-        <Legend onClick={(e) => setSelectedDomain(prev => prev === e.dataKey ? null : e.dataKey)} wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted, cursor: 'pointer' }} />
-        {domains.map(d => {
-          const active = !selectedDomain || selectedDomain === d;
+        <Legend onClick={(e) => setSelectedSkill(prev => prev === e.dataKey ? null : e.dataKey)} wrapperStyle={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: PALETTE.muted, cursor: 'pointer' }} />
+        {skills.map(s => {
+          const active = !selectedSkill || selectedSkill === s;
           return (
             <Line
-              key={d}
+              key={s}
               type="monotone"
-              dataKey={d}
-              stroke={DOMAIN_COLORS[d]}
-              strokeWidth={selectedDomain === d ? 3 : 2}
+              dataKey={s}
+              stroke={SKILL_COLORS[s]}
+              strokeWidth={selectedSkill === s ? 3 : 2}
               dot={false}
               activeDot={{ r: 4 }}
-              hide={selectedDomain && selectedDomain !== d}
+              hide={selectedSkill && selectedSkill !== s}
               opacity={active ? 1 : 0.15}
-              onClick={() => setSelectedDomain(prev => prev === d ? null : d)}
+              onClick={() => setSelectedSkill(prev => prev === s ? null : s)}
             />
           );
         })}

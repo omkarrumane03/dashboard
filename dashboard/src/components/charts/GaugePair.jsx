@@ -1,5 +1,5 @@
 // components/charts/GaugePair.jsx — Chart 8: Offer Acceptance & Joining Rate
-import { offerMetrics } from '../../data/notebookData';
+import { offerMetricsMonthly } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
 function Gauge({ value, label, sub, color }) {
@@ -43,7 +43,7 @@ function Gauge({ value, label, sub, color }) {
 }
 
 export default function GaugePair() {
-  const { accepted, offered, joined, acceptRate, joinRate } = offerMetrics;
+  const { accepted, offered, joined, acceptRate, joinRate } = offerMetricsMonthly;
   return (
     <div style={{ display: 'flex', height: '100%', alignItems: 'center', gap: 8 }}>
       <Gauge value={acceptRate} label="Offer Acceptance Rate" sub={`${accepted} / ${offered} offers`} color={PALETTE.accent} />

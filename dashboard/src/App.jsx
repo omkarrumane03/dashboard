@@ -12,20 +12,18 @@ import {demandFlowKPIs, sourcingKPIs,financialKPIs,predictiveKPIs,} from './data
 // Charts
 import NetOpenLine from "./components/charts/NetOpenLine";
 import TimeToFillLine from "./components/charts/TimeToFillLine";
-import DomainOpenClosedBar from "./components/charts/DomainOpenClosedBar";
+import DomainOpenClosedBar from "./components/charts/SkillsOpenClosedBar";
 import SourcingChannelBar from "./components/charts/SourcingChannelBar";
-import RegionDomainHeatmap from "./components/charts/RegionDomainHeatmap";
+import RegionDomainHeatmap from "./components/charts/RegionSkillsHeatmap";
 import GaugePair from "./components/charts/GaugePair";
 import InterviewOfferLine from "./components/charts/InterviewOfferLine";
-import DomainHiringShareDonut from "./components/charts/DomainHiringShareDonut";
+import DomainHiringShareDonut from "./components/charts/SkillsHiringShareDonut";
 import ExperienceDemandBar from "./components/charts/ExperienceDemandBar";
-import EarlyAttritionBar from "./components/charts/EarlyAttritionBar";
 import CandidateFunnel from "./components/charts/CandidateFunnel";
 import { CostPerHireBar } from "./components/charts/CostPerHireBar";
-import RevenuePerEmployeeLine from "./components/charts/RevenuePerEmployeeLine";
 import SalaryTrendBar from "./components/charts/SalaryTrendBar";
 import ForecastRegionHeatmap from "./components/charts/ForecastRegionHeatmap";
-import DomainDemandProbBar from "./components/charts/DomainDemandProbBar";
+import DomainDemandProbBar from "./components/charts/SkillsDemandProbBar";
 import PredictedTTFLine from "./components/charts/PredictedTTFLine";
 
 // ─── Nav sections ───────────────────────────────────────────────────
@@ -129,29 +127,31 @@ export default function App() {
                 description="Open positions, hiring velocity, and fulfillment trends." />
 
               {/* KPI Row */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="📈" label="Peak Net Open" value={demandFlowKPIs.peakNetOpen} sub={`${demandFlowKPIs.peakNetOpenMonth} — highest this year`}/>
-                <KPICard icon="✅" label="Total Closed" value={demandFlowKPIs.totalClosed} sub="Across all 6 months" accent={PALETTE.purple} />
-                <KPICard icon="⏱️" label="Avg Time-to-Fill" value={`${demandFlowKPIs.avgTimeToFill}d`} sub="All domains avg" accent={PALETTE.orange}/>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, marginBottom: 20 }}>
+                <KPICard icon="✅" label="Total Open" value={demandFlowKPIs.totalOpen} sub="Till now" accent={PALETTE.purple} />
+                <KPICard icon="✅" label="Total Closed" value={demandFlowKPIs.totalClosed} sub="Till now" accent={PALETTE.purple} />
+                <KPICard icon="📈" label="Peak Net Open" value={demandFlowKPIs.peakNetOpen} sub={`${demandFlowKPIs.peakNetOpenMonth} — highest till now`}/>
+                <KPICard icon="📈" label="Peak Net Closed" value={demandFlowKPIs.peakNetClosed} sub={`${demandFlowKPIs.peakNetClosedMonth} — highest till now`}/>
+                <KPICard icon="⏱️" label="Avg Time-to-Fill" value={`${demandFlowKPIs.avgTimeToFill}d`} sub="All domains avg till now" accent={PALETTE.orange}/>
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
                 <ChartPanel title="1. Net Open Requirements" subtitle="Cumulative open positions by month" height={260}>
                   <NetOpenLine />
                 </ChartPanel>
-                <ChartPanel title="2. Open vs Closed Jobs by Domain" subtitle="Grouped bars — open (full) vs closed (faded)" height={260}>
+                <ChartPanel title="2. Open vs Closed Jobs by Skill" subtitle="Grouped bars — open (full) vs closed (faded)" height={260}>
                   <DomainOpenClosedBar />
                 </ChartPanel>
-                <ChartPanel title="3. Open Positions by Region & Domain" subtitle="Heatmap — number of open positions (current)" height={260}>
+                <ChartPanel title="3. Open Positions by Region & Skill" subtitle="Heatmap — number of open positions (current)" height={260}>
                   <RegionDomainHeatmap />
                 </ChartPanel>
-                <ChartPanel title="4. Domain-wise Hiring Share" subtitle="Donut — % of total closures per domain" height={260}>
+                <ChartPanel title="4. Skill-wise Hiring Share" subtitle="Donut — % of total closures per skill" height={260}>
                   <DomainHiringShareDonut />
                 </ChartPanel>
                 <ChartPanel title="5. Demand by Experience Level" subtitle="Job count across Fresher / Junior / Mid / Senior" height={260}>
                   <ExperienceDemandBar />
                 </ChartPanel>
-                <ChartPanel title="6. Time-to-Fill by Domain" subtitle="Avg days to fill a role, per domain per month" height={260}>
+                <ChartPanel title="6. Time-to-Fill by Skill" subtitle="Avg days to fill a role, per skill per month" height={260}>
                   <TimeToFillLine />
                 </ChartPanel>
               </div>
@@ -164,11 +164,9 @@ export default function App() {
               <SectionHeader number={2} title="Sourcing & Conversion"
                 description="Source performance, funnel efficiency, and hire quality." />
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginBottom: 20 }}>
                 <KPICard icon="🎯" label="Offer Accept Rate" value={`${sourcingKPIs.offerAcceptRate}%`} sub="450 / 520 offers" accent={PALETTE.green} />
                 <KPICard icon="🚀" label="Joining Rate" value={`${sourcingKPIs.joiningRate}%`} sub="380 / 450 accepted" accent={PALETTE.accent}/>
-                <KPICard icon="⚠️" label="Total Attrition" value={sourcingKPIs.totalAttrition} sub="Sum across 6 months" accent={PALETTE.red}/>
-                <KPICard icon="📉" label="Peak Attrition" value={sourcingKPIs.peakAttrition} sub={`${sourcingKPIs.peakAttritionMonth} — highest month`} accent={PALETTE.orange}/>
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
@@ -177,9 +175,6 @@ export default function App() {
                 </ChartPanel>
                 <ChartPanel title="8. Offer Acceptance & Joining Rate" subtitle="Gauges: accepted/offered · joined/accepted" height={260}>
                   <GaugePair />
-                </ChartPanel>
-                <ChartPanel title="9. Early Attrition by Month" subtitle="Count of departures within first 90 days · orange = below avg · red = above avg" height={260}>
-                  <EarlyAttritionBar />
                 </ChartPanel>
                 <ChartPanel title="10. Candidate Funnel — Drop-off at Every Stage" subtitle="Applied → Screening → Tech Interview → Offer → Joined" height={260}>
                   <CandidateFunnel />
@@ -195,24 +190,20 @@ export default function App() {
           {active === "financial" && (
             <div>
               <SectionHeader number={3} title="Financials"
-                description="Cost per hire, revenue per employee, and domain salary benchmarks" />
+                description="Cost per hire, revenue per employee, and skill salary benchmarks" />
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="💰" label="Avg Cost/Hire" value={`$${(financialKPIs.avgCostPerHire / 1000).toFixed(1)}K`} sub="Across Quarters" accent={PALETTE.orange}/>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
+                <KPICard icon="💰" label="Avg Cost/Hire" value={`$${(financialKPIs.avgCostPerHire / 1000).toFixed(1)}K`} sub="Till now" accent={PALETTE.orange}/>
                 <KPICard icon="📊" label="Best Month" value={financialKPIs.bestMonth.month} sub={`$${financialKPIs.bestMonth.cost.toLocaleString()} per hire`} accent={PALETTE.green} />
-                <KPICard icon="🏆" label="Top Paid Domain" value={financialKPIs.topPaidDomain.domain} sub={`$${financialKPIs.topPaidDomain.avgSalary}K avg salary`} accent={PALETTE.accent} />
-                <KPICard icon="📈" label="Avg Rev/FTE" value={`$${financialKPIs.avgRevenuePerEmployee}M`} sub={`Monthly range $${financialKPIs.minRevenuePerEmployee}-${financialKPIs.maxRevenuePerEmployee}M`} accent={PALETTE.purple}  />
+                <KPICard icon="🏆" label="Top Paid Skill" value={financialKPIs.topPaidDomain.domain} sub={`$${financialKPIs.topPaidDomain.avgSalary}K avg salary`} accent={PALETTE.accent} />
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
                 <ChartPanel title="12. Cost Per Hire" subtitle="Nov-Apr · green = below avg · red = above avg" height={260}>
                   <CostPerHireBar />
                 </ChartPanel>
-                <ChartPanel title="13. Salary Trend Analysis" subtitle="Avg salary ($K) by domain" height={260}>
+                <ChartPanel title="13. Salary Trend Analysis" subtitle="Avg salary ($K) by skill" height={260}>
                   <SalaryTrendBar />
-                </ChartPanel>
-                <ChartPanel title="14. Revenue per Employee" subtitle="Monthly revenue contribution per FTE ($M)" height={260} span={2}>
-                  <RevenuePerEmployeeLine />
                 </ChartPanel>
               </div>
             </div>
@@ -237,7 +228,7 @@ export default function App() {
                 <ChartPanel title="16. Forecasted Domain Demand Probability" subtitle="Probability of high demand per domain — next 6 months" height={260}>
                   <DomainDemandProbBar />
                 </ChartPanel>
-                <ChartPanel title="17. Predicted Time-to-Fill by Domain" subtitle="Solid = historical · ★ months = forecast (dashed) · all 5 domains" height={260} span={2}>
+                <ChartPanel title="17. Predicted Time-to-Fill by Skill" subtitle="Solid = historical · ★ months = forecast (dashed) · all 5 skills" height={260} span={2}>
                   <PredictedTTFLine />
                 </ChartPanel>
               </div>  

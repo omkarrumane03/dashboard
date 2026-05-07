@@ -1,5 +1,4 @@
-// components/charts/ForecastRegionHeatmap.jsx — Chart 20: Forecasted Openings by Region & Domain
-import { forecastRegionDomain } from '../../data/notebookData';
+import { forecastRegionSkill } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
 function valueToColor(v) {
@@ -12,13 +11,13 @@ function valueToColor(v) {
 }
 
 export default function ForecastRegionHeatmap() {
-  const { domains, regions, values } = forecastRegionDomain;
+  const { skills, regions, values } = forecastRegionSkill;
   const cellW = 70;
   const cellH = 38;
   const labelW = 100;
   const headerH = 30;
   const totalW = labelW + regions.length * cellW;
-  const totalH = headerH + domains.length * cellH;
+  const totalH = headerH + skills.length * cellH;
 
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -27,10 +26,10 @@ export default function ForecastRegionHeatmap() {
           <text key={r} x={labelW + ci * cellW + cellW / 2} y={headerH - 6}
             textAnchor="middle" fill={PALETTE.muted} fontSize={12}>{r}</text>
         ))}
-        {domains.map((d, ri) => (
-          <g key={d}>
+        {skills.map((s, ri) => (
+          <g key={s}>
             <text x={labelW - 6} y={headerH + ri * cellH + cellH / 2 + 4}
-              textAnchor="end" fill={PALETTE.muted} fontSize={13}>{d}</text>
+              textAnchor="end" fill={PALETTE.muted} fontSize={13}>{s}</text>
             {regions.map((r, ci) => {
               const v = values[ri][ci];
               return (

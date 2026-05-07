@@ -29,12 +29,13 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 // ─── Month pill styles ───────────────────────────────────────────────
 const MONTH_COLORS = {
-  Nov: '#7f60fa',  // blue
-  Dec: '#a78bfa',  // purple
-  Jan: '#34d399',  // green
+  // Nov: '#7f60fa',  // blue
+  // Dec: '#a78bfa',  // purple
+  // Jan: '#34d399',  // green
   Feb: '#fb923c',  // orange
   Mar: '#f472b6',  // pink
-  Apr: '#158ffa',  // yellow
+  Apr: '#67e8f9',  // cyan
+  May: '#158ffa',  // yellow
 };
 
 export default function SkillsOpenClosedBar() {

@@ -26,6 +26,7 @@ export default function NetOpenLine() {
         <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
         <Line type="monotone" dataKey="netOpen" name="Net Open" stroke={PALETTE.accent} strokeWidth={2.5} dot={{ fill: PALETTE.accent, r: 3 }} activeDot={{ r: 5 }} />
+        <Line type="monotone" dataKey="netClosed" name="Net Closed" stroke={PALETTE.secondary} strokeWidth={2.5} dot={{ fill: PALETTE.secondary, r: 3 }} activeDot={{ r: 5 }} />
       </LineChart>
     </ResponsiveContainer>
   );

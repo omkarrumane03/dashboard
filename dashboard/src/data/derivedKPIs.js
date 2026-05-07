@@ -108,18 +108,18 @@ let hottestRegion = {
 };
 
 // Iterate through Jun_F forecast (first month of forecast)
-const forecastValues = forecastRegionSkill.values.Jun_F;
-forecastValues.forEach((row, skillIndex) => {
-  row.forEach((value, regionIndex) => {
-    if (value > hottestRegion.value) {
-      hottestRegion = {
-        region: forecastRegionSkill.regions[regionIndex],
-        domain: forecastRegionSkill.skills[skillIndex],
-        value,
-      };
-    }
-  });
-});
+// const forecastValues = forecastRegionSkill.values.Jun_F;
+// forecastValues.forEach((row, skillIndex) => {
+//   row.forEach((value, regionIndex) => {
+//     if (value > hottestRegion.value) {
+//       hottestRegion = {
+//         region: forecastRegionSkill.regions[regionIndex],
+//         domain: forecastRegionSkill.skills[skillIndex],
+//         value,
+//       };
+//     }
+//   });
+// });
 
 const avgPredictedFillDays = Math.round(
   avg(predictedTTF.forecast.flatMap(month => 

@@ -136,19 +136,19 @@ export default function App() {
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
-                <ChartPanel title="1. Net Open Requirements" subtitle="Cumulative open positions by month" height={260}>
+                <ChartPanel title="1. Net Open v Net Closed Requirements" subtitle="Cumulative open/closed positions by month" height={260}>
                   <NetOpenLine />
                 </ChartPanel>
                 <ChartPanel title="2. Open vs Closed Jobs by Skill" subtitle="Grouped bars — open (full) vs closed (faded)" height={260}>
                   <DomainOpenClosedBar />
                 </ChartPanel>
-                <ChartPanel title="3. Open Positions by Region & Skill" subtitle="Heatmap — number of open positions (current)" height={260}>
+                <ChartPanel title="3. Open Positions by Region & Skill" subtitle="Heatmap — number of open positions by month" height={260}>
                   <RegionDomainHeatmap />
                 </ChartPanel>
-                <ChartPanel title="4. Skill-wise Hiring Share" subtitle="Donut — % of total closures per skill" height={260}>
+                <ChartPanel title="4. Skill-wise Hiring Share" subtitle="Donut — % of total closures per skill by month" height={260}>
                   <DomainHiringShareDonut />
                 </ChartPanel>
-                <ChartPanel title="5. Demand by Experience Level" subtitle="Job count across Fresher / Junior / Mid / Senior" height={260}>
+                <ChartPanel title="5. Demand by Experience Level" subtitle="Job count across Fresher / Junior / Mid / Senior by month" height={260}>
                   <ExperienceDemandBar />
                 </ChartPanel>
                 <ChartPanel title="6. Time-to-Fill by Skill" subtitle="Avg days to fill a role, per skill per month" height={260}>

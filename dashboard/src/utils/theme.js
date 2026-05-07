@@ -1,6 +1,4 @@
-// ============================================================
 // THEME — Color palette, domain/region color maps, chart defaults
-// ============================================================
 
 export const PALETTE = {
   bg:        '#0d1117',
@@ -16,7 +14,7 @@ export const PALETTE = {
   muted:     '#8b949e',
 };
 
-export const DOMAIN_COLORS = {
+export const SKILL_COLORS = {
   'Java':         '#58a6ff',
   'DevOps':       '#3fb950',
   'Data Science': '#f0883e',

@@ -1,18 +1,18 @@
 // components/charts/CandidateFunnel.jsx — Chart 15: Candidate Funnel
-import { candidateFunnel } from '../../data/notebookData';
+import { candidateFunnelMonthly } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
 const STAGE_COLORS = ['#58a6ff', '#3fb950', '#f0883e', '#d2a8ff', '#ffa657'];
 
-export default function CandidateFunnel() {
-  const max = candidateFunnel[0].count;
+export default function CandidateFunnelMonthly() {
+  const max = candidateFunnelMonthly[0].count;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6, padding: '0 8px' }}>
-      {candidateFunnel.map((d, i) => {
+      {candidateFunnelMonthly.map((d, i) => {
         const pct = (d.count / max) * 100;
         const dropPct = i > 0
-          ? (((candidateFunnel[i - 1].count - d.count) / candidateFunnel[i - 1].count) * 100).toFixed(0)
+          ? (((candidateFunnelMonthly[i - 1].count - d.count) / candidateFunnelMonthly[i - 1].count) * 100).toFixed(0)
           : null;
 
         return (

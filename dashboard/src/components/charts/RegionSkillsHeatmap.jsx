@@ -1,5 +1,5 @@
-// components/charts/RegionDomainHeatmap.jsx — Chart 7: Open Positions by Region & Domain
-import { regionDomainHeatmap, DOMAIN_COLORS } from '../../data/notebookData';
+// components/charts/RegionSkillsHeatmap.jsx — Chart 7: Open Positions by Region & Skill
+import { regionSkillsHeatmap, SKILL_COLORS } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
 // map value 25–95 → color intensity
@@ -12,14 +12,14 @@ function valueToColor(v, min = 25, max = 95) {
   return `rgb(${r},${g},${b})`;
 }
 
-export default function RegionDomainHeatmap() {
-  const { domains, regions, values } = regionDomainHeatmap;
+export default function RegionSkillsHeatmap() {
+  const { skills, regions, values } = regionSkillsHeatmap;
   const cellW = 70;
   const cellH = 38;
   const labelW = 100;
   const headerH = 30;
   const totalW = labelW + regions.length * cellW;
-  const totalH = headerH + domains.length * cellH;
+  const totalH = headerH + skills.length * cellH;
 
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -35,11 +35,11 @@ export default function RegionDomainHeatmap() {
             {r}
           </text>
         ))}
-        {/* Domain rows */}
-        {domains.map((d, ri) => (
-          <g key={d}>
+        {/* Skill rows */}
+        {skills.map((s, ri) => (
+          <g key={s}>
             <text x={labelW - 6} y={headerH + ri * cellH + cellH / 2 + 4}
-              textAnchor="end" fill={PALETTE.muted} fontSize={12}>{d}</text>
+              textAnchor="end" fill={PALETTE.muted} fontSize={12}>{s}</text>
             {regions.map((r, ci) => {
               const v = values[ri][ci];
               return (

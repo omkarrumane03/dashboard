@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { hiringShare } from '../../data/notebookData';
-import { DOMAIN_COLORS, PALETTE } from '../../utils/theme';
+import { SKILL_COLORS, PALETTE } from '../../utils/theme';
 
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
@@ -17,7 +17,7 @@ const CustomTooltip = ({ active, payload }) => {
         fontSize: 13,
       }}
     >
-      <div style={{ color: DOMAIN_COLORS[payload[0].name] }}>
+      <div style={{ color: SKILL_COLORS[payload[0].name] }}>
         {payload[0].name}
       </div>
       <div style={{ color: PALETTE.text }}>
@@ -49,16 +49,16 @@ const renderLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, share }) => {
   );
 };
 
-export default function DomainHiringShareDonut() {
-  const [selectedDomain, setSelectedDomain] = useState(null);
+export default function SkillsHiringShareDonut() {
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
   const filteredData = useMemo(() => {
-    if (!selectedDomain) return hiringShare;
-    return hiringShare.filter((item) => item.domain === selectedDomain);
-  }, [selectedDomain]);
+    if (!selectedSkill) return hiringShare;
+    return hiringShare.filter((item) => item.skill === selectedSkill);
+  }, [selectedSkill]);
 
-  const handleSelection = (domain) => {
-    setSelectedDomain((prev) => (prev === domain ? null : domain));
+  const handleSelection = (skill) => {
+    setSelectedSkill((prev) => (prev === skill ? null : skill));
   };
 
   const CustomLegend = () => {
@@ -73,19 +73,19 @@ export default function DomainHiringShareDonut() {
         }}
       >
         {hiringShare.map((entry) => {
-          const isActive = selectedDomain === entry.domain;
-          const isDimmed = selectedDomain && !isActive;
+          const isActive = selectedSkill === entry.skill;
+          const isDimmed = selectedSkill && !isActive;
 
           return (
             <button
-              key={entry.domain}
-              onClick={() => handleSelection(entry.domain)}
+              key={entry.skill}
+              onClick={() => handleSelection(entry.skill)}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
                 background: isActive ? PALETTE.border : 'transparent',
-                border: `1px solid ${isActive ? DOMAIN_COLORS[entry.domain] : PALETTE.border}`,
+                border: `1px solid ${isActive ? SKILL_COLORS[entry.domain] : PALETTE.border}`,
                 borderRadius: 8,
                 padding: '4px 8px',
                 cursor: 'pointer',
@@ -101,7 +101,7 @@ export default function DomainHiringShareDonut() {
                   width: 10,
                   height: 10,
                   borderRadius: '50%',
-                  background: DOMAIN_COLORS[entry.domain],
+                  background: SKILL_COLORS[entry.domain],
                   display: 'inline-block',
                 }}
               />
@@ -110,9 +110,9 @@ export default function DomainHiringShareDonut() {
           );
         })}
 
-        {selectedDomain && (
+        {setSelectedSkill&& (
           <button
-            onClick={() => setSelectedDomain(null)}
+            onClick={() => setSelectedSkill(null)}
             style={{
               background: '#111827',
               border: `1px solid ${PALETTE.border}`,
@@ -137,12 +137,12 @@ export default function DomainHiringShareDonut() {
         <Pie
           data={filteredData}
           dataKey="share"
-          nameKey="domain"
+          nameKey="skill"
           cx="50%"
           cy="45%"
           innerRadius="45%"
-          outerRadius={selectedDomain ? '78%' : '72%'}
-          paddingAngle={selectedDomain ? 0 : 2}
+          outerRadius={selectedSkill ? '78%' : '72%'}
+          paddingAngle={selectedSkill ? 0 : 2}
           labelLine={false}
           label={(props) =>
             renderLabel({
@@ -156,9 +156,9 @@ export default function DomainHiringShareDonut() {
           {filteredData.map((d) => (
             <Cell
               key={d.domain}
-              fill={DOMAIN_COLORS[d.domain]}
-              stroke={selectedDomain === d.domain ? '#ffffff' : 'none'}
-              strokeWidth={selectedDomain === d.domain ? 2 : 0}
+              fill={SKILL_COLORS[d.domain]}
+              stroke={selectedSkill === d.domain ? '#ffffff' : 'none'}
+              strokeWidth={selectedSkill === d.domain ? 2 : 0}
               style={{ cursor: 'pointer' }}
             />
           ))}

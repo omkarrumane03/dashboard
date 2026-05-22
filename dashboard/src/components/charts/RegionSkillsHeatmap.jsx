@@ -128,16 +128,16 @@ export default function RegionSkillsHeatmap() {
           fill={`url(#${gradientId})`} rx={4}
         />
         {/* Max label */}
-        <text x={scaleX + scaleBarW + 3} y={headerH + 8}
-          fill={PALETTE.muted} fontSize={10} dominantBaseline="middle">{max}</text>
+        <text x={scaleX + scaleBarW + 5} y={headerH + 8}
+          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">{max}</text>
         {/* Mid label */}
-        <text x={scaleX + scaleBarW + 3} y={headerH + scaleBarH / 2}
-          fill={PALETTE.muted} fontSize={10} dominantBaseline="middle">
+        <text x={scaleX + scaleBarW + 5} y={headerH + scaleBarH / 2}
+          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">
           {Math.round((min + max) / 2)}
         </text>
         {/* Min label */}
-        <text x={scaleX + scaleBarW + 3} y={headerH + scaleBarH - 4}
-          fill={PALETTE.muted} fontSize={10} dominantBaseline="middle">{min}</text>
+        <text x={scaleX + scaleBarW + 5} y={headerH + scaleBarH - 4}
+          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">{min}</text>
       </svg>
     </div>
   );

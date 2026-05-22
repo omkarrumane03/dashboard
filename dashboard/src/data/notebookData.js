@@ -37,23 +37,38 @@ export const skillsMonthly = [
 
 // Chart 3 — Open Positions by Region and Skills  (Current Month (May))
 export const regionSkillsHeatmap = {
-  skills,
-  regions,
-  //values: [ [50, 20, 30, 25, 35],[20, 55, 40, 60, 45],[45, 30, 50, 55, 40],[60, 25, 45, 50, 35],[40, 35, 30, 65, 50] ], 
+  skills: ['Java', 'DevOps', 'Data Science', 'UI/UX', 'Mobile'],
+  regions: ['North America', 'EMEA', 'APAC', 'LATAM', 'India'],
   values: {
-    Feb: [ [9, 9, 9, 9, 9], [10, 10, 10, 9, 9], [9, 9, 8, 8, 8], [9, 9, 8, 8, 8], [9, 9, 9, 8, 8] ], 
-    Mar: [ [10, 10, 9, 9, 9], [10, 10, 10, 10, 10], [9, 9, 9, 9, 8], [9, 9, 9, 9, 8], [9, 9, 9, 9, 9] ], 
-    Apr: [ [10, 9, 9, 9, 9], [10, 10, 10, 10, 9], [9, 9, 9, 8, 8], [9, 9, 9, 8, 8], [9, 9, 9, 9, 8] ], 
-    May: [ [10, 10, 10, 10, 10], [11, 11, 10, 10, 10], [10, 9, 9, 9, 9], [10, 9, 9, 9, 9], [10, 9, 9, 9, 9] ] 
+    Feb: [ [12, 8, 10, 5, 10],  [15, 10, 8, 5, 10],  [10, 10, 7, 5, 10],  [8, 12, 10, 4, 8],   [9, 9, 10, 6, 9] ],
+    Mar: [ [13, 9, 10, 5, 10],  [14, 11, 9, 6, 10],  [11, 10, 8, 5, 10],  [10, 12, 10, 5, 7],  [10, 10, 10, 5, 10] ],
+    Apr: [ [12, 10, 9, 5, 10],  [13, 12, 10, 5, 9],  [10, 9, 10, 6, 8],   [9, 11, 11, 4, 8],   [11, 8, 10, 7, 8] ],
+    May: [ [15, 10, 10, 5, 10], [16, 12, 8, 6, 10],  [12, 9, 10, 5, 10], [10, 14, 10, 4, 8],   [12, 10, 9, 6, 9]  ]
   }
 };
 
 // Chart 4 — Skills-wise Hiring Share (Previous 3 Months) + Current Month (May)
 export const hiringShare = [
-  { month: 'Feb', skill: 'Java', share: 30 }, { month: 'Feb', skill: 'DevOps', share: 25 }, { month: 'Feb', skill: 'Data Science', share: 20 },
-  { month: 'Mar', skill: 'Java', share: 28 }, { month: 'Mar', skill: 'DevOps', share: 26 }, { month: 'Mar', skill: 'Data Science', share: 22 },
-  { month: 'Apr', skill: 'Java', share: 30 }, { month: 'Apr', skill: 'DevOps', share: 25 }, { month: 'Apr', skill: 'Data Science', share: 20 },
-  { month: 'May', skill: 'Java', share: 32 }, { month: 'May', skill: 'DevOps', share: 24 }, { month: 'May', skill: 'Data Science', share: 21 },
+  { month: 'Feb', skill: 'Java', share: 30 }, 
+  { month: 'Feb', skill: 'DevOps', share: 25 }, 
+  { month: 'Feb', skill: 'Data Science', share: 20 },
+  {month: 'Feb', skill: 'UI/UX', share: 15 },
+  {month: 'Feb', skill: 'Mobile', share: 10 },
+  { month: 'Mar', skill: 'Java', share: 28 }, 
+  { month: 'Mar', skill: 'DevOps', share: 26 }, 
+  { month: 'Mar', skill: 'Data Science', share: 22 },
+  {month: 'Mar', skill: 'UI/UX', share: 14 },
+  {month: 'Mar', skill: 'Mobile', share: 10 },
+  { month: 'Apr', skill: 'Java', share: 30 }, 
+  { month: 'Apr', skill: 'DevOps', share: 25 }, 
+  { month: 'Apr', skill: 'Data Science', share: 20 },
+  {month: 'Apr', skill: 'UI/UX', share: 15 },
+  {month: 'Apr', skill: 'Mobile', share: 10 },
+  { month: 'May', skill: 'Java', share: 32 }, 
+  { month: 'May', skill: 'DevOps', share: 24 }, 
+  { month: 'May', skill: 'Data Science', share: 21 },
+  {month: 'May', skill: 'UI/UX', share: 14 },
+  {month: 'May', skill: 'Mobile', share: 9 },
 ];
 
 // Chart 5 — Demand by Experience Level Previous 3 Months + Current Month (May)
@@ -139,12 +154,12 @@ export const salaryTrend = [
 export const forecastRegionSkill = {
   skills,
   regions,
-  values: [ [60, 24, 36, 30, 42],[24, 66, 48, 72, 54],[54, 36, 60, 66, 48],[72, 30, 54, 60, 42],[48, 42, 36, 78, 60] ],
-  // values: {
-  //   Jun_F: [ [107, 38, 48, 46, 55],[47, 108, 67, 104, 85],[90, 59, 98, 104, 78],[103, 55, 98, 98, 66],[88, 91, 79, 113, 82] ],
-  //   Jul_F: [ [108, 39, 48, 46, 55],[47, 108, 67, 104, 85],[90, 59, 98, 104, 78],[103, 55, 98, 98, 66],[88, 91, 79, 113, 82] ],
-  //   Aug_F: [ [108, 39, 48, 46, 55],[47, 108, 67, 104, 85],[90, 59, 98, 104,	78],[103,	55,	98,	98,	66],[88, 91, 79, 113, 82] ],  
-  //  }
+  // values: [ [60, 24, 36, 30, 42],[24, 66, 48, 72, 54],[54, 36, 60, 66, 48],[72, 30, 54, 60, 42],[48, 42, 36, 78, 60] ],
+  values: {
+    Jun_F: [ [7, 3, 8, 6, 5],[7, 8, 7, 4, 5],[6, 9, 8, 4, 8],[3, 5, 8, 8, 6],[8, 1, 9, 3, 2] ],
+    Jul_F: [ [8, 9, 4, 4, 5],[6, 8, 6, 4, 8],[5, 5, 9, 4, 7],[3, 5, 9, 8, 6],[8, 1, 9, 3, 2] ],
+    Aug_F: [ [8, 3, 8, 6, 5],[5, 8, 7, 4, 5],[4, 9, 9, 4,	8],[3,	5, 8, 8, 6],[8, 9, 7, 3, 2] ],  
+   }
 };
 
 // Chart 14 — Forecasted Skills Demand Probability (Future Month (June-July-August))

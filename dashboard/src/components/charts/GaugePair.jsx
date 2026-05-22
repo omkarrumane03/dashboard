@@ -1,4 +1,5 @@
 // components/charts/GaugePair.jsx — Chart 8: Offer Acceptance & Joining Rate
+import { useState, useMemo } from 'react';
 import { offerMetricsMonthly } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
@@ -43,12 +44,81 @@ function Gauge({ value, label, sub, color }) {
 }
 
 export default function GaugePair() {
-  const { accepted, offered, joined, acceptRate, joinRate } = offerMetricsMonthly;
+  // 1. Initialize multi-select state defaulting to 'May'
+  const [selectedMonths, setSelectedMonths] = useState(['May']);
+  const months = ['Feb', 'Mar', 'Apr', 'May'];
+
+  // 2. Average the rates across all active selected months
+  const aggregatedMetrics = useMemo(() => {
+    const activeData = offerMetricsMonthly.filter(d => selectedMonths.includes(d.month));
+    
+    if (activeData.length === 0) return { acceptRate: 0, joinRate: 0 };
+
+    const sumAccept = activeData.reduce((acc, curr) => acc + curr.acceptRate, 0);
+    const sumJoin = activeData.reduce((acc, curr) => acc + curr.joinRate, 0);
+
+    return {
+      acceptRate: Math.round(sumAccept / activeData.length),
+      joinRate: Math.round(sumJoin / activeData.length),
+    };
+  }, [selectedMonths]);
+
+  const handleMonthToggle = (month) => {
+    setSelectedMonths((prev) => {
+      if (prev.includes(month)) {
+        // Enforce that at least one month stays selected so the gauges aren't empty
+        return prev.length > 1 ? prev.filter(m => m !== month) : prev;
+      }
+      return [...prev, month];
+    });
+  };
+
   return (
-    <div style={{ display: 'flex', height: '100%', alignItems: 'center', gap: 8 }}>
-      <Gauge value={acceptRate} label="Offer Acceptance Rate" sub={`${accepted} / ${offered} offers`} color={PALETTE.accent} />
-      <div style={{ width: 1, height: 80, background: PALETTE.border }} />
-      <Gauge value={joinRate}   label="Joining Rate"           sub={`${joined} / ${accepted} accepted`} color={PALETTE.green} />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 16 }}>
+      
+      {/* Month Multi-Select Control Panel */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+        <span style={{ color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, width: '100%', textAlign: 'center', marginBottom: 4 }}></span>
+        {months.map((month) => {
+          const isActive = selectedMonths.includes(month);
+          return (
+            <button
+              key={month}
+              onClick={() => handleMonthToggle(month)}
+              style={{
+                background: isActive ? PALETTE.accent : 'transparent',
+                border: `1px solid ${isActive ? PALETTE.accent : PALETTE.border}`,
+                borderRadius: 6,
+                padding: '2px 10px',
+                cursor: 'pointer',
+                color: isActive ? '#000' : PALETTE.muted,
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 12,
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {month}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Gauges Render Container */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+        <Gauge 
+          value={aggregatedMetrics.acceptRate} 
+          label="Offer Acceptance Rate" 
+          sub="Averaged Rate" 
+          color={PALETTE.accent} 
+        />
+        <div style={{ width: 1, height: 80, background: PALETTE.border }} />
+        <Gauge 
+          value={aggregatedMetrics.joinRate}   
+          label="Joining Rate"           
+          sub="Averaged Rate" 
+          color={PALETTE.green} 
+        />
+      </div>
     </div>
   );
 }

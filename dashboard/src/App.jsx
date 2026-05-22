@@ -136,13 +136,13 @@ export default function App() {
               </div>
 
               <div style={{...grid, marginBottom: 16 }}>
-                <ChartPanel title="1. Net Open v Net Closed Requirements" subtitle="Cumulative open/closed positions by month" height={260}>
+                <ChartPanel title="1. Net Open v Net Closed " subtitle="Cumulative open/closed positions by month" height={260}>
                   <NetOpenLine />
                 </ChartPanel>
-                <ChartPanel title="2. Open vs Closed Jobs by Skill" subtitle="Grouped bars — open (full) vs closed (faded)" height={260}>
+                <ChartPanel title="2. Open vs Closed Job Roles by Skill" subtitle="Grouped bars — open (full) vs closed (faded)" height={260}>
                   <DomainOpenClosedBar />
                 </ChartPanel>
-                <ChartPanel title="3. Open Positions by Region & Skill" subtitle="Heatmap — number of open positions by month" height={260}>
+                <ChartPanel title="3. Open Positions by Location & Skill" subtitle="Heatmap — number of open positions by month" height={260}>
                   <RegionDomainHeatmap />
                 </ChartPanel>
                 <ChartPanel title="4. Skill-wise Hiring Share" subtitle="Donut — % of total closures per skill by month" height={260}>
@@ -179,7 +179,7 @@ export default function App() {
                 <ChartPanel title="10. Candidate Funnel — Drop-off at Every Stage" subtitle="Applied → Screening → Tech Interview → Offer → Joined" height={260}>
                   <CandidateFunnel />
                 </ChartPanel>
-                <ChartPanel title="11. Interview-to-Offer Ratio" subtitle="Step line — ratio of interviews conducted per offer made" height={260} span={2}>
+                <ChartPanel title="11. Interview-to-Offer Ratio" subtitle="Step line — ratio of interviews conducted per offer made" height={260}>
                   <InterviewOfferLine />
                 </ChartPanel>
               </div>

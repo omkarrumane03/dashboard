@@ -1,163 +1,202 @@
-import { useState, useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { useMemo } from 'react';
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { sourcingData } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
-const CustomTooltip = ({ active, payload, label }) => {
+const sourceColors = {
+  'LinkedIn': '#4A90E2',
+  'Referrals': '#7ED321',
+  'Job Portals': '#F5A623',
+  'Career Site': '#BD10E0',
+};
+
+const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
-  const interviews = payload.find(p => p.dataKey === 'interviews');
-  const hires = payload.find(p => p.dataKey === 'hires');
-  const convRate = interviews && hires ? ((hires.value / interviews.value) * 100).toFixed(1) : null;
+  const data = payload[0].payload;
+  const convRate = ((data.hires / data.interviews) * 100).toFixed(1);
+  const hiresPerInt = (data.hires / data.interviews).toFixed(2);
+
   return (
-    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "'JetBrains Mono', monospace", fontSize: 13 }}>
-      <div style={{ color: PALETTE.muted, marginBottom: 4 }}>{label}</div>
-      {payload.map(p => (
-        <div key={p.dataKey} style={{ color: p.fill }}>
-          {p.name}: <strong>{p.value}</strong>
-        </div>
-      ))}
-      {convRate && <div style={{ color: PALETTE.orange, marginTop: 4 }}>Conversion: {convRate}%</div>}
+    <div style={{
+      background: '#0d1117',
+      border: `1px solid ${PALETTE.border}`,
+      borderRadius: 8,
+      padding: '10px 14px',
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 12,
+    }}>
+      <div style={{ color: sourceColors[data.source] || PALETTE.accent, marginBottom: 6 }}>
+        <strong>{data.source}</strong>
+      </div>
+      <div style={{ color: PALETTE.text }}>Interviews: <strong>{data.interviews}</strong></div>
+      <div style={{ color: PALETTE.text }}>Hires: <strong>{data.hires}</strong></div>
+      <div style={{ color: PALETTE.orange, marginTop: 6 }}>
+        Conversion Rate: <strong>{convRate}%</strong>
+      </div>
+      <div style={{ color: PALETTE.muted, fontSize: 11 }}>
+        {hiresPerInt} hires per interview
+      </div>
     </div>
   );
 };
 
 export default function SourcingChannelBar() {
-  const [selectedSource, setSelectedSource] = useState(null);
-  // Default to May as requested
-  const [selectedMonths, setSelectedMonths] = useState(['May']);
-
-  const months = ['Feb', 'Mar', 'Apr', 'May'];
-  const sources = Array.from(new Set(sourcingData.map(d => d.source)));
-
-  const filteredData = useMemo(() => {
-    // 1. Filter raw data by selected months
-    const monthFiltered = sourcingData.filter((item) => selectedMonths.includes(item.month));
-
-    // 2. Aggregate data by source (sum interviews and hires across selected months)
-    const aggregated = monthFiltered.reduce((acc, curr) => {
+  const chartData = useMemo(() => {
+    // Aggregate by source across all months (Feb–May)
+    const aggregated = sourcingData.reduce((acc, curr) => {
       const existing = acc.find(item => item.source === curr.source);
       if (existing) {
         existing.interviews += curr.interviews;
         existing.hires += curr.hires;
       } else {
-        acc.push({ ...curr });
+        acc.push({
+          source: curr.source,
+          interviews: curr.interviews,
+          hires: curr.hires,
+        });
       }
       return acc;
     }, []);
 
-    // 3. Apply source filter if one is selected
-    if (!selectedSource) return aggregated;
-    return aggregated.filter((item) => item.source === selectedSource);
-  }, [selectedSource, selectedMonths]);
+    return aggregated.sort((a, b) => a.interviews - b.interviews);
+  }, []);
 
-  const handleSourceSelection = (source) => {
-    setSelectedSource((prev) => (prev === source ? null : source));
-  };
+  // Find max value for reference line
+  const maxVal = useMemo(() => {
+    return Math.max(...chartData.map(d => Math.max(d.interviews, d.hires)));
+  }, [chartData]);
 
-  const handleMonthToggle = (month) => {
-    setSelectedMonths((prev) => {
-      if (prev.includes(month)) {
-        // Prevent removing last month to keep chart from being empty
-        return prev.length > 1 ? prev.filter(m => m !== month) : prev;
-      }
-      return [...prev, month];
-    });
-  };
-
-  const CustomLegend = () => {
+  // Render dot with size proportional to interview volume
+  const renderDot = (props) => {
+    const { cx, cy, payload, fill } = props;
+    const radius = 3 + (payload.interviews / Math.max(...chartData.map(d => d.interviews))) * 8;
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 12 }}>
-        {/* Month Multi-Select Toggle */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-          <span style={{ color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, width: '100%', textAlign: 'center', marginBottom: 4 }}></span>
-          {months.map((month) => {
-            const isActive = selectedMonths.includes(month);
-            return (
-              <button
-                key={month}
-                onClick={() => handleMonthToggle(month)}
-                style={{
-                  background: isActive ? PALETTE.accent : 'transparent',
-                  border: `1px solid ${isActive ? PALETTE.accent : PALETTE.border}`,
-                  borderRadius: 6,
-                  padding: '2px 10px',
-                  cursor: 'pointer',
-                  color: isActive ? '#000' : PALETTE.muted,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 12,
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {month}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Source Filter Toggle */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12 }}>
-          {sources.map((source) => {
-            const isActive = selectedSource === source;
-            const isDimmed = selectedSource && !isActive;
-
-            return (
-              <button
-                key={source}
-                onClick={() => handleSourceSelection(source)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: isActive ? PALETTE.border : 'transparent',
-                  border: `1px solid ${isActive ? PALETTE.accent : PALETTE.border}`,
-                  borderRadius: 8,
-                  padding: '4px 8px',
-                  cursor: 'pointer',
-                  opacity: isDimmed ? 0.45 : 1,
-                  transition: 'all 0.25s ease',
-                  color: PALETTE.muted,
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 13,
-                }}
-              >
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: PALETTE.accent, display: 'inline-block' }} />
-                {source}
-              </button>
-            );
-          })}
-          {selectedSource && (
-            <button
-              onClick={() => setSelectedSource(null)}
-              style={{
-                background: '#111827',
-                border: `1px solid ${PALETTE.border}`,
-                borderRadius: 8,
-                padding: '4px 10px',
-                cursor: 'pointer',
-                color: '#fff',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: 13,
-              }}
-            >
-              Reset Source
-            </button>
-          )}
-        </div>
-      </div>
+      <circle
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill={fill}
+        opacity={0.75}
+        style={{ cursor: 'pointer' }}
+      />
     );
   };
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={filteredData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }} barGap={3}>
-        <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
-        <XAxis dataKey="source" tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={{ stroke: PALETTE.border }} tickLine={false} />
-        <YAxis tick={{ fill: PALETTE.muted, fontSize: 13, fontFamily: "'JetBrains Mono', monospace" }} axisLine={false} tickLine={false} />
-        <Tooltip content={<CustomTooltip />} />
-        <Legend content={<CustomLegend />} />
-        <Bar dataKey="interviews" name="Interviews" fill={PALETTE.accent} radius={[3, 3, 0, 0]} />
-        <Bar dataKey="hires" name="Hires" fill={PALETTE.green} radius={[3, 3, 0, 0]} />
-      </BarChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {/* Title */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: 2,
+        fontSize: 13,
+        color: PALETTE.text,
+        fontFamily: "'JetBrains Mono', monospace",
+        fontWeight: 600,
+      }}>
+        Sourcing Channel Efficiency
+      </div>
+
+      {/* Subtitle */}
+      <div style={{
+        textAlign: 'center',
+        fontSize: 11,
+        color: PALETTE.muted,
+        fontFamily: "'JetBrains Mono', monospace",
+        marginBottom: 8,
+      }}>
+        Above the diagonal = efficient conversion | Bubble size = interview volume
+      </div>
+
+      {/* Chart */}
+      <div style={{ flex: 1 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart margin={{ top: 10, right: 20, bottom: 40, left: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
+
+            <XAxis
+              type="number"
+              dataKey="interviews"
+              name="Interviews"
+              stroke={PALETTE.muted}
+              tick={{ fill: PALETTE.muted, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}
+              label={{
+                value: 'Total Interviews (Feb–May)',
+                position: 'insideBottomRight',
+                offset: -15,
+                fill: PALETTE.muted,
+                fontSize: 11,
+              }}
+              domain={[0, maxVal]}
+            />
+
+            <YAxis
+              type="number"
+              dataKey="hires"
+              name="Hires"
+              stroke={PALETTE.muted}
+              tick={{ fill: PALETTE.muted, fontSize: 11, fontFamily: "'JetBrains Mono', monospace" }}
+              label={{
+                value: 'Total Hires (Feb–May)',
+                angle: -90,
+                position: 'insideLeft',
+                fill: PALETTE.muted,
+                fontSize: 11,
+              }}
+              domain={[0, maxVal]}
+            />
+
+            {/* Perfect conversion reference line (y = x) */}
+            <ReferenceLine
+              segment={[
+                { x: 0, y: 0 },
+                { x: maxVal, y: maxVal },
+              ]}
+              stroke={PALETTE.muted}
+              strokeDasharray="6 4"
+              opacity={0.3}
+              strokeWidth={1}
+            />
+
+            <Tooltip content={<CustomTooltip />} />
+
+            {/* Plot each source as a scatter set */}
+            {Object.entries(sourceColors).map(([source, color]) => (
+              <Scatter
+                key={source}
+                name={source}
+                data={chartData.filter(d => d.source === source)}
+                fill={color}
+                shape={(props) => renderDot({ ...props, fill: color })}
+              />
+            ))}
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* Legend */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: 16,
+        marginTop: 12,
+      }}>
+        {Object.entries(sourceColors).map(([source, color]) => (
+          <div key={source} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div
+              style={{
+                width: 12,
+                height: 12,
+                borderRadius: '50%',
+                background: color,
+              }}
+            />
+            <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: PALETTE.text }}>
+              {source}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

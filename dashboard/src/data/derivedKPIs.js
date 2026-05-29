@@ -12,6 +12,7 @@ import {
   SkillsDemandProb,
   forecastRegionSkill,
   predictedTTF,
+  skillsMonthly,
 } from './notebookData';
 
 // ─────────────────────────────────────────────
@@ -52,10 +53,8 @@ export const demandFlowKPIs = {
 // ─────────────────────────────────────────────
 // SOURCING & CONVERSION KPIs
 // ─────────────────────────────────────────────
-// Get latest month metrics
 const latestOfferMetrics = offerMetricsMonthly[offerMetricsMonthly.length - 1];
 
-// Calculate funnel conversion for the latest month (May)
 const latestFunnel = candidateFunnelMonthly.filter(d => d.month === 'May');
 const funnelApplied = latestFunnel.find(d => d.stage === 'Applied')?.count || 0;
 const funnelJoined = latestFunnel.find(d => d.stage === 'Joined')?.count || 0;
@@ -76,7 +75,6 @@ const bestMonth = costPerHire.reduce((best, curr) =>
   curr.cost < best.cost ? curr : best
 );
 
-// Find top paid skill in the latest month
 const latestSalaries = salaryTrend.filter(d => d.month === 'May');
 const topPaid = latestSalaries.reduce((top, curr) =>
   curr.salary > (top.salary || 0) ? curr : top
@@ -98,28 +96,9 @@ const highestDemand = SkillsDemandProb.reduce((top, curr) =>
   curr.probability > (top.probability || 0) ? curr : top
 , {});
 
-// Map highestDemand skill name to 'domain' for App.jsx compatibility
 highestDemand.domain = highestDemand.skill;
 
-let hottestRegion = {
-  region: '',
-  domain: '',
-  value: 0,
-};
-
-// Iterate through Jun_F forecast (first month of forecast)
-// const forecastValues = forecastRegionSkill.values.Jun_F;
-// forecastValues.forEach((row, skillIndex) => {
-//   row.forEach((value, regionIndex) => {
-//     if (value > hottestRegion.value) {
-//       hottestRegion = {
-//         region: forecastRegionSkill.regions[regionIndex],
-//         domain: forecastRegionSkill.skills[skillIndex],
-//         value,
-//       };
-//     }
-//   });
-// });
+let hottestRegion = { region: '', domain: '', value: 0 };
 
 const avgPredictedFillDays = Math.round(
   avg(predictedTTF.forecast.flatMap(month => 
@@ -133,10 +112,7 @@ const bestPredictedFillMonth = predictedTTF.forecast.map(month => {
   const values = Object.entries(month)
     .filter(([key]) => key !== 'month')
     .map(([, value]) => value);
-  return {
-    month: month.month,
-    days: Math.round(avg(values))
-  };
+  return { month: month.month, days: Math.round(avg(values)) };
 }).reduce((best, curr) => (curr.days < best.days ? curr : best));
 
 export const predictiveKPIs = {
@@ -144,4 +120,63 @@ export const predictiveKPIs = {
   bestPredictedFillMonth,
   highestDemand,
   hottestRegion,
+};
+
+// ─────────────────────────────────────────────
+// HIRING TREND KPIs
+// ─────────────────────────────────────────────
+
+// Monthly hires from funnel Joined stage
+const monthlyHires = (() => {
+  const months = [...new Set(candidateFunnelMonthly.map(d => d.month))];
+  return months.map(month => ({
+    month,
+    count: candidateFunnelMonthly.find(d => d.month === month && d.stage === 'Joined')?.count ?? 0,
+  }));
+})();
+
+// Total hires across all months
+const totalHires = sum(monthlyHires.map(d => d.count));
+
+// Peak hiring month
+const peakHireMonth = monthlyHires.reduce((best, curr) => curr.count > best.count ? curr : best);
+
+// Latest MoM growth (Apr → May)
+const latestHires = monthlyHires[monthlyHires.length - 1];
+const prevHires   = monthlyHires[monthlyHires.length - 2];
+const latestMoMGrowth = prevHires.count
+  ? parseFloat((((latestHires.count - prevHires.count) / prevHires.count) * 100).toFixed(1))
+  : 0;
+
+// Overall closure rate (avg across months)
+const closureRates = netOpenData.map(d => (d.netClosed / d.netOpen) * 100);
+const avgClosureRate = parseFloat(avg(closureRates).toFixed(1));
+
+// Best closure rate month
+const bestClosureMonth = netOpenData.reduce((best, curr) => {
+  const rate = (curr.netClosed / curr.netOpen) * 100;
+  const bestRate = (best.netClosed / best.netOpen) * 100;
+  return rate > bestRate ? curr : best;
+});
+
+// Top skill by total hires
+const skillTotalHires = skillsMonthly.map(({ skill, monthly }) => ({
+  skill,
+  total: sum(Object.values(monthly).map(m => m.closed)),
+}));
+const topHiredSkill = skillTotalHires.reduce((best, curr) => curr.total > best.total ? curr : best);
+
+export const hiringTrendKPIs = {
+  totalHires,
+  peakHireMonth: {
+    month: peakHireMonth.month,
+    count: peakHireMonth.count,
+  },
+  latestMoMGrowth,
+  avgClosureRate,
+  bestClosureMonth: {
+    month: bestClosureMonth.month,
+    rate: parseFloat(((bestClosureMonth.netClosed / bestClosureMonth.netOpen) * 100).toFixed(1)),
+  },
+  topHiredSkill,
 };

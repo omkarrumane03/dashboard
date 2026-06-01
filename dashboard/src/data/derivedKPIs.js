@@ -115,12 +115,29 @@ const bestPredictedFillMonth = predictedTTF.forecast.map(month => {
   return { month: month.month, days: Math.round(avg(values)) };
 }).reduce((best, curr) => (curr.days < best.days ? curr : best));
 
+// Find the hottest region (highest forecast value)
+Object.entries(forecastRegionSkill.values).forEach(([monthKey, monthMatrix]) => {
+  monthMatrix.forEach((skillRow, skillIdx) => {
+    skillRow.forEach((value, regionIdx) => {
+      if (value > hottestRegion.value) {
+        hottestRegion = {
+          region: monthKey,
+          domain: forecastRegionSkill.skills[skillIdx],
+          value
+        };
+      }
+    });
+  });
+});
+
 export const predictiveKPIs = {
   avgPredictedFillDays,
   bestPredictedFillMonth,
   highestDemand,
   hottestRegion,
 };
+
+
 
 // ─────────────────────────────────────────────
 // HIRING TREND KPIs

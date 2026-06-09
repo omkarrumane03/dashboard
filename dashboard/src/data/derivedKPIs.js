@@ -1,199 +1,119 @@
 // src/data/derivedKPIs.js
-// Dynamic KPI calculations aligned with notebookData.js and App.jsx
-
 import {
-  netOpenData,
-  timeToFillData,
-  offerMetricsMonthly,
-  candidateFunnelMonthly,
-  interviewOfferRatio,
-  costPerHire,
-  salaryTrend,
-  SkillsDemandProb,
-  forecastRegionSkill,
-  predictedTTF,
-  skillsMonthly,
+  orionPipeline,
+  orionPeriodData,
+  orionRolesPerPeriod,
 } from './notebookData';
 
-// ─────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────
-const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
-const avg = (arr) => (arr.length ? sum(arr) / arr.length : 0);
-
-// Flatten time-to-fill values across all domains/months for historical avg
-const allTTFValues = timeToFillData.flatMap(month =>
-  Object.entries(month)
-    .filter(([key]) => key !== 'month')
-    .map(([, value]) => value)
-);
+// // ─────────────────────────────────────────────
+// // Helpers
+// // ─────────────────────────────────────────────
+const sum  = (arr) => arr.reduce((acc, val) => acc + val, 0);
+const avg  = (arr) => (arr.length ? sum(arr) / arr.length : 0);
 
 // ─────────────────────────────────────────────
-// DEMAND & FLOW KPIs
+// ORION REAL KPIs
 // ─────────────────────────────────────────────
-const peakNetOpenValue = Math.max(...netOpenData.map(d => d.netOpen));
-const peakNetOpenMonth = netOpenData.find(d => d.netOpen === peakNetOpenValue)?.month;
+const totalProfiles   = sum(orionPipeline.map(d => d.profilesShared));
+const totalL1Rejects  = sum(orionPipeline.map(d => d.l1Reject));
+const totalL2Rejects  = sum(orionPipeline.map(d => d.l2Reject));
+const totalZeko       = sum(orionPipeline.map(d => d.zekoReject));
+const totalRejects    = totalL1Rejects + totalL2Rejects + totalZeko;
+const totalInProcess  = sum(orionPipeline.map(d => d.inProcess));
+const totalSelections = sum(orionPipeline.map(d => d.selections));
 
-const peakNetClosedValue = Math.max(...netOpenData.map(d => d.netClosed));
-const peakNetClosedMonth = netOpenData.find(d => d.netClosed === peakNetClosedValue)?.month;
+// App.jsx line 213 consumes `totalRejections` — alias of totalRejects
+const totalRejections = totalRejects;
 
-export const demandFlowKPIs = {
-  totalOpen: sum(netOpenData.map(d => d.netOpen)),
-  totalClosed: sum(netOpenData.map(d => d.netClosed)),
-  
-  peakNetOpen: peakNetOpenValue,
-  peakNetOpenMonth,
-
-  peakNetClosed: peakNetClosedValue,
-  peakNetClosedMonth,
-
-  avgTimeToFill: Math.round(avg(allTTFValues)),
-};
-
-// ─────────────────────────────────────────────
-// SOURCING & CONVERSION KPIs
-// ─────────────────────────────────────────────
-const latestOfferMetrics = offerMetricsMonthly[offerMetricsMonthly.length - 1];
-
-const latestFunnel = candidateFunnelMonthly.filter(d => d.month === 'May');
-const funnelApplied = latestFunnel.find(d => d.stage === 'Applied')?.count || 0;
-const funnelJoined = latestFunnel.find(d => d.stage === 'Joined')?.count || 0;
-
-export const sourcingKPIs = {
-  offerAcceptRate: latestOfferMetrics.acceptRate,
-  joiningRate: latestOfferMetrics.joinRate,
-
-  funnelConversion: funnelApplied ? ((funnelJoined / funnelApplied) * 100).toFixed(1) : 0,
-  avgInterviewOfferRatio: avg(interviewOfferRatio.map(d => d.ratio)).toFixed(1),
-};
-
-// ─────────────────────────────────────────────
-// FINANCIAL KPIs
-// ─────────────────────────────────────────────
-const avgCost = Math.round(avg(costPerHire.map(d => d.cost)));
-const bestMonth = costPerHire.reduce((best, curr) =>
-  curr.cost < best.cost ? curr : best
-);
-
-const latestSalaries = salaryTrend.filter(d => d.month === 'May');
-const topPaid = latestSalaries.reduce((top, curr) =>
-  curr.salary > (top.salary || 0) ? curr : top
-, {});
-
-export const financialKPIs = {
-  avgCostPerHire: avgCost,
-  bestMonth,
-  topPaidDomain: {
-    domain: topPaid.skill,
-    avgSalary: topPaid.salary
-  },
-};
-
-// ─────────────────────────────────────────────
-// PREDICTIVE KPIs
-// ─────────────────────────────────────────────
-const highestDemand = SkillsDemandProb.reduce((top, curr) =>
-  curr.probability > (top.probability || 0) ? curr : top
-, {});
-
-highestDemand.domain = highestDemand.skill;
-
-let hottestRegion = { region: '', domain: '', value: 0 };
-
-const avgPredictedFillDays = Math.round(
-  avg(predictedTTF.forecast.flatMap(month => 
-    Object.entries(month)
-      .filter(([key]) => key !== 'month')
-      .map(([, value]) => value)
-  ))
-);
-
-const bestPredictedFillMonth = predictedTTF.forecast.map(month => {
-  const values = Object.entries(month)
-    .filter(([key]) => key !== 'month')
-    .map(([, value]) => value);
-  return { month: month.month, days: Math.round(avg(values)) };
-}).reduce((best, curr) => (curr.days < best.days ? curr : best));
-
-// Find the hottest region (highest forecast value)
-Object.entries(forecastRegionSkill.values).forEach(([monthKey, monthMatrix]) => {
-  monthMatrix.forEach((skillRow, skillIdx) => {
-    skillRow.forEach((value, regionIdx) => {
-      if (value > hottestRegion.value) {
-        hottestRegion = {
-          region: monthKey,
-          domain: forecastRegionSkill.skills[skillIdx],
-          value
-        };
-      }
-    });
-  });
-});
-
-export const predictiveKPIs = {
-  avgPredictedFillDays,
-  bestPredictedFillMonth,
-  highestDemand,
-  hottestRegion,
-};
-
-
-
-// ─────────────────────────────────────────────
-// HIRING TREND KPIs
-// ─────────────────────────────────────────────
-
-// Monthly hires from funnel Joined stage
-const monthlyHires = (() => {
-  const months = [...new Set(candidateFunnelMonthly.map(d => d.month))];
-  return months.map(month => ({
-    month,
-    count: candidateFunnelMonthly.find(d => d.month === month && d.stage === 'Joined')?.count ?? 0,
-  }));
-})();
-
-// Total hires across all months
-const totalHires = sum(monthlyHires.map(d => d.count));
-
-// Peak hiring month
-const peakHireMonth = monthlyHires.reduce((best, curr) => curr.count > best.count ? curr : best);
-
-// Latest MoM growth (Apr → May)
-const latestHires = monthlyHires[monthlyHires.length - 1];
-const prevHires   = monthlyHires[monthlyHires.length - 2];
-const latestMoMGrowth = prevHires.count
-  ? parseFloat((((latestHires.count - prevHires.count) / prevHires.count) * 100).toFixed(1))
+// App.jsx line 206 consumes `profileToSelectRate`
+const profileToSelectRate = totalProfiles > 0
+  ? parseFloat(((totalSelections / totalProfiles) * 100).toFixed(1))
   : 0;
 
-// Overall closure rate (avg across months)
-const closureRates = netOpenData.map(d => (d.netClosed / d.netOpen) * 100);
-const avgClosureRate = parseFloat(avg(closureRates).toFixed(1));
+// Role status counts — covers all statuses introduced in v3.0
+const totalRoles        = orionPipeline.length;
 
-// Best closure rate month
-const bestClosureMonth = netOpenData.reduce((best, curr) => {
-  const rate = (curr.netClosed / curr.netOpen) * 100;
-  const bestRate = (best.netClosed / best.netOpen) * 100;
-  return rate > bestRate ? curr : best;
-});
+// App line 153: "Includes pending L1 reviews" — so activeRoles must include l1Pending
+const l1PendingRoles    = orionPipeline.filter(d => d.status === 'Active – L1 Pending').length;
+const activeRolesOnly   = orionPipeline.filter(d => d.status === 'Active').length;
+const activeRoles       = activeRolesOnly + l1PendingRoles;  // combined for KPI card display
 
-// Top skill by total hires
-const skillTotalHires = skillsMonthly.map(({ skill, monthly }) => ({
-  skill,
-  total: sum(Object.values(monthly).map(m => m.closed)),
-}));
-const topHiredSkill = skillTotalHires.reduce((best, curr) => curr.total > best.total ? curr : best);
+const onHoldRoles       = orionPipeline.filter(d => d.status === 'On Hold').length;
+const notStartedRoles   = orionPipeline.filter(d => d.status === 'Not Started').length;
+const closedHiredRoles  = orionPipeline.filter(d => d.status === 'Partial Onboard').length;
+const closedNoHireRoles = orionPipeline.filter(
+  d => d.status === 'Closed' || d.status === 'Dropped' || d.status === 'No Update'
+).length;
+const closedRoles       = closedHiredRoles + closedNoHireRoles;
 
-export const hiringTrendKPIs = {
-  totalHires,
-  peakHireMonth: {
-    month: peakHireMonth.month,
-    count: peakHireMonth.count,
-  },
-  latestMoMGrowth,
-  avgClosureRate,
-  bestClosureMonth: {
-    month: bestClosureMonth.month,
-    rate: parseFloat(((bestClosureMonth.netClosed / bestClosureMonth.netOpen) * 100).toFixed(1)),
-  },
-  topHiredSkill,
+// Pass rates
+const l1PassRate = totalProfiles > 0
+  ? parseFloat((((totalProfiles - totalL1Rejects) / totalProfiles) * 100).toFixed(1))
+  : 0;
+
+const l1Passed   = totalProfiles - totalL1Rejects;
+const l2PassRate = l1Passed > 0
+  ? parseFloat((((l1Passed - totalL2Rejects - totalZeko) / l1Passed) * 100).toFixed(1))
+  : 0;
+
+// Period-over-period profiles shared growth
+// orionPeriodData: 0=Dec–Feb(31), 1=Mar–May(22), 2=May(55)
+const p1 = orionPeriodData[0].profilesShared; // Dec–Feb: 31
+const p2 = orionPeriodData[1].profilesShared; // Mar–May: 22
+const p3 = orionPeriodData[2].profilesShared; // May:     55
+const latestPeriodGrowth = p2 > 0
+  ? parseFloat((((p3 - p2) / p2) * 100).toFixed(1))
+  : 0;
+
+// Closure health — sourced from orionRolesPerPeriod aggregates
+const totalRolesClosedHired  = sum(orionRolesPerPeriod.map(d => d.rolesClosedHired));
+const totalRolesClosedNoHire = sum(orionRolesPerPeriod.map(d => d.rolesClosedNoHire));
+const totalRolesOnHold       = sum(orionRolesPerPeriod.map(d => d.rolesOnHold));
+const totalRolesInProcess    = sum(orionRolesPerPeriod.map(d => d.rolesInProcess));
+const totalRolesNotStarted   = sum(orionRolesPerPeriod.map(d => d.rolesNotStarted));
+
+// Of all roles that reached a final state, % that resulted in at least 1 hire
+const hireSuccessRate = (totalRolesClosedHired + totalRolesClosedNoHire) > 0
+  ? parseFloat((
+      (totalRolesClosedHired / (totalRolesClosedHired + totalRolesClosedNoHire)) * 100
+    ).toFixed(1))
+  : 0;
+
+export const orionKPIs = {
+  // ── Volumes ────────────────────────────────
+  totalRoles,
+  totalProfiles,
+  totalRejects,
+  totalRejections,          // alias — consumed by App.jsx line 213
+  totalL1Rejects,
+  totalL2Rejects,
+  totalZeko,
+  totalInProcess,
+  totalSelections,
+
+  // ── Role status breakdown ──────────────────
+  activeRoles,              // Active + L1 Pending combined — consumed by App.jsx line 153
+  activeRolesOnly,          // pure Active only, if needed separately
+  l1PendingRoles,
+  onHoldRoles,
+  notStartedRoles,
+  closedHiredRoles,
+  closedNoHireRoles,
+  closedRoles,
+
+  // ── Pass & conversion rates ────────────────
+  l1PassRate,
+  l2PassRate,
+  profileToSelectRate,      // consumed by App.jsx line 206
+
+  // ── Period growth ──────────────────────────
+  latestPeriodGrowth,       // Mar–May → May growth in profiles shared
+
+  // ── Closure health ─────────────────────────
+  totalRolesClosedHired,
+  totalRolesClosedNoHire,
+  totalRolesOnHold,
+  totalRolesInProcess,
+  totalRolesNotStarted,
+  hireSuccessRate,          // % of concluded roles that resulted in a hire
 };

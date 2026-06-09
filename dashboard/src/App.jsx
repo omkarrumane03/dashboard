@@ -3,46 +3,28 @@ import { useState } from "react";
 import { PALETTE } from "./utils/theme";
 
 // Layout
-import KPICard from "./components/kpi/KPICard";
-import ChartPanel from "./components/layout/ChartPanel";
+import KPICard      from "./components/kpi/KPICard";
+import ChartPanel   from "./components/layout/ChartPanel";
 import SectionHeader from "./components/layout/SectionHeader";
 
 import {
   demandFlowKPIs,
   sourcingKPIs,
-  financialKPIs,
-  predictiveKPIs,
   hiringTrendKPIs,
+  orionKPIs,
 } from './data/derivedKPIs';
 
 // ── Demand & Hiring ──────────────────────────────────────────────────
 import NetOpenLine          from "./components/charts/NetOpenLine";
-import TimeToFillLine       from "./components/charts/TimeToFillLine";
-import SkillOpenClosedShare from "./components/charts/SkillOpenClosedShare";
-import RegionDomainHeatmap  from "./components/charts/RegionSkillsHeatmap";
-import ExperienceDemandBar  from "./components/charts/ExperienceDemandBar";
-import HiresClosureCombo    from "./components/charts/HiresClosureCombo";
-import MoMHireGrowthBar     from "./components/charts/MomHireGrowthBar";
-import SkillHireCountBar    from "./components/charts/SkillHireCountBar";
-
-// ── Sourcing, Conversion & Financials ────────────────────────────────
-import SourcingChannelWithRatio from "./components/charts/SourcingChannelWithRatio";
-import GaugePair                from "./components/charts/GaugePair";
-import CandidateFunnel          from "./components/charts/CandidateFunnel";
-import { CostPerHireBar }       from "./components/charts/CostPerHireBar";
-import SalaryTrendBar           from "./components/charts/SalaryTrendBar";
-
-// ── Predictive & Forecast ────────────────────────────────────────────
-import ForecastRegionHeatmap from "./components/charts/ForecastRegionHeatmap";
-import DomainDemandProbBar   from "./components/charts/SkillsDemandProbBar";
-import PredictedTTFLine      from "./components/charts/PredictedTTFLine";
-
+import SkillOpenClosedShare from "./components/charts/SkillOpenClosedShare"; // now: Profiles vs Rejects
+import RegionDomainHeatmap  from "./components/charts/RegionSkillsHeatmap";  // now: Location × Period
+import ExperienceDemandBar  from "./components/charts/ExperienceDemandBar";  // now: real exp buckets
+import HiresClosureCombo    from "./components/charts/HiresClosureCombo";    // now: Profiles + Reject Rate
+import CandidateFunnel       from "./components/charts/CandidateFunnel";        // now: real stages
 // ─── Nav ─────────────────────────────────────────────────────────────
-const NAV = [
-  { id: "demand",     label: "Demand & Hiring" },
-  { id: "sourcing",   label: "Sourcing & Financials" },
-  { id: "predictive", label: "Predictive" },
-];
+// const NAV = [
+//   { id: "demand",     label: "Demand & Hiring"       },
+// ];
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 };
 
@@ -77,17 +59,17 @@ export default function App() {
             ANALYTICAL DASHBOARD
           </span>
           <span style={{
-            fontSize: 15, padding: "2px 8px",
+            fontSize: 13, padding: "2px 8px",
             background: PALETTE.accentSoft, color: PALETTE.accent,
             borderRadius: 4, letterSpacing: "0.08em",
-          }}>-</span>
+          }}>ORION · Dec 2025 - May 2026</span>
         </div>
-        <div style={{ fontSize: 25, color: PALETTE.muted }}>FY 2026</div>
+        <div style={{ fontSize: 18, color: PALETTE.muted }}>FY 2026</div>
       </header>
 
       {/* ── Side Nav + Content ───────────────────────────────────── */}
       <div style={{ display: "flex" }}>
-        <nav style={{
+        {/* <nav style={{
           position: "sticky", top: 56, height: "calc(100vh - 56px)",
           width: 180, flexShrink: 0,
           background: PALETTE.surface,
@@ -101,13 +83,13 @@ export default function App() {
               border: "none",
               borderLeft: active === n.id ? `2px solid ${PALETTE.accent}` : "2px solid transparent",
               color: active === n.id ? PALETTE.accent : PALETTE.muted,
-              fontSize: 15, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
+              fontSize: 13, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
               cursor: "pointer", letterSpacing: "0.04em", transition: "all 0.15s",
             }}>
               {n.label}
             </button>
           ))}
-        </nav>
+        </nav> */}
 
         <main style={{ flex: 1, padding: "28px 32px", overflowY: "auto" }}>
 
@@ -115,167 +97,114 @@ export default function App() {
           {active === "demand" && (
             <div>
               <SectionHeader number={1} title="Demand & Hiring"
-                description="Open positions, fulfillment trends, hire volumes, and month-over-month growth." />
+                description="Pipeline activity, rejection trends, work mode shifts, and experience demand — Orion Data." />
 
-              {/* 5 KPIs — most signal-dense from both former sections */}
+              {/* 5 KPIs */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="✅" label="Total Open"
-                  value={demandFlowKPIs.totalOpen}
-                  sub="Till now" accent={PALETTE.purple} />
-                <KPICard icon="✅" label="Total Closed"
-                  value={demandFlowKPIs.totalClosed}
-                  sub="Till now" accent={PALETTE.purple} />
-                <KPICard icon="👥" label="Total Hires"
-                  value={hiringTrendKPIs.totalHires}
-                  sub="Across all months" accent={PALETTE.green} />
-                <KPICard icon="📈" label="Latest MoM Growth"
-                  value={`${hiringTrendKPIs.latestMoMGrowth > 0 ? '+' : ''}${hiringTrendKPIs.latestMoMGrowth}%`}
-                  sub="Apr → May change"
-                  accent={hiringTrendKPIs.latestMoMGrowth >= 0 ? PALETTE.green : PALETTE.orange} />
-                <KPICard icon="⏱️" label="Avg Time-to-Fill"
-                  value={`${demandFlowKPIs.avgTimeToFill}d`}
-                  sub="All skills avg till now" accent={PALETTE.orange} />
+                <KPICard
+                  icon="💼"
+                  label="Total Managed Roles"
+                  value={orionKPIs.totalRoles}
+                  sub="Dec 2025 – May 2026"
+                  accent={PALETTE.accent}
+                />
+                <KPICard
+                  icon="🟢"
+                  label="Active Roles"
+                  value={orionKPIs.activeRoles}
+                  sub={`${orionKPIs.activeRolesOnly} active · ${orionKPIs.l1PendingRoles} L1 pending`}
+                  accent={PALETTE.green}
+                />
+                <KPICard
+                  icon="🎉"
+                  label="Roles Closed – Hired"
+                  value={orionKPIs.closedHiredRoles}
+                  sub="Closed with successful hire"
+                  accent={PALETTE.green}
+                />
+                
+                <KPICard
+                  icon="🔴"
+                  label="Roles Closed – No Hire"
+                  value={orionKPIs.closedNoHireRoles}
+                  sub={`${orionKPIs.closedHiredRoles} closed with hire`}
+                  accent={PALETTE.red ?? '#F85149'}
+                />  
+                <KPICard
+                  icon="⏳"
+                  label="Roles On Hold"
+                  value={orionKPIs.onHoldRoles}
+                  sub="Paused by client"
+                  accent={PALETTE.orange}
+                />
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}> 
+                <KPICard
+                  icon="🚀"
+                  label="Not Started"
+                  value={orionKPIs.notStartedRoles}
+                  sub="Profiles yet to be shared"
+                  accent="#6e7681"
+                />  
+                <KPICard
+                  icon="🎯"
+                  label="L1 Pass Rate"
+                  value={`${orionKPIs.l1PassRate}%`}
+                  sub="Profiles clearing L1 round"
+                  accent={PALETTE.green}
+                />
+                <KPICard
+                  icon="🎯"
+                  label="L2 Pass Rate"
+                  value={`${orionKPIs.l2PassRate}%`}
+                  sub="Profiles clearing L2 round"
+                  accent={PALETTE.accent}
+                />
+                <KPICard
+                  icon="🏆"
+                  label="Hire Success Rate"
+                  value={`${orionKPIs.hireSuccessRate}%`}
+                  sub="Concluded roles with a hire"
+                  accent={PALETTE.green}
+                />
+              
               </div>
 
               <div style={{ ...grid, marginBottom: 16 }}>
-                <ChartPanel title="1. Net Open v Net Closed"
-                  subtitle="Cumulative open/closed positions by month" height={260}>
+                <ChartPanel title="1. Roles Activity Over Time"
+                  subtitle="Tracks how roles opened, resolved, went on hold, or remained in process across each hiring period." height={280}>
                   <NetOpenLine />
                 </ChartPanel>
 
-                <ChartPanel title="2. Skill Open/Closed & Hiring Share"
-                  subtitle="Toggle — absolute open/closed counts · or % share of closures per skill" height={260}>
-                  <SkillOpenClosedShare />
-                </ChartPanel>
-
-                <ChartPanel title="3. Open Positions by Location & Skill"
-                  subtitle="Heatmap — number of open positions by month" height={260}>
+                <ChartPanel title="2. Openings by Role & Location"
+                  subtitle="Maps openings across role–location intersections for the selected period." height={280}>
                   <RegionDomainHeatmap />
                 </ChartPanel>
 
-                <ChartPanel title="4. Demand by Experience Level"
-                  subtitle="Job count across Fresher / Junior / Mid / Senior by month" height={260}>
+                <ChartPanel title="3. Hiring Demand by Experience Level"
+                  subtitle="Role count across Junior / Senior / Lead buckets per period" height={280}>
                   <ExperienceDemandBar />
                 </ChartPanel>
 
-                <ChartPanel title="5. Time-to-Fill by Skill"
-                  subtitle="Avg days to fill a role, per skill per month" height={260}>
-                  <TimeToFillLine />
-                </ChartPanel>
-
-                <ChartPanel title="6. Hires Over Time & Closure Rate"
-                  subtitle="Area = monthly hires (left) · dashed line = closure rate % (right) · orange = averages" height={260}>
+                <ChartPanel title="4. Profiles Shared & Rejection - Hire Rate"
+                  subtitle="Overlays submission volume with overall rejections - hires across periods." height={280}>
                   <HiresClosureCombo />
                 </ChartPanel>
 
-                <ChartPanel title="7. MoM Hire Growth"
-                  subtitle="Month-over-month % change — green = growth · orange = decline" height={260}>
-                  <MoMHireGrowthBar />
-                </ChartPanel>
-
-                {/* <ChartPanel title="8. Skill-wise Hire Count"
-                  subtitle="Closed positions per skill — toggle months to compare" height={260}>
-                  <SkillHireCountBar />
-                </ChartPanel> */}
-              </div>
-            </div>
-          )}
-
-          {/* ══ SOURCING, CONVERSION & FINANCIALS ════════════════════ */}
-          {active === "sourcing" && (
-            <div>
-              <SectionHeader number={2} title="Sourcing & Financials"
-                description="Pipeline efficiency, offer outcomes, cost per hire, and salary benchmarks." />
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="🎯" label="Offer Accept Rate"
-                  value={`${sourcingKPIs.offerAcceptRate}%`}
-                  sub="450 / 520 offers" accent={PALETTE.green} />
-                <KPICard icon="🚀" label="Joining Rate"
-                  value={`${sourcingKPIs.joiningRate}%`}
-                  sub="380 / 450 accepted" accent={PALETTE.accent} />
-                <KPICard icon="💰" label="Avg Cost/Hire"
-                  value={`$${(financialKPIs.avgCostPerHire / 1000).toFixed(1)}K`}
-                  sub="Till now" accent={PALETTE.orange} />
-                <KPICard icon="📊" label="Best Cost Month"
-                  value={financialKPIs.bestMonth.month}
-                  sub={`$${financialKPIs.bestMonth.cost.toLocaleString()} per hire`} accent={PALETTE.green} />
-                <KPICard icon="🏆" label="Top Paid Skill"
-                  value={financialKPIs.topPaidDomain.domain}
-                  sub={`$${financialKPIs.topPaidDomain.avgSalary}K avg salary`} accent={PALETTE.accent} />
-              </div>
-
-              <div style={{ ...grid, marginBottom: 16 }}>
-                <ChartPanel title="9. Sourcing Channel Impact & Interview/Offer Ratio"
-                  subtitle="Bars = interviews vs hires per source · dashed line = interview-to-offer ratio (right axis)" height={260} span={2}>
-                  <SourcingChannelWithRatio />
-                </ChartPanel>
-
-                <ChartPanel title="10. Offer Acceptance & Joining Rate"
-                  subtitle="Gauges: accepted/offered · joined/accepted" height={260}>
-                  <GaugePair />
-                </ChartPanel>
-
-                <ChartPanel title="11. Candidate Funnel — Drop-off at Every Stage"
-                  subtitle="Applied → Screening → Tech Interview → Offer → Joined" height={260}>
+                <ChartPanel title="5. Candidate Funnel"
+                  subtitle="Tracks cumulative candidate metrics and step-by-step drop-off rates." height={280}>
                   <CandidateFunnel />
                 </ChartPanel>
 
-                <ChartPanel title="12. Cost Per Hire"
-                  subtitle="Feb-May · green = below avg · red = above avg" height={260}>
-                  <CostPerHireBar />
+                <ChartPanel title="6. Rejection Breakdown by Role & Period"
+                  subtitle="Toggle: By Role (grouped) · By Period (stacked % breakdown)" height={280}>
+                  <SkillOpenClosedShare />
                 </ChartPanel>
 
-                <ChartPanel title="13. Salary Trend Analysis"
-                  subtitle="Avg salary ($K) by skill" height={260}>
-                  <SalaryTrendBar />
-                </ChartPanel>
               </div>
             </div>
           )}
-
-          {/* ══ PREDICTIVE ════════════════════════════════ */}
-          {active === "predictive" && (
-            <div>
-              <SectionHeader number={3} title="Predictive"
-                description="Predictive regional openings, domain demand probabilities, and predicted time-to-fill." />
-
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard icon="⏳" label="Predicted Fill Days"
-                  value={`${predictiveKPIs.avgPredictedFillDays}d`}
-                  sub={`Best: ${predictiveKPIs.bestPredictedFillMonth.month} (${predictiveKPIs.bestPredictedFillMonth.days}d)`}
-                  accent={PALETTE.green} />
-                <KPICard icon="🔮" label="Predicted Highest Demand"
-                  value={predictiveKPIs.highestDemand.domain}
-                  sub={`${Math.round(predictiveKPIs.highestDemand.probability * 100)}% probability`}
-                  accent={PALETTE.accent} />
-                <KPICard icon="📍" label="Predicted Hot Region"
-                  value={predictiveKPIs.hottestRegion.region || "—"}
-                  sub={predictiveKPIs.hottestRegion.region
-                    ? `${predictiveKPIs.hottestRegion.domain}: ${predictiveKPIs.hottestRegion.value} forecast openings`
-                    : "See heatmap below"}
-                  accent={PALETTE.orange} />
-              </div>
-
-              <div style={{ ...grid, marginBottom: 16 }}>
-                <ChartPanel title="14. Predicted Openings by Region & Domain"
-                  subtitle="Next 3 months — viridis scale · values = projected open positions" height={260}>
-                  <ForecastRegionHeatmap />
-                </ChartPanel>
-
-                <ChartPanel title="15. Predicted Domain Demand Probability"
-                  subtitle="Probability of high demand per domain — next 3 months" height={260}>
-                  <DomainDemandProbBar />
-                </ChartPanel>
-
-                <ChartPanel title="16. Predicted Time-to-Fill by Skill"
-                  subtitle="Solid = historical · ★ months = forecast (dashed) · all 5 skills" height={260} span={2}>
-                  <PredictedTTFLine />
-                </ChartPanel>
-              </div>
-            </div>
-          )}
-
         </main>
       </div>
     </div>

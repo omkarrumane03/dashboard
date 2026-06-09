@@ -1,186 +1,525 @@
-export const months =  ['Feb','Mar','Apr','May'];
-export const skills =  ['Java','DevOps','Data Science','UI/UX','Mobile'];
-export const sources = ['LinkedIn','Referrals','Job Portals','Career Site'];
-export const regions = ['Mumbai','Pune','Bangalore','Delhi','Chennai'];
+// ORION REAL DATA — Dec 2025 – May 2026  |  v3.0
 
-// Chart 1 — Net Open Requirements (Previous 3 Months)
-export const netOpenData = [
-  { month: 'Feb', netOpen: 220, netClosed: 135 }, 
-  { month: 'Mar', netOpen: 230, netClosed: 150 },
-  { month: 'Apr', netOpen: 225, netClosed: 145 }, 
-  { month: 'May', netOpen: 240, netClosed: 160 },
-];
-
-// Chart 2 — Open vs Closed by Skills (Previous 3 Months)
-export const skillsMonthly = [
+export const orionPipeline = [
+  // ── PERIOD: Dec–Feb ───────────────────────────────────────────────────────
   {
-    skill: 'Java',
-    monthly: { Feb: { open: 45, closed: 28 }, Mar: { open: 47, closed: 31 }, Apr: { open: 46, closed: 30 }, May: { open: 50, closed: 35 } },
+    id: 1, period: 'Dec–Feb',
+    openedMonth: 'December 2025', closedMonth: 'February 2026', isOpen: false,
+    jobTitle: 'Data Engineer (with/without Data Fabric)',
+    shortTitle: 'Data Eng',
+    openings: 2, experience: '5–7 yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Onsite',
+    // Profiles: 11 | L1 reject: 4 | L1 passed: 7 | L2 reject: 4 | L2 passed: 3
+    // Selected: 1 (dropped – vendor conflict) | Confirmed onboard: 0
+    // Status check: openings(2) = Dropped(1) + Unresolved(1) ✓
+    profilesShared: 11, l1Reject: 4, l2Reject: 4, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 1,
+    status: 'Dropped', notes: 'Selection dropped – vendor conflict (Nirav); net hires = 0',
   },
   {
-    skill: 'DevOps',
-    monthly: { Feb: { open: 48, closed: 30 }, Mar: { open: 50, closed: 33 }, Apr: { open: 49, closed: 32 }, May: { open: 52, closed: 36 } },
+    id: 2, period: 'Dec–Feb',
+    openedMonth: 'December 2025', closedMonth: 'February 2026', isOpen: false,
+    jobTitle: 'Sr. Data Engineer / Lead',
+    shortTitle: 'Sr. Data Eng/Lead',
+    openings: 2, experience: '10+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Onsite',
+    // Profiles: 20 | L1 reject: 7 | L2 reject: 8 | Selected: 2
+    // Onboarded: 1 (Rajaraman) | Not onboarded: 1 (Biswarup – C2C→C2H)
+    // Status check: openings(2) = Onboarded(1) + Partial(1) ✓
+    profilesShared: 20, l1Reject: 7, l2Reject: 8, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 2,
+    status: 'Partial Onboard', notes: '1 onboarded (Rajaraman); 1 not onboarded – C2C→C2H change (Biswarup)',
+  },
+
+  // ── PERIOD: Mar–May ───────────────────────────────────────────────────────
+  {
+    id: 3, period: 'Mar–May',
+    openedMonth: 'March 2026', closedMonth: 'May 2026', isOpen: false,
+    jobTitle: 'Sr. Data Engineer',
+    shortTitle: 'Sr. Data Eng',
+    openings: 2, experience: '6+ yrs',
+    location: 'Remote', workMode: 'Remote',
+    // Profiles: 9 | L1 reject: 3 | L2 reject: 2 | Selections: 0
+    // Status check: openings(2) = Closed(2) – position changed C2C→C2H ✓
+    profilesShared: 9, l1Reject: 3, l2Reject: 2, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Closed', notes: 'Position changed C2C→C2H mid-cycle; no selection made',
   },
   {
-    skill: 'Data Science',
-    monthly: { Feb: { open: 42, closed: 25 }, Mar: { open: 44, closed: 28 }, Apr: { open: 43, closed: 27 }, May: { open: 46, closed: 31 } },
+    id: 4, period: 'Mar–May',
+    openedMonth: 'March 2026', closedMonth: 'May 2026', isOpen: false,
+    jobTitle: 'Sr. Data Lead',
+    shortTitle: 'Sr. Data Lead',
+    openings: 1, experience: '10+ yrs',
+    location: 'Remote', workMode: 'Remote',
+    // Profiles: 1 | No L1/L2 feedback received
+    // Status check: openings(1) = No Update(1) ✓
+    profilesShared: 1, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'No Update', notes: 'Only 1 profile shared; no client feedback received',
   },
   {
-    skill: 'UI/UX',
-    monthly: { Feb: { open: 42, closed: 26 }, Mar: { open: 44, closed: 29 }, Apr: { open: 43, closed: 28 }, May: { open: 46, closed: 30 } },
+    id: 5, period: 'Mar–May',
+    openedMonth: 'March 2026', closedMonth: 'May 2026', isOpen: false,
+    jobTitle: 'Lead Full Stack Developer',
+    shortTitle: 'Lead Full Stack',
+    openings: 1, experience: '8–12 yrs',
+    location: 'Remote', workMode: 'Remote',
+    // Profiles: 5 | L1 reject: 3 | Position put on hold
+    // Status check: openings(1) = On Hold(1) ✓
+    profilesShared: 5, l1Reject: 3, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'On Hold', notes: 'L1 rejections; position put on hold',
   },
   {
-    skill: 'Mobile',
-    monthly: { Feb: { open: 43, closed: 26 }, Mar: { open: 45, closed: 29 }, Apr: { open: 44, closed: 28 }, May: { open: 46, closed: 28 } },
+    id: 6, period: 'Mar–May',
+    openedMonth: 'March 2026', closedMonth: 'May 2026', isOpen: false,
+    jobTitle: 'Solution Architect',
+    shortTitle: 'Solution Arch.',
+    openings: 1, experience: '8–18 yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune/Hyderabad', workMode: 'Hybrid',
+    // Profiles: 7 | L1 reject: 2 | L2 reject: 2 | Position put on hold
+    // Status check: openings(1) = On Hold(1) ✓
+    profilesShared: 7, l1Reject: 2, l2Reject: 2, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'On Hold', notes: 'L1 & L2 rejections; position put on hold',
+  },
+
+  // ── PERIOD: May (Open) ────────────────────────────────────────────────────
+  {
+    id: 7, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: '.Net Full Stack (Manager)',
+    shortTitle: '.Net Full Stack',
+    openings: 3, experience: '8+ yrs',
+    location: 'Hyderabad – Hi-Tech City', workMode: 'Onsite',
+    // Profiles: 5 | F2F drive: 2 | L1 select: 1 (RajKumar Kasraveni)
+    // Position on hold. inProcess=1 (L1 select progressing), f2f=2
+    // Status check: openings(3) = On Hold(3) – all paused ✓
+    profilesShared: 5, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 2, inProcess: 1, selections: 0,
+    status: 'On Hold', notes: 'F2F drive: 2; L1 select: 1 (RajKumar Kasraveni); position on hold',
+  },
+  {
+    id: 8, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'AI Engineer (SA2)',
+    shortTitle: 'AI Engineer',
+    openings: 3, experience: '6+ yrs',
+    location: 'Hyderabad', workMode: 'Onsite',
+    // Profiles: 7 | L1 reject: 1 | In final round: 1 (Hariom) | Feedback pending: 2
+    // 3 did not receive interview link → unaccounted/dropped
+    // l1Passed = 7-1 = 6; f2f=1 (Hariom in final); inProcess=2 (feedback pending)
+    // Status check: openings(3) = Active(3) – still in flight ✓
+    profilesShared: 7, l1Reject: 1, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 1, inProcess: 2, selections: 0,
+    status: 'Active', notes: '1 in final round (Hariom); 2 feedback pending; 3 did not receive interview link',
+  },
+  {
+    id: 9, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'AI Data Scientist',
+    shortTitle: 'AI Data Sci.',
+    openings: 3, experience: '6–8 yrs',
+    location: 'Hyderabad', workMode: 'Onsite',
+    // Profiles: 2 | L1 select: 2 | Position on hold after selects
+    // inProcess=2 (L1 selected, awaiting next step)
+    // Status check: openings(3) = On Hold(3) – paused post-L1 ✓
+    profilesShared: 2, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 2, selections: 0,
+    status: 'On Hold', notes: '2 L1 selects; position put on hold',
+  },
+  {
+    id: 10, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Azure Data Engineer',
+    shortTitle: 'Azure Data Eng',
+    openings: 3, experience: '6–12 yrs',
+    location: 'Hyderabad', workMode: 'Onsite',
+    // Profiles: 10 | Zeko reject: 3 | Duplicate: 1 | L2 slot pending: 2
+    // Usable profiles: 10-1(dup) = 9; Zeko reject: 3; L2 pending: 2; remaining unresolved: 4
+    // Status check: openings(3) = On Hold(3) ✓
+    profilesShared: 10, l1Reject: 0, l2Reject: 0, zekoReject: 3,
+    f2fFinalRound: 0, inProcess: 2, selections: 0,
+    status: 'On Hold', notes: '3 Zeko rejects; 1 duplicate profile; 2 awaiting L2 slot; position on hold',
+  },
+  {
+    id: 11, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Cloud Support Engineer',
+    shortTitle: 'Cloud Support',
+    openings: 7, experience: '6–11 yrs',
+    location: 'Hyderabad', workMode: 'Hybrid',
+    // No profiles shared yet
+    // Status check: openings(7) = Not Started(7) ✓
+    profilesShared: 0, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Not Started', notes: 'Profiles not yet shared',
+  },
+  {
+    id: 12, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Deployment Engineer',
+    shortTitle: 'Deployment Eng',
+    openings: 7, experience: '4–8 yrs',
+    location: 'Hyderabad', workMode: 'Hybrid',
+    // No profiles shared yet
+    // Status check: openings(7) = Not Started(7) ✓
+    profilesShared: 0, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Not Started', notes: 'Profiles not yet shared',
+  },
+  {
+    id: 13, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'GenAI Lead',
+    shortTitle: 'GenAI Lead',
+    openings: 3, experience: '8+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // Profiles: 6 | L1 reject: 0 | L2 reject: 1 | In process: 5
+    // 6 shared → 0 L1 reject → 6 passed L1 → 1 L2 reject → 5 in process ✓
+    // Status check: openings(3) = Active(3) – all in flight ✓
+    profilesShared: 6, l1Reject: 0, l2Reject: 1, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 5, selections: 0,
+    status: 'Active', notes: '5 in process; strong pipeline',
+  },
+  {
+    id: 14, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'GenAI Developer',
+    shortTitle: 'GenAI Dev',
+    openings: 3, experience: '5–6+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // Profiles: 5 | L1 reject: 0 | L2 reject: 2 | In process: 3
+    // 5 → 0 L1 reject → 5 passed L1 → 2 L2 reject → 3 in process ✓
+    // Status check: openings(3) = Active(3) ✓
+    profilesShared: 5, l1Reject: 0, l2Reject: 2, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 3, selections: 0,
+    status: 'Active', notes: '3 in process',
+  },
+  {
+    id: 15, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Sr. Data Engineer with AI',
+    shortTitle: 'Sr. DE + AI',
+    openings: 3, experience: '5–7+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // Profiles: 5 | L1 reject: 2 | L2 reject: 2 | In process: 1
+    // 5 → 2 L1 reject → 3 passed L1 → 2 L2 reject → 1 in process ✓
+    // Status check: openings(3) = Active(3) ✓
+    profilesShared: 5, l1Reject: 2, l2Reject: 2, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 1, selections: 0,
+    status: 'Active', notes: '1 in process',
+  },
+  {
+    id: 16, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Data Lead with AI',
+    shortTitle: 'Data Lead + AI',
+    openings: 3, experience: '8–12+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // Profiles: 3 | L1 yet to be scheduled
+    // inProcess=3 (shared but L1 not yet done)
+    // Status check: openings(3) = Active – L1 Pending(3) ✓
+    profilesShared: 3, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 3, selections: 0,
+    status: 'Active – L1 Pending', notes: 'L1 yet to be scheduled; 3 profiles awaiting evaluation',
+  },
+  {
+    id: 17, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Gen AI Engineer (KPMG)',
+    shortTitle: 'GenAI Eng',
+    openings: 3, experience: '6+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // No profiles shared yet
+    // Status check: openings(3) = Not Started(3) ✓
+    profilesShared: 0, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Not Started', notes: 'Profiles not yet shared',
+  },
+  {
+    id: 18, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'Gen AI Lead (KPMG)',
+    shortTitle: 'GenAI Lead (K)',
+    openings: 3, experience: '8+ yrs',
+    location: 'Kochi/Coimbatore/Chennai/Mumbai/Pune', workMode: 'Not Specified',
+    // No profiles shared yet
+    // Status check: openings(3) = Not Started(3) ✓
+    profilesShared: 0, l1Reject: 0, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Not Started', notes: 'Profiles not yet shared',
+  },
+  {
+    id: 19, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: true,
+    jobTitle: 'UI/UX Designer',
+    shortTitle: 'UI/UX Designer',
+    openings: 4, experience: '8–12+ yrs',
+    location: 'Gurgaon/Noida/Coimbatore/Chennai', workMode: 'Onsite',
+    // Profiles: 8 | L1 reject: 3 | L1 select: 2 | Position on hold
+    // 8 → 3 L1 reject → 5 passed L1 → 2 progressing (inProcess=2) → hold
+    // Note: 8 - 3(L1 reject) - 2(inProcess) = 3 unresolved (screened but no result yet)
+    // Status check: openings(4) = On Hold(4) ✓
+    profilesShared: 8, l1Reject: 3, l2Reject: 0, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 2, selections: 0,
+    status: 'On Hold', notes: '2 L1 selected; position on hold (WPP client)',
+  },
+  {
+    id: 20, period: 'May',
+    openedMonth: 'May 2026', closedMonth: null, isOpen: false,
+    jobTitle: 'Network Engineer (Verizon)',
+    shortTitle: 'Network Eng',
+    openings: 3, experience: '5+ yrs',
+    location: 'Chennai – Ambattur ODC', workMode: 'Onsite',
+    // Profiles: 4 | L1 reject: 1 | L2 reject: 3 | Selections: 0
+    // 4 → 1 L1 reject → 3 passed L1 → 3 L2 reject → 0 selections ✓
+    // Status check: openings(3) = Closed(3) ✓
+    profilesShared: 4, l1Reject: 1, l2Reject: 3, zekoReject: 0,
+    f2fFinalRound: 0, inProcess: 0, selections: 0,
+    status: 'Closed', notes: 'Position closed; immediate joiners only; all L2 rejected',
   },
 ];
 
-// Chart 3 — Open Positions by Region and Skills  (Current Month (May))
-export const regionSkillsHeatmap = {
-  skills: ['Java', 'DevOps', 'Data Science', 'UI/UX', 'Mobile'],
-  regions: ['North America', 'EMEA', 'APAC', 'LATAM', 'India'],
-  values: {
-    Feb: [ [12, 8, 10, 5, 10],  [15, 10, 8, 5, 10],  [10, 10, 7, 5, 10],  [8, 12, 10, 4, 8],   [9, 9, 10, 6, 9] ],
-    Mar: [ [13, 9, 10, 5, 10],  [14, 11, 9, 6, 10],  [11, 10, 8, 5, 10],  [10, 12, 10, 5, 7],  [10, 10, 10, 5, 10] ],
-    Apr: [ [12, 10, 9, 5, 10],  [13, 12, 10, 5, 9],  [10, 9, 10, 6, 8],   [9, 11, 11, 4, 8],   [11, 8, 10, 7, 8] ],
-    May: [ [15, 10, 10, 5, 10], [16, 12, 8, 6, 10],  [12, 9, 10, 5, 10], [10, 14, 10, 4, 8],   [12, 10, 9, 6, 9]  ]
-  }
-};
+// ── Derived Orion Period Aggregates ───────────────────────────────────────────
+// Aggregated by summing orionPipeline rows per period.
+// Dec–Feb  : ids 1–2  | Mar–May: ids 3–6  | May: ids 7–20
+// Strict check per period: totalRejects + inProcess + selections + unresolved = profilesShared
 
-// Chart 4 — Skills-wise Hiring Share (Previous 3 Months) + Current Month (May)
-export const hiringShare = [
-  { month: 'Feb', skill: 'Java', share: 30 }, 
-  { month: 'Feb', skill: 'DevOps', share: 25 }, 
-  { month: 'Feb', skill: 'Data Science', share: 20 },
-  {month: 'Feb', skill: 'UI/UX', share: 15 },
-  {month: 'Feb', skill: 'Mobile', share: 10 },
-  { month: 'Mar', skill: 'Java', share: 28 }, 
-  { month: 'Mar', skill: 'DevOps', share: 26 }, 
-  { month: 'Mar', skill: 'Data Science', share: 22 },
-  {month: 'Mar', skill: 'UI/UX', share: 14 },
-  {month: 'Mar', skill: 'Mobile', share: 10 },
-  { month: 'Apr', skill: 'Java', share: 30 }, 
-  { month: 'Apr', skill: 'DevOps', share: 25 }, 
-  { month: 'Apr', skill: 'Data Science', share: 20 },
-  {month: 'Apr', skill: 'UI/UX', share: 15 },
-  {month: 'Apr', skill: 'Mobile', share: 10 },
-  { month: 'May', skill: 'Java', share: 32 }, 
-  { month: 'May', skill: 'DevOps', share: 24 }, 
-  { month: 'May', skill: 'Data Science', share: 21 },
-  {month: 'May', skill: 'UI/UX', share: 14 },
-  {month: 'May', skill: 'Mobile', share: 9 },
+export const orionPeriodData = [
+  {
+    // id 1: shared=11, l1R=4, l2R=4, zeko=0, sel=1, inProc=0
+    // id 2: shared=20, l1R=7, l2R=8, zeko=0, sel=2, inProc=0
+    // Totals: shared=31, l1R=11, l2R=12, zeko=0, sel=3, inProc=0
+    // rejectionCount = l1R+l2R+zeko = 11+12+0 = 23
+    period: 'Dec–Feb',
+    profilesShared: 31, l1Reject: 11, l2Reject: 12,
+    zekoReject: 0, inProcess: 0, selections: 3,
+    rejectionCount: 23, roles: 2,
+  },
+  {
+    // id 3: shared=9,  l1R=3, l2R=2, zeko=0, sel=0, inProc=0
+    // id 4: shared=1,  l1R=0, l2R=0, zeko=0, sel=0, inProc=0
+    // id 5: shared=5,  l1R=3, l2R=0, zeko=0, sel=0, inProc=0
+    // id 6: shared=7,  l1R=2, l2R=2, zeko=0, sel=0, inProc=0
+    // Totals: shared=22, l1R=8, l2R=4, zeko=0, sel=0, inProc=0
+    // rejectionCount = 8+4+0 = 12
+    period: 'Mar–May',
+    profilesShared: 22, l1Reject: 8, l2Reject: 4,
+    zekoReject: 0, inProcess: 0, selections: 0,
+    rejectionCount: 12, roles: 4,
+  },
+  {
+    // ids 7–20 (14 roles)
+    // shared: 5+7+2+10+0+0+6+5+5+3+0+0+8+4 = 55
+    // l1R:    0+1+0+0+0+0+0+0+2+0+0+0+3+1  = 7
+    // l2R:    0+0+0+0+0+0+1+2+2+0+0+0+0+3  = 8
+    // zeko:   0+0+0+3+0+0+0+0+0+0+0+0+0+0  = 3
+    // sel:    0+0+0+0+0+0+0+0+0+0+0+0+0+0  = 0
+    // inProc: 1+2+2+2+0+0+5+3+1+3+0+0+2+0  = 21
+    // Note: id 7 inProcess corrected to 1 (L1 select: RajKumar); id 9 inProcess=2 (L1 selects)
+    // rejectionCount = 7+8+3 = 18
+    period: 'May',
+    profilesShared: 55, l1Reject: 7, l2Reject: 8,
+    zekoReject: 3, inProcess: 21, selections: 0,
+    rejectionCount: 18, roles: 14,
+  },
 ];
 
-// Chart 5 — Demand by Experience Level Previous 3 Months + Current Month (May)
-export const experienceDemand = [
-  { month: 'Feb', level: 'Fresher (0-2)', count: 50 }, { month: 'Feb', level: 'Junior (3-7)', count: 70 },
-  { month: 'Feb', level: 'Mid (7-12)', count: 60 },    { month: 'Feb', level: 'Senior (12+)', count: 40 },
-  { month: 'Mar', level: 'Fresher (0-2)', count: 55 }, { month: 'Mar', level: 'Junior (3-7)', count: 75 },
-  { month: 'Mar', level: 'Mid (7-12)', count: 60 },    { month: 'Mar', level: 'Senior (12+)', count: 40 },
-  { month: 'Apr', level: 'Fresher (0-2)', count: 50 }, { month: 'Apr', level: 'Junior (3-7)', count: 70 },
-  { month: 'Apr', level: 'Mid (7-12)', count: 65 },    { month: 'Apr', level: 'Senior (12+)', count: 40 },
-  { month: 'May', level: 'Fresher (0-2)', count: 60 }, { month: 'May', level: 'Junior (3-7)', count: 80 },
-  { month: 'May', level: 'Mid (7-12)', count: 60 },    { month: 'May', level: 'Senior (12+)', count: 40 },
+// ── Orion Roles Opened vs Resolved per Period ─────────────────────────────────
+// rolesOpened   = total roles in that period
+// rolesResolved = roles with a final outcome (Closed, Dropped, Partial Onboard, Closed-NoHire)
+// rolesOnHold   = roles with status 'On Hold'
+// rolesInProcess = roles with status 'Active' or 'Active – L1 Pending' or 'Not Started' (still moving)
+// Strict check: rolesOpened = rolesResolved + rolesOnHold + rolesInProcess (+ Not Started)
+//
+// Dec–Feb (2 roles): Dropped=1, Partial Onboard=1 → resolved=2, onHold=0, inProcess=0  ✓ 2=2+0+0
+// Mar–May (4 roles): Closed=2(ids3+4→No Update counts as unresolved; id3=Closed,id4=NoUpdate),
+//   On Hold=2 (ids 5,6) → resolved=1(id3), onHold=2(ids5,6), noUpdate=1(id4) → as inProcess=1
+//   ✓ 4 = 1 + 2 + 1
+// May (14 roles): On Hold=5(ids7,9,10,11→NotStarted,12→NotStarted,19)
+//   Active=4(ids8,13,14,15), L1Pending=1(id16), NotStarted=2(ids17,18), Closed=1(id20),
+//   OnHold proper=3(ids7,9,19) + NotStarted=2(ids11,12) → grouping:
+//   resolved=1(Closed:id20), onHold=5(ids7,9,10,19,11,12→6 but 11&12 not started=2+OnHold=3+id10=1→6),
+//   inProcess=7(Active ids8,13,14,15 + L1Pending id16 + NotStarted ids17,18)
+//   ✓ 14 = 1 + 6 + 7
+
+export const orionRolesPerPeriod = [
+  {
+    // Dec–Feb (2 roles):
+    // id1 = Dropped (selected but vendor conflict → no hire)  → closedNoHire: 1
+    // id2 = Partial Onboard (2 selected, 1 onboarded)        → closedHired:  1
+    // ✓ 2 = 1 + 1 + 0 + 0 + 0
+    period:          'Dec–Feb',
+    rolesOpened:     2,
+    rolesClosedHired:   1,   // id2 – at least 1 onboarded
+    rolesClosedNoHire:  1,   // id1 – selection dropped (vendor conflict)
+    rolesOnHold:     0,
+    rolesInProcess:  0,
+    rolesNotStarted: 0,
+  },
+  {
+    // Mar–May (4 roles):
+    // id3 = Closed, C2C→C2H, 0 hires  → closedNoHire: 1
+    // id4 = No Update, 0 hires         → closedNoHire: 1
+    // id5 = On Hold                    → onHold:       1
+    // id6 = On Hold                    → onHold:       1
+    // ✓ 4 = 0 + 2 + 2 + 0 + 0
+    period:          'Mar–May',
+    rolesClosedHired:   0,
+    rolesClosedNoHire:  2,   // id3 (C2C→C2H), id4 (no update/stalled-closed)
+    rolesOnHold:     2,      // id5, id6
+    rolesInProcess:  0,
+    rolesNotStarted: 0,
+    rolesOpened:     4,
+  },
+  {
+    // May (14 roles):
+    // id20 = Closed, 0 hires           → closedNoHire: 1
+    // id7  = On Hold                   → onHold:       1
+    // id9  = On Hold                   → onHold:       1
+    // id10 = On Hold                   → onHold:       1
+    // id19 = On Hold                   → onHold:       1
+    // id8  = Active (in process)       → inProcess:    1
+    // id13 = Active (in process)       → inProcess:    1
+    // id14 = Active (in process)       → inProcess:    1
+    // id15 = Active (in process)       → inProcess:    1
+    // id16 = Active – L1 Pending       → inProcess:    1
+    // id11 = Not Started               → notStarted:   1
+    // id12 = Not Started               → notStarted:   1
+    // id17 = Not Started               → notStarted:   1
+    // id18 = Not Started               → notStarted:   1
+    // ✓ 14 = 0 + 1 + 4 + 5 + 4
+    period:          'May',
+    rolesOpened:     14,
+    rolesClosedHired:   0,
+    rolesClosedNoHire:  1,   // id20 – Network Engineer
+    rolesOnHold:     4,      // id7, id9, id10, id19
+    rolesInProcess:  5,      // id8, id13, id14, id15, id16
+    rolesNotStarted: 4,      // id11, id12, id17, id18
+  },
 ];
 
-// Chart 6 — Time-to-Fill by Skills (avg days per month) (Previous 3 Months)
-export const timeToFillData = [
-  { month:'Feb', Java:21, DevOps:20, 'Data Science':21, 'UI/UX':24, Mobile:23 }, 
-  { month:'Mar', Java:37, DevOps:20, 'Data Science':20, 'UI/UX':38, Mobile:49 },
-  { month:'Apr', Java:35, DevOps:28, 'Data Science':25, 'UI/UX':41, Mobile:47 }, 
-  { month:'May', Java:30, DevOps:25, 'Data Science':22, 'UI/UX':35, Mobile:40 },
+// ── Candidate Funnel — All 20 roles combined ──────────────────────────────────
+// Stage flow (strict top-down arithmetic):
+//   Profiles Shared : 31 + 22 + 55 = 108
+//   L1 Passed       : 108 - (11+8+7)[l1Rejects] - 3[zekoReject] = 108 - 26 - 3 = 79
+//   L2 Passed       : 79  - (12+4+8)[l2Rejects] = 79 - 24 = 55
+//   F2F / Final     : counted from pipeline rows = 0+0+0+0+0+0+2+1+0+0+0+0+0+0+0+0+0+0+0+0 = 3
+//   Selections      : 1+2 = 3 (Dec–Feb only; May = 0)
+
+export const orionFunnelData = [
+  { stage: 'Profiles Shared', count: 108 },
+  { stage: 'L1 Passed',       count: 79  },
+  { stage: 'L2 Passed',       count: 55  },
+  { stage: 'F2F / Final',     count: 3   },
+  { stage: 'Selections',      count: 3   },
 ];
 
-// Chart 7 — Sourcing Channel Impact (Sunburst source data) (Previous 3 Months)
-export const sourcingData = [
-  { month: 'Feb', source: 'LinkedIn', interviews: 180, hires: 60 },      { month: 'Feb', source: 'Referrals', interviews: 120, hires: 40 },
-  { month: 'Feb', source: 'Job Portals', interviews: 110, hires: 35 },   { month: 'Feb', source: 'Career Site', interviews: 115, hires: 38 },
-  { month: 'Mar', source: 'LinkedIn', interviews: 200, hires: 65 },      { month: 'Mar', source: 'Referrals', interviews: 130, hires: 45 },
-  { month: 'Mar', source: 'Job Portals', interviews: 125, hires: 40 },   { month: 'Mar', source: 'Career Site', interviews: 130, hires: 42 },
-  { month: 'Apr', source: 'LinkedIn', interviews: 190, hires: 62 },      { month: 'Apr', source: 'Referrals', interviews: 125, hires: 43 },
-  { month: 'Apr', source: 'Job Portals', interviews: 120, hires: 38 },   { month: 'Apr', source: 'Career Site', interviews: 125, hires: 40 },
-  { month: 'May', source: 'LinkedIn', interviews: 220, hires: 75 },      { month: 'May', source: 'Referrals', interviews: 150, hires: 55 },
-  { month: 'May', source: 'Job Portals', interviews: 130, hires: 45 },   { month: 'May', source: 'Career Site', interviews: 140, hires: 50 },
+// ── Work Mode Distribution per Period ────────────────────────────────────────
+// Derived from orionPipeline workMode per period (role count, not openings):
+// Dec–Feb : id1=Onsite, id2=Onsite → Onsite=2
+// Mar–May : id3=Remote, id4=Remote, id5=Remote, id6=Hybrid → Remote=3, Hybrid=1
+// May     : id7=Onsite, id8=Onsite, id9=Onsite, id10=Onsite,
+//           id11=Hybrid, id12=Hybrid, id13=Not Specified, id14=Not Specified,
+//           id15=Not Specified, id16=Not Specified, id17=Not Specified, id18=Not Specified,
+//           id19=Onsite, id20=Onsite → Onsite=6, Hybrid=2, NotSpecified=6
+
+export const orionWorkModeData = [
+  { period: 'Dec–Feb', Onsite: 2, Remote: 0, Hybrid: 0, 'Not Specified': 0 },
+  { period: 'Mar–May', Onsite: 0, Remote: 3, Hybrid: 1, 'Not Specified': 0 },
+  { period: 'May',     Onsite: 6, Remote: 0, Hybrid: 2, 'Not Specified': 6 },
 ];
 
-// Chart 8 — Offer Acceptance & Joining Rate (Previous 3 Months)
-export const offerMetricsMonthly = [
-  { month: 'Feb', acceptRate: 85, joinRate: 82 }, { month: 'Mar', acceptRate: 87, joinRate: 84 },
-  { month: 'Apr', acceptRate: 87, joinRate: 84 }, { month: 'May', acceptRate: 88, joinRate: 86 },
+// ── Experience Bucket Distribution per Period (role count) ───────────────────
+// Buckets: Junior (4–6y) | Senior (6–10y) | Lead (10y+)
+// Dec–Feb:
+//   id1 5–7y   → Senior(6–10y): 1
+//   id2 10+y   → Lead(10y+):    1
+// Mar–May:
+//   id3 6+y    → Senior(6–10y): 1
+//   id4 10+y   → Lead(10y+):    1
+//   id5 8–12y  → Lead(10y+):    1  (8+ crosses senior/lead; 8–12 spans both; classified Lead as 8+ ≥ typical lead threshold)
+//   id6 8–18y  → Lead(10y+):    1
+// May:
+//   id7  8+y   → Lead(10y+)
+//   id8  6+y   → Senior(6–10y)
+//   id9  6–8y  → Senior(6–10y)
+//   id10 6–12y → Senior(6–10y)
+//   id11 6–11y → Senior(6–10y)
+//   id12 4–8y  → Junior(4–6y) + Senior(6–10y) → classified Senior (mid-range 4–8 = Senior)
+//   id13 8+y   → Lead(10y+)
+//   id14 5–6+y → Junior(4–6y)
+//   id15 5–7+y → Junior(4–6y)
+//   id16 8–12+y→ Lead(10y+)
+//   id17 6+y   → Senior(6–10y)
+//   id18 8+y   → Lead(10y+)
+//   id19 8–12+y→ Lead(10y+)
+//   id20 5+y   → Junior(4–6y)
+// May counts: Junior=3(ids14,15,20), Senior=6(ids8,9,10,11,12,17), Lead=5(ids7,13,16,18,19)
+// ✓ 3+6+5 = 14 roles ✓
+
+export const orionExperienceData = [
+  { period: 'Dec–Feb', 'Junior (4–6y)': 0, 'Senior (6–10y)': 1, 'Lead (10y+)': 1 },
+  { period: 'Mar–May', 'Junior (4–6y)': 0, 'Senior (6–10y)': 1, 'Lead (10y+)': 3 },
+  { period: 'May',     'Junior (4–6y)': 3, 'Senior (6–10y)': 6, 'Lead (10y+)': 5 },
 ];
 
-// Chart 9 — Candidate Funnel (Previous 3 Months)
-export const candidateFunnelMonthly = [
-  { month: 'Feb', stage: 'Applied',   count: 2000 },  { month: 'Feb', stage: 'Screening', count: 1000 },
-  { month: 'Feb', stage: 'Technical', count: 500 },   { month: 'Feb', stage: 'Offer',     count: 400 },
-  { month: 'Feb', stage: 'Joined',    count: 320 },   { month: 'Mar', stage: 'Applied',   count: 2200 },
-  { month: 'Mar', stage: 'Screening', count: 1100 },  { month: 'Mar', stage: 'Technical', count: 550 },
-  { month: 'Mar', stage: 'Offer',     count: 450 },   { month: 'Mar', stage: 'Joined',    count: 360 },
-  { month: 'Apr', stage: 'Applied',   count: 2850 },  { month: 'Apr', stage: 'Screening', count: 1420 },
-  { month: 'Apr', stage: 'Technical', count: 680 },   { month: 'Apr', stage: 'Offer',     count: 510 },
-  { month: 'Apr', stage: 'Joined',    count:410 },    { month: 'May', stage: 'Applied',   count: 6500 },
-  { month: 'May', stage: 'Screening', count:3200 },   { month: 'May', stage:'Technical',  count:1600 },
-  { month: 'May', stage: 'Offer',     count:1200 },   { month: 'May', stage: 'Joined',    count:950 },
-];
+// ── Location Heatmap (profiles shared by location × period) ──────────────────
+// Dec–Feb: all profiles → Kochi/etc = 11+20 = 31
+// Mar–May: Remote = 9+1+5 = 15 | Kochi/etc/Hyd = 7 (id6)
+//   id6 is Kochi/…/Hyderabad → nearest bucket = Kochi/Coimbatore/Chennai/Mumbai/Pune
+// May:
+//   Hyderabad (ids 7,8,9,10): 5+7+2+10 = 24
+//   Hyderabad Hybrid (ids 11,12): 0+0 = 0
+//   Bangalore: 0 (id10 corrected to Hyderabad per xlsx – KPMG GDC Hyderabad)
+//   Kochi/etc (ids 13,14,15,16,17,18): 6+5+5+3+0+0 = 19
+//   Gurgaon/etc (id19): 8
+//   Chennai-Ambattur (id20): 4
 
-// Chart 10 — Interview-to-Offer Ratio (monthly, step line) (Previous 3 Months)
-export const interviewOfferRatio = [
-    { month: 'Feb', ratio: 3 }, { month: 'Mar', ratio: 4 }, 
-    { month: 'Apr', ratio: 4 }, { month: 'May', ratio: 4 },
-];
-
-// Chart 11 — Cost Per Hire by Months (Previous 3 Months)
-export const costPerHire = [
-  { month:'Feb', cost:4100 }, { month:'Mar', cost:4700 }, 
-  { month:'Apr', cost:4300 }, { month:'May', cost:4500 },
-];
-
-// Chart 12 — Salary Trend by Skills (Previous 3 Months)
-export const salaryTrend = [
-  { month: 'Feb', skill: 'Java', salary: 82 },          { month: 'Feb', skill: 'DevOps', salary: 92 },
-  { month: 'Feb', skill: 'Data Science', salary: 110 }, { month: 'Feb', skill: 'UI/UX', salary: 78 },
-  { month: 'Feb', skill: 'Mobile', salary: 88 },        { month: 'Mar', skill: 'Java', salary: 84 },
-  { month: 'Mar', skill: 'DevOps', salary: 94 },        { month: 'Mar', skill: 'Data Science', salary: 112 },
-  { month: 'Mar', skill: 'UI/UX', salary: 79 },         { month: 'Mar', skill: 'Mobile', salary: 89 },
-  { month: 'Apr', skill: 'Java', salary: 85 },          { month: 'Apr', skill: 'DevOps', salary: 95 },
-  { month: 'Apr', skill: 'Data Science', salary: 115 }, { month: 'Apr', skill: 'UI/UX', salary: 80 },
-  { month: 'Apr', skill: 'Mobile', salary: 90 },        { month: 'May', skill: 'Java', salary: 88 },
-  { month: 'May', skill: 'DevOps', salary: 98 },        { month: 'May', skill: 'Data Science', salary: 120 },
-  { month: 'May', skill: 'UI/UX', salary: 82 },         { month: 'May', skill: 'Mobile', salary: 92 },
-];
-
-// Chart 13 — Forecasted Job Openings by Region & Skills  (Future Month (June-July-August))
-// Values = df_region_skill * 1.2 rounded
-export const forecastRegionSkill = {
-  skills,
-  regions,
-  // values: [ [60, 24, 36, 30, 42],[24, 66, 48, 72, 54],[54, 36, 60, 66, 48],[72, 30, 54, 60, 42],[48, 42, 36, 78, 60] ],
-  values: {
-    Jun_F: [ [7, 3, 8, 6, 5],[7, 8, 7, 4, 5],[6, 9, 8, 4, 8],[3, 5, 8, 8, 6],[8, 1, 9, 3, 2] ],
-    Jul_F: [ [8, 9, 4, 4, 5],[6, 8, 6, 4, 8],[5, 5, 9, 4, 7],[3, 5, 9, 8, 6],[8, 1, 9, 3, 2] ],
-    Aug_F: [ [8, 3, 8, 6, 5],[5, 8, 7, 4, 5],[4, 9, 9, 4,	8],[3,	5, 8, 8, 6],[8, 9, 7, 3, 2] ],  
-   }
-};
-
-// Chart 14 — Forecasted Skills Demand Probability (Future Month (June-July-August))
-export const SkillsDemandProb = [
-  {month: 'Jun_F', skill:'Java',         probability:0.68 }, {month: 'Jun_F', skill:'DevOps',       probability:0.82 },
-  {month: 'Jun_F', skill:'Data Science', probability:0.91 }, {month: 'Jun_F', skill:'UI/UX',        probability:0.55 },
-  {month: 'Jun_F', skill:'Mobile',       probability:0.73 }, 
-  {month: 'Jul_F', skill:'Java',         probability:0.69 }, {month: 'Jul_F', skill:'DevOps',       probability:0.83 }, 
-  {month: 'Jul_F', skill:'Data Science', probability:0.92 }, {month: 'Jul_F', skill:'UI/UX',        probability:0.56 }, 
-  {month: 'Jul_F', skill:'Mobile',       probability:0.74 },
-  {month: 'Aug_F', skill:'Java',         probability:0.70 }, {month: 'Aug_F', skill:'DevOps',       probability:0.84 },
-  {month: 'Aug_F', skill:'Data Science', probability:0.93 }, {month: 'Aug_F', skill:'UI/UX',        probability:0.57 },
-  {month: 'Aug_F', skill:'Mobile',       probability:0.75 },
-];
-
-// Chart 15 (Predicted TTF) — Historical + Forecast dashed (Future Month (June-July-August))
-export const predictedTTF = {
-  historical: timeToFillData,
-  forecast: [
-    { month:'Jun_F', Java:28, DevOps:32, 'Data Science':33, 'UI/UX':37, Mobile:35 },
-    { month:'Jul_F', Java:29, DevOps:31, 'Data Science':34, 'UI/UX':36, Mobile:34 },
-    { month:'Aug_F', Java:30, DevOps:33, 'Data Science':35, 'UI/UX':38, Mobile:36 },
+export const orionLocationHeatmap = {
+  locations: [
+    'Hyderabad',
+    'Remote',
+    'Kochi/Coimbatore/Chennai/Mumbai/Pune',
+    'Gurgaon/Noida/Coimbatore/Chennai',
+    'Chennai – Ambattur ODC',
   ],
+  periods: ['Dec–Feb', 'Mar–May', 'May'],
+  values: {
+    'Dec–Feb': [0,   0,  31, 0, 0],
+    'Mar–May': [7,  15,   0, 0, 0],
+    'May':     [24,  0,  19, 8, 4],
+  },
 };
+
+// ── Position Status Summary ───────────────────────────────────────────────────
+// Derived from orionPipeline.status counts (all 20 roles):
+// Active              : ids 8, 13, 14, 15           = 4
+// Active – L1 Pending : id 16                        = 1
+// On Hold             : ids 5, 6, 7, 9, 10, 19      = 6
+// Not Started         : ids 11, 12, 17, 18           = 4
+// Partial Onboard     : id 2                         = 1
+// Dropped             : id 1                         = 1
+// Closed (no hire)    : id 3                         = 1
+// No Update           : id 4                         = 1
+// Closed              : id 20                        = 1
+// ✓ Total = 4+1+6+4+1+1+1+1+1 = 20 ✓
+
+export const orionStatusData = [
+  { status: 'Active',               count: 4  },
+  { status: 'Active – L1 Pending',  count: 1  },
+  { status: 'On Hold',              count: 6  },
+  { status: 'Not Started',          count: 4  },
+  { status: 'Partial Onboard',      count: 1  },
+  { status: 'Dropped',              count: 1  },
+  { status: 'Closed',               count: 2  },
+  { status: 'No Update',            count: 1  },
+];
+
+// ── Period-over-Period Profile Growth ─────────────────────────────────────────
+export const orionPeriodGrowth = [
+  { period: 'Dec–Feb → Mar–May', growth: parseFloat((((22 - 31) / 31) * 100).toFixed(1)) },  // –29.0%
+  { period: 'Mar–May → May',     growth: parseFloat((((55 - 22) / 22) * 100).toFixed(1)) },  // +150.0%
+];

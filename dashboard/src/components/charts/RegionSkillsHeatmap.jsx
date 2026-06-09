@@ -1,144 +1,183 @@
-// components/charts/RegionSkillsHeatmap.jsx — Chart 7: Open Positions by Region & Skill
+// components/charts/JobLocationHeatmap.jsx
 import { useState } from 'react';
-import { regionSkillsHeatmap, SKILL_COLORS } from '../../data/notebookData';
+import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, Cell } from 'recharts';
+import { orionPipeline } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
-function valueToColor(v, min, max) {
-  const t = max === min ? 0.5 : (v - min) / (max - min);
-  const r = Math.round(15 + t * (88 - 15));
-  const g = Math.round(27 + t * (166 - 27));
-  const b = Math.round(34 + t * (255 - 34));
-  return `rgb(${r},${g},${b})`;
-}
+// Helper function to truncate long labels
+const truncateLabel = (label, maxLength = 12) => {
+  if (!label) return '';
+  return label.length > maxLength ? `${label.substring(0, maxLength)}...` : label;
+};
 
-export default function RegionSkillsHeatmap() {
-  const { skills, regions, values } = regionSkillsHeatmap;
-  const months = Object.keys(values);
-  const [selectedMonth, setSelectedMonth] = useState('May');
+// Custom X-Axis Tick with native hover tooltip
+const CustomXAxisTick = ({ x, y, payload, uniqueRoles }) => {
+  const fullLabel = uniqueRoles[payload.value] || '';
+  const truncated = truncateLabel(fullLabel, 12); // Adjust length limit here
 
-  // Compute min/max from current month's data
-  const flat = values[selectedMonth].flat();
-  const min = Math.min(...flat);
-  const max = Math.max(...flat);
-
-  const cellW = 70;
-  const cellH = 38;
-  const labelW = 100;
-  const headerH = 30;
-  const scaleW = 36;
-  const scaleBarW = 12;
-  const scalePad = 14;
-  const totalW = labelW + regions.length * cellW + scaleW;
-  const totalH = headerH + skills.length * cellH;
-  const scaleX = labelW + regions.length * cellW + scalePad;
-  const scaleBarH = totalH - headerH;
-  const gradientId = 'heatGradient';
-
-  // Build gradient stops from min→max using actual colors
-  // const stops = [0, 0.25, 0.5, 0.75, 1].map((t) => {
-  //   const v = min + t * (max - min);
-  //   return { offset: `${(1 - t) * 100}%`, color: valueToColor(v, min, max) };
-  // });
-// Replace the stops computation with this
-  const stops = [
-    { offset: '0%',   color: valueToColor(max, min, max) },
-    { offset: '25%',  color: valueToColor(min + (max - min) * 0.75, min, max) },
-    { offset: '50%',  color: valueToColor(min + (max - min) * 0.5,  min, max) },
-    { offset: '75%',  color: valueToColor(min + (max - min) * 0.25, min, max) },
-    { offset: '100%', color: valueToColor(min, min, max) },
-  ];
   return (
-    <div style={{ width: '100%', height: '100%', overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-      {/* Month toggle */}
-      <div style={{ display: 'flex', gap: 6 }}>
-        {months.map((month) => (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={10}
+        textAnchor="end"
+        fill={PALETTE.muted}
+        fontSize={10}
+        fontFamily="'JetBrains Mono', monospace"
+        transform="rotate(-45)"
+        style={{ cursor: 'pointer' }}
+      >
+        <title>{fullLabel}</title> {/* Native hover tooltip */}
+        {truncated}
+      </text>
+    </g>
+  );
+};
+
+// Custom Y-Axis Tick with native hover tooltip
+const CustomYAxisTick = ({ x, y, payload, uniqueLocations }) => {
+  const fullLabel = uniqueLocations[payload.value] || '';
+  const truncated = truncateLabel(fullLabel, 15); // Adjust length limit here
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={-10}
+        y={4}
+        textAnchor="end"
+        fill={PALETTE.muted}
+        fontSize={11}
+        fontFamily="'JetBrains Mono', monospace"
+        style={{ cursor: 'pointer' }}
+      >
+        <title>{fullLabel}</title> {/* Native hover tooltip */}
+        {truncated}
+      </text>
+    </g>
+  );
+};
+
+export default function JobLocationHeatmap() {
+  const [selectedPeriod, setSelectedPeriod] = useState('May');
+  const periods = ['May', 'Mar–May', 'Dec–Feb'];
+
+  const filteredData = orionPipeline.filter(item => item.period === selectedPeriod);
+  
+  const uniqueRoles = Array.from(new Set(orionPipeline.map(item => item.jobTitle))).sort();
+  const uniqueLocations = Array.from(new Set(orionPipeline.map(item => item.location || 'Remote/Global'))).sort();
+
+  const matrixData = [];
+  
+  uniqueRoles.forEach((role, xIdx) => {
+    uniqueLocations.forEach((loc, yIdx) => {
+      const matches = filteredData.filter(item => item.jobTitle === role && (item.location || 'Remote/Global') === loc);
+      const totalOpenings = matches.reduce((sum, item) => sum + (parseInt(item.openings, 10) || 0), 0);
+
+      if (totalOpenings > 0) {
+        matrixData.push({
+          x: xIdx,
+          y: yIdx,
+          roleName: role,
+          locationName: loc,
+          openings: totalOpenings,
+        });
+      }
+    });
+  });
+
+  const getColor = (value) => {
+    if (value >= 5) return '#58a6ff';
+    if (value >= 3) return '#1f6feb';
+    return '#164e9e';
+  };
+
+  const CustomTooltip = ({ active, payload }) => {
+    if (!active || !payload?.length) return null;
+    const data = payload[0].payload;
+    return (
+      <div style={{ 
+        background: '#0d1117', 
+        border: `1px solid ${PALETTE.border}`, 
+        borderRadius: 8, 
+        padding: '10px 14px', 
+        fontFamily: "'JetBrains Mono', monospace", 
+        fontSize: 13 
+      }}>
+        <div style={{ color: PALETTE.muted, marginBottom: 4 }}>Role: <span style={{ color: '#fff', fontWeight: 600 }}>{data.roleName}</span></div>
+        <div style={{ color: PALETTE.muted, marginBottom: 4 }}>Location: <span style={{ color: '#fff', fontWeight: 600 }}>{data.locationName}</span></div>
+        <div style={{ color: '#58a6ff', marginTop: 6 }}>Openings: <strong>{data.openings}</strong></div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      
+      {/* Segmented Period Toggle Controls */}
+      <div style={{ display: 'flex', gap: 8, paddingBottom: 4 }}>
+        {periods.map((period) => (
           <button
-            key={month}
-            onClick={() => setSelectedMonth(month)}
+            key={period}
+            onClick={() => setSelectedPeriod(period)}
             style={{
-              padding: '4px 14px',
+              padding: '4px 10px',
               borderRadius: 6,
-              border: `1px solid ${selectedMonth === month ? PALETTE.accent ?? '#58A6FF' : PALETTE.muted ?? '#555'}`,
-              background: selectedMonth === month ? (PALETTE.accent ?? '#58A6FF') : 'transparent',
-              color: selectedMonth === month ? '#fff' : (PALETTE.muted ?? '#aaa'),
-              fontSize: 12,
+              border: `1px solid ${selectedPeriod === period ? '#58a6ff' : PALETTE.border}`,
+              background: selectedPeriod === period ? 'rgba(88, 166, 255, 0.1)' : '#161b22',
+              color: selectedPeriod === period ? '#58a6ff' : PALETTE.muted,
+              fontSize: 10,
               fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: selectedMonth === month ? 700 : 400,
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
+              fontWeight: selectedPeriod === period ? 600 : 400,
+              transition: 'all 0.2s ease'
             }}
           >
-            {month}
+            {period}
           </button>
         ))}
       </div>
 
-      {/* Heatmap + scale */}
-      <svg viewBox={`0 0 ${totalW} ${totalH}`} style={{ width: '100%', maxHeight: '100%', fontFamily: "'JetBrains Mono', monospace" }}>
-        <defs>
-          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-            {stops.map((s) => (
-              <stop key={s.offset} offset={s.offset} stopColor={s.color} />
-            ))}
-          </linearGradient>
-        </defs>
-
-        {/* Region headers */}
-        {regions.map((r, ci) => (
-          <text key={r}
-            x={labelW + ci * cellW + cellW / 2}
-            y={headerH - 6}
-            textAnchor="middle"
-            fill={PALETTE.muted}
-            fontSize={12}>
-            {r}
-          </text>
-        ))}
-
-        {/* Skill rows */}
-        {skills.map((s, ri) => (
-          <g key={s}>
-            <text x={labelW - 6} y={headerH + ri * cellH + cellH / 2 + 4}
-              textAnchor="end" fill={PALETTE.muted} fontSize={12}>{s}</text>
-            {regions.map((r, ci) => {
-              const v = values[selectedMonth][ri][ci];
-              return (
-                <g key={r}>
-                  <rect
-                    x={labelW + ci * cellW + 2} y={headerH + ri * cellH + 2}
-                    width={cellW - 4} height={cellH - 4}
-                    fill={valueToColor(v, min, max)} rx={4}
-                  />
-                  <text
-                    x={labelW + ci * cellW + cellW / 2}
-                    y={headerH + ri * cellH + cellH / 2 + 4}
-                    textAnchor="middle" fill="#fff" fontSize={13} fontWeight={600}>
-                    {v}
-                  </text>
-                </g>
-              );
-            })}
-          </g>
-        ))}
-
-        {/* Gradient scale bar */}
-        <rect
-          x={scaleX} y={headerH}
-          width={scaleBarW} height={scaleBarH}
-          fill={`url(#${gradientId})`} rx={4}
-        />
-        {/* Max label */}
-        <text x={scaleX + scaleBarW + 5} y={headerH + 8}
-          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">{max}</text>
-        {/* Mid label */}
-        <text x={scaleX + scaleBarW + 5} y={headerH + scaleBarH / 2}
-          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">
-          {Math.round((min + max) / 2)}
-        </text>
-        {/* Min label */}
-        <text x={scaleX + scaleBarW + 5} y={headerH + scaleBarH - 4}
-          fill={PALETTE.muted} fontSize={13} dominantBaseline="middle">{min}</text>
-      </svg>
+      {/* Grid Matrix Visualizer */}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 90 }}>
+            <XAxis
+              type="number"
+              dataKey="x"
+              domain={[0, uniqueRoles.length - 1]}
+              tick={<CustomXAxisTick uniqueRoles={uniqueRoles} />}
+              interval={0}
+              axisLine={{ stroke: PALETTE.border }}
+              tickLine={false}
+            />
+            <YAxis
+              type="number"
+              dataKey="y"
+              domain={[0, uniqueLocations.length - 1]}
+              tick={<CustomYAxisTick uniqueLocations={uniqueLocations} />}
+              interval={0}
+              axisLine={{ stroke: PALETTE.border }}
+              tickLine={false}
+              width={130} 
+            />
+            <ZAxis type="number" dataKey="openings" range={[100, 500]} />
+            
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: 'rgba(255,255,255,0.1)' }} />
+            
+            <Scatter data={matrixData}>
+              {matrixData.map((entry, index) => (
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={getColor(entry.openings)} 
+                  stroke={PALETTE.border}
+                  strokeWidth={1}
+                />
+              ))}
+            </Scatter>
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

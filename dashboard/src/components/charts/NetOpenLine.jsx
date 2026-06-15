@@ -1,10 +1,9 @@
 // components/charts/NetOpenLine.jsx
-// Orion real data: Roles Opened → Closed (Hired) → Closed (No Hire) → On Hold → In Process → Not Started
 import {
   AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { orionRolesPerPeriod } from '../../data/notebookData';
+import { orionRolesPerPeriod, MONTHS } from '../../data/notebookData';
 import { PALETTE } from '../../utils/theme';
 
 const SERIES = [
@@ -16,6 +15,7 @@ const SERIES = [
   { key: 'Not Started',      color: '#6e7681',                grad: 'gradNotStarted'  },
 ];
 
+// orionRolesPerPeriod now has 6 monthly rows: Dec, Jan, Feb, Mar, Apr, May
 const chartData = orionRolesPerPeriod.map(d => ({
   period:              d.period,
   'Roles Opened':      d.rolesOpened,
@@ -31,12 +31,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 
   const get = key => payload.find(p => p.dataKey === key)?.value ?? null;
 
-  const opened      = get('Roles Opened');
-  const hired       = get('Closed (Hired)');
-  const noHire      = get('Closed (No Hire)');
-  const onHold      = get('On Hold');
-  const inProcess   = get('In Process');
-  const notStarted  = get('Not Started');
+  const opened     = get('Roles Opened');
+  const hired      = get('Closed (Hired)');
+  const noHire     = get('Closed (No Hire)');
+  const onHold     = get('On Hold');
+  const inProcess  = get('In Process');
+  const notStarted = get('Not Started');
 
   const totalClosed = (hired ?? 0) + (noHire ?? 0);
   const closureRate = opened ? ((totalClosed / opened) * 100).toFixed(0) : null;
@@ -44,35 +44,26 @@ const CustomTooltip = ({ active, payload, label }) => {
 
   return (
     <div style={{
-      background: '#0d1117',
-      border: `1px solid ${PALETTE.border}`,
-      borderRadius: 8,
-      padding: '10px 14px',
-      fontFamily: "'JetBrains Mono', monospace",
-      fontSize: 13,
-      minWidth: 200,
+      background: '#0d1117', border: `1px solid ${PALETTE.border}`,
+      borderRadius: 8, padding: '10px 14px',
+      fontFamily: "'JetBrains Mono', monospace", fontSize: 13, minWidth: 200,
     }}>
-      <div style={{ color: PALETTE.muted, marginBottom: 8, fontSize: 13, letterSpacing: '0.05em' }}>
+      <div style={{ color: PALETTE.muted, marginBottom: 8, letterSpacing: '0.05em' }}>
         {label}
       </div>
-
       {SERIES.map(({ key, color }) => {
         const val = get(key);
-        if (val === null) return null;
+        if (val === null || val === 0) return null;
         return (
           <div key={key} style={{ color, display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 3 }}>
-            <span>{key}</span>
-            <strong>{val}</strong>
+            <span>{key}</span><strong>{val}</strong>
           </div>
         );
       })}
-
       {closureRate !== null && (
         <div style={{
-          borderTop: `1px solid ${PALETTE.border}`,
-          marginTop: 8, paddingTop: 6,
-          fontSize: 13, color: PALETTE.muted,
-          display: 'flex', flexDirection: 'column', gap: 2,
+          borderTop: `1px solid ${PALETTE.border}`, marginTop: 8, paddingTop: 6,
+          fontSize: 13, color: PALETTE.muted, display: 'flex', flexDirection: 'column', gap: 2,
         }}>
           <span>Closure Rate: <strong style={{ color: PALETTE.orange }}>{closureRate}%</strong></span>
           {hireRate !== null && (
@@ -96,9 +87,7 @@ export default function NetOpenLine() {
             </linearGradient>
           ))}
         </defs>
-
         <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
-
         <XAxis
           dataKey="period"
           tick={{ fill: PALETTE.muted, fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}
@@ -107,31 +96,18 @@ export default function NetOpenLine() {
         />
         <YAxis
           tick={{ fill: PALETTE.muted, fontSize: 12 }}
-          axisLine={false}
-          tickLine={false}
-          allowDecimals={false}
+          axisLine={false} tickLine={false} allowDecimals={false}
         />
-
         <Tooltip content={<CustomTooltip />} />
-
         <Legend
-          verticalAlign="top"
-          height={28}
-          formatter={k => (
-            <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>
-          )}
+          verticalAlign="top" height={28}
+          formatter={k => <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace" }}>{k}</span>}
         />
-
         {SERIES.map(({ key, color, grad }) => (
           <Area
-            key={key}
-            type="monotone"
-            dataKey={key}
-            stroke={color}
-            strokeWidth={2.5}
-            fill={`url(#${grad})`}
-            dot={{ fill: color, r: 4 }}
-            activeDot={{ r: 6 }}
+            key={key} type="monotone" dataKey={key}
+            stroke={color} strokeWidth={2.5} fill={`url(#${grad})`}
+            dot={{ fill: color, r: 4 }} activeDot={{ r: 6 }}
           />
         ))}
       </AreaChart>

@@ -16,21 +16,18 @@ import {
 
 // ── Demand & Hiring ──────────────────────────────────────────────────
 import NetOpenLine          from "./components/charts/NetOpenLine";
-import SkillOpenClosedShare from "./components/charts/SkillOpenClosedShare"; // now: Profiles vs Rejects
-import RegionDomainHeatmap  from "./components/charts/RegionSkillsHeatmap";  // now: Location × Period
-import ExperienceDemandBar  from "./components/charts/ExperienceDemandBar";  // now: real exp buckets
-import HiresClosureCombo    from "./components/charts/HiresClosureCombo";    // now: Profiles + Reject Rate
-import CandidateFunnel       from "./components/charts/CandidateFunnel";        // now: real stages
-// ─── Nav ─────────────────────────────────────────────────────────────
-// const NAV = [
-//   { id: "demand",     label: "Demand & Hiring"       },
-// ];
+import RejectionBreakdown from "./components/charts/RejectionBreakdown"; 
+import RolesLocation  from "./components/charts/RegionSkillsHeatmap";  
+import ExperienceDemandBar  from "./components/charts/ExperienceDemandBar";   
+import CandidateFunnel       from "./components/charts/CandidateFunnel";        
+import RoleStatusBar    from "./components/charts/RoleStatusBar";
+import ProfilesSharedvsRejectionRates from "./components/charts/ProfilesSharedvsRejectionRates";
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 };
 
 export default function App() {
   const [active, setActive] = useState("demand");
-
+  const [selectedMonth, setSelectedMonth] = useState(null);
   return (
     <div style={{
       minHeight: "100vh",
@@ -69,27 +66,6 @@ export default function App() {
 
       {/* ── Side Nav + Content ───────────────────────────────────── */}
       <div style={{ display: "flex" }}>
-        {/* <nav style={{
-          position: "sticky", top: 56, height: "calc(100vh - 56px)",
-          width: 180, flexShrink: 0,
-          background: PALETTE.surface,
-          borderRight: `1px solid ${PALETTE.border}`,
-          padding: "20px 0", overflowY: "auto",
-        }}>
-          {NAV.map(n => (
-            <button key={n.id} onClick={() => setActive(n.id)} style={{
-              width: "100%", textAlign: "left", padding: "10px 20px",
-              background: active === n.id ? PALETTE.accentSoft : "transparent",
-              border: "none",
-              borderLeft: active === n.id ? `2px solid ${PALETTE.accent}` : "2px solid transparent",
-              color: active === n.id ? PALETTE.accent : PALETTE.muted,
-              fontSize: 13, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-              cursor: "pointer", letterSpacing: "0.04em", transition: "all 0.15s",
-            }}>
-              {n.label}
-            </button>
-          ))}
-        </nav> */}
 
         <main style={{ flex: 1, padding: "28px 32px", overflowY: "auto" }}>
 
@@ -102,10 +78,9 @@ export default function App() {
               {/* 5 KPIs */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 16, marginBottom: 20 }}>
                 <KPICard
-                  icon="💼"
-                  label="Total Managed Roles"
+                  icon="💼" label="Total Managed Roles"
                   value={orionKPIs.totalRoles}
-                  sub="Dec 2025 – May 2026"
+                  sub="Dec 2025 - May 2026"
                   accent={PALETTE.accent}
                 />
                 <KPICard
@@ -178,8 +153,8 @@ export default function App() {
                 </ChartPanel>
 
                 <ChartPanel title="2. Openings by Role & Location"
-                  subtitle="Maps openings across role–location intersections for the selected period." height={280}>
-                  <RegionDomainHeatmap />
+                  subtitle="Maps openings across role-location intersections for the selected period." height={280}>
+                  <RolesLocation />
                 </ChartPanel>
 
                 <ChartPanel title="3. Hiring Demand by Experience Level"
@@ -189,7 +164,7 @@ export default function App() {
 
                 <ChartPanel title="4. Profiles Shared & Rejection - Hire Rate"
                   subtitle="Overlays submission volume with overall rejections - hires across periods." height={280}>
-                  <HiresClosureCombo />
+                  <ProfilesSharedvsRejectionRates />
                 </ChartPanel>
 
                 <ChartPanel title="5. Candidate Funnel"
@@ -199,7 +174,15 @@ export default function App() {
 
                 <ChartPanel title="6. Rejection Breakdown by Role & Period"
                   subtitle="Toggle: By Role (grouped) · By Period (stacked % breakdown)" height={280}>
-                  <SkillOpenClosedShare />
+                  <RejectionBreakdown />
+                </ChartPanel>
+
+                <ChartPanel
+                  title="7. Role Openings by Status"
+                  subtitle="Toggle month · bar length = openings · colour = status · hover for full breakdown"
+                  height={560}
+                  style={{ gridColumn: '1 / -1' }}>
+                  <RoleStatusBar />
                 </ChartPanel>
 
               </div>

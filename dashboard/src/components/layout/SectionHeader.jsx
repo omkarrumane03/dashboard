@@ -5,18 +5,18 @@ export default function SectionHeader({ number, title, description }) {
   return (
     <div style={{ marginBottom: 16, paddingTop: 8 }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-        <span style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 18,
+        {/* <span style={{
+          fontFamily: "Inter, sans-serif",
+          fontSize: 20,
           color: PALETTE.accent,
           opacity: 0.7,
           letterSpacing: '0.12em',
         }}>
           {String(number).padStart(2, '0')}
-        </span>
+        </span> */}
         <h2 style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 18,
+          fontFamily: "Inter, sans-serif",
+          fontSize: 20,
           fontWeight: 700,
           color: PALETTE.text,
           margin: 0,
@@ -28,8 +28,8 @@ export default function SectionHeader({ number, title, description }) {
       </div>
       {description && (
         <p style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 14,
+          fontFamily: "Inter, sans-serif",
+          fontSize: 18,
           color: PALETTE.muted,
           margin: '4px 0 0 0',
         }}>

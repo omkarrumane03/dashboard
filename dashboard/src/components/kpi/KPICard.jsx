@@ -25,24 +25,24 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontSize: 15, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "'JetBrains Mono', monospace" }}>
+        <span style={{ fontSize: 15, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "Inter, sans-serif", fontWeight: 900 }}>
           {label}
         </span>
       </div>
 
-      <div style={{ fontSize: 34, fontWeight: 700, color: PALETTE.text, lineHeight: 1.1, fontFamily: "'JetBrains Mono', monospace" }}>
+      <div style={{ fontSize: 34, fontWeight: 700, color: PALETTE.text, lineHeight: 1.1, fontFamily: "Inter, sans-serif" }}>
         {value}
       </div>
 
       {sub && (
-        <div style={{ fontSize: 15, color: PALETTE.muted, fontFamily: "'JetBrains Mono', monospace" }}>
+        <div style={{ fontSize: 15, color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
           {sub}
         </div>
       )}
 
       {trend !== undefined && (
         <div style={{
-          fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 12, fontFamily: "Inter, sans-serif",
           color: trend >= 0 ? PALETTE.green : PALETTE.red,
         }}>
           {trend >= 0 ? '▲' : '▼'} {Math.abs(trend)}%

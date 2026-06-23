@@ -10,7 +10,6 @@ export const RANGE_OPTIONS = [
   "Last 6 Months",
   "Last 9 Months",
   "Last 12 Months",
-  // "Last 2 Years",
 ];
 
 export function DateRangeProvider({ children }) {

@@ -13,12 +13,15 @@ import SectionHeader from "./components/layout/SectionHeader";
 
 // ── Demand & Hiring ──────────────────────────────────────────────────
 import NetOpenLine                      from "./components/charts/NetOpenLine";
-import RejectionBreakdown               from "./components/charts/RejectionBreakdown";
 import RolesLocation                    from "./components/charts/RolesLocation";
 import ExperienceDemandBar              from "./components/charts/ExperienceDemandBar";
 import CandidateFunnel                  from "./components/charts/CandidateFunnel";
 import RoleStatusBar                    from "./components/charts/RoleStatusBar";
-import ProfilesSharedvsRejectionRates   from "./components/charts/ProfilesSharedvsRejectionRates";
+import RejectionInsights                from "./components/charts/RejectionInsights";
+import EffortPerHire                    from "./components/charts/EffortPerHire";
+import TimeToFill                       from "./components/charts/TimeToFill";
+import ReasonBreakdown                  from "./components/charts/ReasonBreakdown";
+import RolesVsOpenings                  from "./components/charts/RolesVsOpenings";
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 };
 
@@ -122,14 +125,15 @@ function DashboardContent() {
                 description="Pipeline activity, rejection trends, work mode shifts, and experience demand — Orion Data."
               /> */}
 
-              {/* 5 KPIs */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+              {/* KPIs */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 16, marginBottom: 20 }}>
                 <KPICard
                   icon="💼" label="Total Managed Roles"
                   value={orionKPIs.totalRoles}
                   // sub="Dec 2025 - May 2026"
                   accent={PALETTE.accent}
                 />
+
                 <KPICard
                   icon="🟢"
                   label="Active Roles"
@@ -137,13 +141,15 @@ function DashboardContent() {
                   // sub={`${orionKPIs.activeRolesOnly} active · ${orionKPIs.l1PendingRoles} L1 pending`}
                   accent={PALETTE.green}
                 />
+
                 <KPICard
                   icon="🎉"
                   label="Roles Closed - Hired"
                   value={orionKPIs.closedHiredRoles}
                   // sub="Closed with successful hire"
                   accent={PALETTE.green}
-                />
+                />                
+
                 <KPICard
                   icon="🔴"
                   label="Roles Closed - No Hire"
@@ -151,17 +157,7 @@ function DashboardContent() {
                   // sub={`${orionKPIs.closedHiredRoles} closed with hire`}
                   accent={PALETTE.red ?? '#F85149'}
                 />
-              </div>
 
-              {/* 4 KPIs */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 20 }}>
-                <KPICard
-                  icon="🚀"
-                  label="Not Started"
-                  value={orionKPIs.notStartedRoles}
-                  // sub="Profiles yet to be shared"
-                  accent="#6e7681"
-                />
                 <KPICard
                   icon="⏳"
                   label="Roles On Hold"
@@ -169,20 +165,7 @@ function DashboardContent() {
                   // sub="Paused by client"
                   accent={PALETTE.orange}
                 />
-                {/* <KPICard
-                  icon="🎯"
-                  label="L1 Pass Rate"
-                  value={`${orionKPIs.l1PassRate}%`}
-                  // sub="Profiles clearing L1 round"
-                  accent={PALETTE.green}
-                />
-                <KPICard
-                  icon="🎯"
-                  label="L2 Pass Rate"
-                  value={`${orionKPIs.l2PassRate}%`}
-                  // sub="Profiles clearing L2 round"
-                  accent={PALETTE.accent}
-                /> */}
+
                 <KPICard
                   icon="🏆"
                   label="Hire Success Rate"
@@ -192,45 +175,83 @@ function DashboardContent() {
                 />
               </div>
 
+              {/* Openings KPIs */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 20 }}>
+                <KPICard
+                  icon="📋" label="Total Openings"
+                  value={orionKPIs.totalOpenings}
+                  accent={PALETTE.accent}
+                />
+                <KPICard
+                  icon="✅" label="Filled Openings"
+                  value={orionKPIs.filledOpenings}
+                  accent={PALETTE.green}
+                />
+                <KPICard
+                  icon="🔓" label="Open Openings"
+                  value={orionKPIs.openOpenings}
+                  accent={PALETTE.purple}
+                />
+                <KPICard
+                  icon="⏳" label="On Hold Openings"
+                  value={orionKPIs.onHoldOpenings}
+                  accent={PALETTE.orange}
+                />
+              </div>
+
               {/* Charts */}
               <div style={{ ...grid, marginBottom: 16 }}>
                 <ChartPanel title="1. Roles Activity Over Time"
-                  subtitle="Tracks how roles opened, resolved, went on hold, or remained in process across each hiring period." height={280} span ={2}>
+                  subtitle="Tracks how roles opened, resolved, went on hold, or remained in process across each hiring period." height={300} >
                   <NetOpenLine />
                 </ChartPanel>
 
-                <ChartPanel title="2. Openings by Role & Location"
-                  subtitle="Maps openings across role-location intersections for the selected period." height={280} span ={2}>
-                  <RolesLocation />
+                <ChartPanel title="2. Roles vs Openings"
+                  subtitle="Compares the number of unique roles with total openings to reveal role concentration and repeat hiring patterns." height={300} >
+                  <RolesVsOpenings />
                 </ChartPanel>
 
-                <ChartPanel title="3. Hiring Demand by Experience Level"
-                  subtitle="Role count across Junior / Senior / Lead buckets per period" height={280} span ={2}>
-                  <ExperienceDemandBar />
-                </ChartPanel>
-
-                <ChartPanel title="4. Profiles Shared & Rejection Rate"
-                  subtitle="Overlays submission volume with overall rejections across periods." height={280} span ={2}>
-                  <ProfilesSharedvsRejectionRates />
-                </ChartPanel>
-
-                <ChartPanel title="5. Candidate Funnel"
-                  subtitle="Tracks cumulative candidate metrics and step-by-step drop-off rates." height={280} span ={2}>
-                  <CandidateFunnel />
-                </ChartPanel>
-
-                <ChartPanel title="6. Rejection Breakdown by Role & Period"
-                  subtitle="Toggle: By Role (grouped) · By Period (stacked % breakdown)" height={280} span ={2}>
-                  <RejectionBreakdown />
-                </ChartPanel>
-
-                <ChartPanel
-                  title="7. Role Openings by Status"
-                  subtitle="Toggle month · bar length = openings · colour = status · hover for full breakdown"
-                  height={560} span ={2}>
+                <ChartPanel title="3. Role Openings by Status"
+                  subtitle="Toggle month · bar length = openings · colour = status · hover for full breakdown." height={400} span ={2}>
                   {/* style={{ gridColumn: '1 / -1' }} */}
                   <RoleStatusBar />
                 </ChartPanel>
+
+                <ChartPanel title="4. Candidate Funnel"
+                  subtitle="Tracks cumulative candidate metrics and step-by-step drop-off rates." height={300} span ={2}>
+                  <CandidateFunnel />
+                </ChartPanel>
+
+                <ChartPanel title="5. Hiring Demand by Experience Level"
+                  subtitle="Role count across Junior / Senior / Lead buckets per period" height={300} span ={2}>
+                  <ExperienceDemandBar />
+                </ChartPanel>
+
+                <ChartPanel title="6. Openings by Role & Location"
+                  subtitle="Maps openings across role-location intersections for the selected period." height={300} span ={2}>
+                  <RolesLocation />
+                </ChartPanel>
+
+                <ChartPanel title="7. Rejection Insights"
+                  subtitle="Breakdown of rejection reasons and their impact on the hiring funnel." height={300} span ={2}>
+                  <RejectionInsights />
+                </ChartPanel>
+
+                <ChartPanel title="8. Effort Per Hire"  
+                  subtitle="Tracks the effort required to fill each role across different stages." height={300} span ={2}>
+                  <EffortPerHire />
+                </ChartPanel>
+
+                <ChartPanel title="9. Time to Fill"
+                  subtitle="Average time taken to fill roles, segmented by role type and location." height={300} span ={2}>
+                  <TimeToFill />
+                </ChartPanel>
+
+                <ChartPanel title="10. Reason Breakdown"
+                  subtitle="Analyzes the reasons for role closures, including hires and no-hire outcomes." height={300} span ={2}>
+                  <ReasonBreakdown />
+                </ChartPanel>
+
               </div>
             </div>
           )}

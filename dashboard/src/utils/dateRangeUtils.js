@@ -33,10 +33,6 @@ export function getDateRange(option) {
     case "Last 12 Months":
       startMonth = toMonthStr(currentYear, currentMonth - 11);
       break;
-    case "Last 2 Years":
-      startMonth = toMonthStr(currentYear - 2, currentMonth + 1);
-      break;
-    default:
       startMonth = endMonth;
   }
 

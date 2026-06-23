@@ -1,8 +1,143 @@
+// // src/data/derivedKPIs.js
+// // v5.0 — updated for Jul 2025–Jun 2026 dataset
+// //
+// // Changes from v4:
+// //   • Status filter strings updated: 'Closed-Hired' | 'Closed-No Hire' | 'On Hold' | 'In Process'
+// //   • Removed: zekoReject, f2fFinalRound, inProcess KPIs (fields removed from pipeline)
+// //   • Period growth now uses getOrionPeriodData() — no more hardcoded table lookups
+// //   • latestPeriodGrowth: compares last two months that have profile activity
+
+// import {
+//   orionPipeline,
+//   getOrionPeriodData,
+//   getOrionRolesPerPeriod,
+//   MONTHS,
+// } from './notebookData';
+
+// const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
+
+// // ─────────────────────────────────────────────
+// // PARAMETERIZED KPI FUNCTION (accepts filtered pipeline)
+// // ─────────────────────────────────────────────
+// export function computeOrionKPIs(pipeline = orionPipeline) {
+
+//   // ── Pipeline-level counts ──────────────────
+//   const totalProfiles   = sum(pipeline.map(d => d.profilesShared));
+//   const totalL1Rejects  = sum(pipeline.map(d => d.l1Reject));
+//   const totalL2Rejects  = sum(pipeline.map(d => d.l2Reject));
+//   const totalRejects    = totalL1Rejects + totalL2Rejects;
+//   const totalSelections = sum(pipeline.map(d => d.selections ?? 0));
+
+//   const profileToSelectRate = totalProfiles > 0
+//     ? parseFloat(((totalSelections / totalProfiles) * 100).toFixed(1))
+//     : 0;
+
+//   // ── Role status counts ─────────────────────
+//   const totalRoles        = pipeline.length;
+//   const closedHiredRoles  = pipeline.filter(d => d.status === 'Closed-Hired').length;
+//   const closedNoHireRoles = pipeline.filter(d => d.status === 'Closed-No Hire').length;
+//   const onHoldRoles       = pipeline.filter(d => d.status === 'On Hold').length;
+//   const inProcessRoles    = pipeline.filter(d => d.status === 'In Process').length;
+//   const closedRoles       = closedHiredRoles + closedNoHireRoles;
+//   const activeRoles       = inProcessRoles; // 'active' = currently in process
+
+//   // ── Pass rates ────────────────────────────
+//   const l1PassRate = totalProfiles > 0
+//     ? parseFloat((((totalProfiles - totalL1Rejects) / totalProfiles) * 100).toFixed(1))
+//     : 0;
+
+//   const l1Passed   = totalProfiles - totalL1Rejects;
+//   const l2PassRate = l1Passed > 0
+//     ? parseFloat((((l1Passed - totalL2Rejects) / l1Passed) * 100).toFixed(1))
+//     : 0;
+
+//   // ── Period-level aggregations (auto-derived) ──
+//   const periodData    = getOrionPeriodData(pipeline);
+//   const rolesPerPeriod = getOrionRolesPerPeriod(pipeline);
+
+//   const totalRolesClosedHired  = sum(rolesPerPeriod.map(d => d.rolesClosedHired));
+//   const totalRolesClosedNoHire = sum(rolesPerPeriod.map(d => d.rolesClosedNoHire));
+//   const totalRolesOnHold       = sum(rolesPerPeriod.map(d => d.rolesOnHold));
+//   const totalRolesInProcess    = sum(rolesPerPeriod.map(d => d.rolesInProcess));
+
+//   const hireSuccessRate = (totalRolesClosedHired + totalRolesClosedNoHire) > 0
+//     ? parseFloat((
+//         (totalRolesClosedHired / (totalRolesClosedHired + totalRolesClosedNoHire)) * 100
+//       ).toFixed(1))
+//     : 0;
+
+//   // ── Latest period-over-period profile growth ──
+//   // Find the last two months with actual profile activity
+//   const activeMonths = periodData.filter(d => d.profilesShared > 0);
+//   const prevMonth    = activeMonths[activeMonths.length - 2];
+//   const lastMonth    = activeMonths[activeMonths.length - 1];
+
+//   const latestPeriodGrowth = prevMonth?.profilesShared > 0
+//     ? parseFloat((
+//         ((lastMonth.profilesShared - prevMonth.profilesShared) / prevMonth.profilesShared) * 100
+//       ).toFixed(1))
+//     : 0;
+
+//   // ── Effort-per-hire ───────────────────────
+//   // Profiles shared per 1 selection (across closed-hired roles only)
+//   const hiredPipeline   = pipeline.filter(d => d.status === 'Closed-Hired');
+//   const hiredProfiles   = sum(hiredPipeline.map(d => d.profilesShared));
+//   const hiredSelections = sum(hiredPipeline.map(d => d.selections ?? 0));
+//   const effortPerHire   = hiredSelections > 0
+//     ? parseFloat((hiredProfiles / hiredSelections).toFixed(1))
+//     : null;
+
+//   return {
+//     // Totals
+//     totalRoles,
+//     totalProfiles,
+//     totalL1Rejects,
+//     totalL2Rejects,
+//     totalRejects,
+//     totalSelections,
+
+//     // Role status
+//     activeRoles,
+//     inProcessRoles,
+//     onHoldRoles,
+//     closedHiredRoles,
+//     closedNoHireRoles,
+//     closedRoles,
+
+//     // Rates
+//     l1PassRate,
+//     l2PassRate,
+//     profileToSelectRate,
+//     hireSuccessRate,
+//     effortPerHire,
+
+//     // Period aggregates
+//     totalRolesClosedHired,
+//     totalRolesClosedNoHire,
+//     totalRolesOnHold,
+//     totalRolesInProcess,
+//     latestPeriodGrowth,
+//   };
+// }
+
+// // ─────────────────────────────────────────────
+// // STATIC EXPORT (backward compat — full dataset)
+// // ─────────────────────────────────────────────
+// export const orionKPIs = computeOrionKPIs(orionPipeline);
 // src/data/derivedKPIs.js
+// v5.0 — updated for Jul 2025–Jun 2026 dataset
+//
+// Changes from v4:
+//   • Status filter strings updated: 'Closed-Hired' | 'Closed-No Hire' | 'On Hold' | 'In Process'
+//   • Removed: zekoReject, f2fFinalRound, inProcess KPIs (fields removed from pipeline)
+//   • Period growth now uses getOrionPeriodData() — no more hardcoded table lookups
+//   • latestPeriodGrowth: compares last two months that have profile activity
+
 import {
   orionPipeline,
-  orionPeriodData,
-  orionRolesPerPeriod,
+  getOrionPeriodData,
+  getOrionRolesPerPeriod,
+  MONTHS,
 } from './notebookData';
 
 const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
@@ -11,49 +146,52 @@ const sum = (arr) => arr.reduce((acc, val) => acc + val, 0);
 // PARAMETERIZED KPI FUNCTION (accepts filtered pipeline)
 // ─────────────────────────────────────────────
 export function computeOrionKPIs(pipeline = orionPipeline) {
+
+  // ── Pipeline-level counts ──────────────────
   const totalProfiles   = sum(pipeline.map(d => d.profilesShared));
   const totalL1Rejects  = sum(pipeline.map(d => d.l1Reject));
   const totalL2Rejects  = sum(pipeline.map(d => d.l2Reject));
-  const totalZeko       = sum(pipeline.map(d => d.zekoReject));
-  const totalRejects    = totalL1Rejects + totalL2Rejects + totalZeko;
-  const totalInProcess  = sum(pipeline.map(d => d.inProcess));
-  const totalSelections = sum(pipeline.map(d => d.selections));
-  const totalRejections = totalRejects;
+  const totalRejects    = totalL1Rejects + totalL2Rejects;
+  const totalSelections = sum(pipeline.map(d => d.selections ?? 0));
 
   const profileToSelectRate = totalProfiles > 0
     ? parseFloat(((totalSelections / totalProfiles) * 100).toFixed(1))
     : 0;
 
+  // ── Role status counts ─────────────────────
   const totalRoles        = pipeline.length;
-  const l1PendingRoles    = pipeline.filter(d => d.status === 'Active – L1 Pending').length;
-  const activeRolesOnly   = pipeline.filter(d => d.status === 'Active').length;
-  const activeRoles       = activeRolesOnly + l1PendingRoles;
+  const closedHiredRoles  = pipeline.filter(d => d.status === 'Closed-Hired').length;
+  const closedNoHireRoles = pipeline.filter(d => d.status === 'Closed-No Hire').length;
   const onHoldRoles       = pipeline.filter(d => d.status === 'On Hold').length;
-  const notStartedRoles   = pipeline.filter(d => d.status === 'Not Started').length;
-  const closedHiredRoles  = pipeline.filter(d => d.status === 'Partial Onboard').length;
-  const closedNoHireRoles = pipeline.filter(
-    d => d.status === 'Closed' || d.status === 'Dropped' || d.status === 'No Update'
-  ).length;
-  const closedRoles = closedHiredRoles + closedNoHireRoles;
+  const inProcessRoles    = pipeline.filter(d => d.status === 'In Process').length;
+  const closedRoles       = closedHiredRoles + closedNoHireRoles;
+  const activeRoles       = inProcessRoles; // 'active' = currently in process
 
+  // ── Openings-level KPIs ───────────────────────────────────────────
+  const totalOpenings   = sum(pipeline.map(d => d.openings || 0));
+  const filledOpenings  = sum(pipeline.map(d => d.selections ?? 0));
+  const openOpenings    = sum(pipeline.filter(d => d.isOpen).map(d => d.openings || 0));
+  const onHoldOpenings  = sum(pipeline.filter(d => d.status === 'On Hold').map(d => d.openings || 0));
+
+
+  // ── Pass rates ────────────────────────────
   const l1PassRate = totalProfiles > 0
     ? parseFloat((((totalProfiles - totalL1Rejects) / totalProfiles) * 100).toFixed(1))
     : 0;
 
   const l1Passed   = totalProfiles - totalL1Rejects;
   const l2PassRate = l1Passed > 0
-    ? parseFloat((((l1Passed - totalL2Rejects - totalZeko) / l1Passed) * 100).toFixed(1))
+    ? parseFloat((((l1Passed - totalL2Rejects) / l1Passed) * 100).toFixed(1))
     : 0;
 
-  // Period-level aggregations from orionRolesPerPeriod
-  // Filter by openedMonth if available, else use full dataset
-  const periodData = orionRolesPerPeriod;
+  // ── Period-level aggregations (auto-derived) ──
+  const periodData    = getOrionPeriodData(pipeline);
+  const rolesPerPeriod = getOrionRolesPerPeriod(pipeline);
 
-  const totalRolesClosedHired  = sum(periodData.map(d => d.rolesClosedHired));
-  const totalRolesClosedNoHire = sum(periodData.map(d => d.rolesClosedNoHire));
-  const totalRolesOnHold       = sum(periodData.map(d => d.rolesOnHold));
-  const totalRolesInProcess    = sum(periodData.map(d => d.rolesInProcess));
-  const totalRolesNotStarted   = sum(periodData.map(d => d.rolesNotStarted));
+  const totalRolesClosedHired  = sum(rolesPerPeriod.map(d => d.rolesClosedHired));
+  const totalRolesClosedNoHire = sum(rolesPerPeriod.map(d => d.rolesClosedNoHire));
+  const totalRolesOnHold       = sum(rolesPerPeriod.map(d => d.rolesOnHold));
+  const totalRolesInProcess    = sum(rolesPerPeriod.map(d => d.rolesInProcess));
 
   const hireSuccessRate = (totalRolesClosedHired + totalRolesClosedNoHire) > 0
     ? parseFloat((
@@ -61,29 +199,63 @@ export function computeOrionKPIs(pipeline = orionPipeline) {
       ).toFixed(1))
     : 0;
 
-  // Month-over-month growth
-  const decRow = orionPeriodData.find(d => d.period === 'Dec');
-  const marRow = orionPeriodData.find(d => d.period === 'Mar');
-  const mayRow = orionPeriodData.find(d => d.period === 'May');
+  // ── Latest period-over-period profile growth ──
+  // Find the last two months with actual profile activity
+  const activeMonths = periodData.filter(d => d.profilesShared > 0);
+  const prevMonth    = activeMonths[activeMonths.length - 2];
+  const lastMonth    = activeMonths[activeMonths.length - 1];
 
-  const p1 = decRow?.profilesShared ?? 0;
-  const p2 = marRow?.profilesShared ?? 0;
-  const p3 = mayRow?.profilesShared ?? 0;
-
-  const latestPeriodGrowth = p2 > 0
-    ? parseFloat((((p3 - p2) / p2) * 100).toFixed(1))
+  const latestPeriodGrowth = prevMonth?.profilesShared > 0
+    ? parseFloat((
+        ((lastMonth.profilesShared - prevMonth.profilesShared) / prevMonth.profilesShared) * 100
+      ).toFixed(1))
     : 0;
 
+  // ── Effort-per-hire ───────────────────────
+  // Profiles shared per 1 selection (across closed-hired roles only)
+  const hiredPipeline   = pipeline.filter(d => d.status === 'Closed-Hired');
+  const hiredProfiles   = sum(hiredPipeline.map(d => d.profilesShared));
+  const hiredSelections = sum(hiredPipeline.map(d => d.selections ?? 0));
+  const effortPerHire   = hiredSelections > 0
+    ? parseFloat((hiredProfiles / hiredSelections).toFixed(1))
+    : null;
+
   return {
-    totalRoles, totalProfiles, totalRejects, totalRejections,
-    totalL1Rejects, totalL2Rejects, totalZeko, totalInProcess, totalSelections,
-    activeRoles, activeRolesOnly, l1PendingRoles, onHoldRoles, notStartedRoles,
-    closedHiredRoles, closedNoHireRoles, closedRoles,
-    l1PassRate, l2PassRate, profileToSelectRate,
-    latestPeriodGrowth,
-    totalRolesClosedHired, totalRolesClosedNoHire, totalRolesOnHold,
-    totalRolesInProcess, totalRolesNotStarted,
+    // Totals
+    totalRoles,
+    totalProfiles,
+    totalL1Rejects,
+    totalL2Rejects,
+    totalRejects,
+    totalSelections,
+
+    // Role status
+    activeRoles,
+    inProcessRoles,
+    onHoldRoles,
+    closedHiredRoles,
+    closedNoHireRoles,
+    closedRoles,
+
+    // Openings Status
+    totalOpenings,
+    filledOpenings,
+    openOpenings,
+    onHoldOpenings,
+
+    // Rates
+    l1PassRate,
+    l2PassRate,
+    profileToSelectRate,
     hireSuccessRate,
+    effortPerHire,
+
+    // Period aggregates
+    totalRolesClosedHired,
+    totalRolesClosedNoHire,
+    totalRolesOnHold,
+    totalRolesInProcess,
+    latestPeriodGrowth,
   };
 }
 

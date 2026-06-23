@@ -3,40 +3,29 @@ import {
   AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { orionRolesPerPeriod } from '../../data/notebookData';
+import { getOrionRolesPerPeriod } from '../../data/notebookData';
 import { useDateRange } from '../../context/DateRangeContext';
 import { PALETTE } from '../../utils/theme';
 
 const SERIES = [
-  { key: 'Roles Opened',     color: PALETTE.accent,           grad: 'gradOpened'      },
-  { key: 'Closed (Hired)',   color: PALETTE.green,            grad: 'gradClosedHired' },
-  { key: 'Closed (No Hire)', color: PALETTE.red ?? '#F85149', grad: 'gradClosedNoHire'},
-  { key: 'On Hold',          color: PALETTE.orange,           grad: 'gradOnHold'      },
-  { key: 'In Process',       color: PALETTE.purple,           grad: 'gradInProcess'   },
-  { key: 'Not Started',      color: '#6e7681',                grad: 'gradNotStarted'  },
+  { key: 'Roles Opened',     color: PALETTE.accent,           grad: 'gradOpened'       },
+  { key: 'Closed (Hired)',   color: PALETTE.green,            grad: 'gradClosedHired'  },
+  { key: 'Closed (No Hire)', color: PALETTE.red ?? '#F85149', grad: 'gradClosedNoHire' },
+  { key: 'On Hold',          color: PALETTE.orange,           grad: 'gradOnHold'       },
+  { key: 'In Process',       color: PALETTE.purple,           grad: 'gradInProcess'    },
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
-
-  const get = key => payload.find(p => p.dataKey === key)?.value ?? null;
-
-  const opened     = get('Roles Opened');
-  const hired      = get('Closed (Hired)');
-  const noHire     = get('Closed (No Hire)');
+  const get         = key => payload.find(p => p.dataKey === key)?.value ?? null;
+  const hired       = get('Closed (Hired)');
+  const noHire      = get('Closed (No Hire)');
   const totalClosed = (hired ?? 0) + (noHire ?? 0);
-  const closureRate = opened ? ((totalClosed / opened) * 100).toFixed(0) : null;
   const hireRate    = totalClosed ? ((hired / totalClosed) * 100).toFixed(0) : null;
 
   return (
-    <div style={{
-      background: '#0d1117', border: `1px solid ${PALETTE.border}`,
-      borderRadius: 8, padding: '10px 14px',
-      fontFamily: "Inter, sans-serif", fontSize: 14, minWidth: 200,
-    }}>
-      <div style={{ color: PALETTE.muted, marginBottom: 8, letterSpacing: '0.05em' }}>
-        {label}
-      </div>
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 14, minWidth: 200 }}>
+      <div style={{ color: PALETTE.muted, marginBottom: 8 }}>{label}</div>
       {SERIES.map(({ key, color }) => {
         const val = get(key);
         if (val === null || val === 0) return null;
@@ -46,17 +35,11 @@ const CustomTooltip = ({ active, payload, label }) => {
           </div>
         );
       })}
-      {/* {closureRate !== null && (
-        <div style={{
-          borderTop: `1px solid ${PALETTE.border}`, marginTop: 8, paddingTop: 6,
-          fontSize: 13, color: PALETTE.muted, display: 'flex', flexDirection: 'column', gap: 2,
-        }}>
-          <span>Closure Rate: <strong style={{ color: PALETTE.orange }}>{closureRate}%</strong></span>
-          {hireRate !== null && (
-            <span>Hire Success (of closed): <strong style={{ color: PALETTE.green }}>{hireRate}%</strong></span>
-          )}
+      {hireRate !== null && (
+        <div style={{ borderTop: `1px solid ${PALETTE.border}`, marginTop: 8, paddingTop: 6, fontSize: 13, color: PALETTE.muted }}>
+          Hire Success (of closed): <strong style={{ color: PALETTE.green }}>{hireRate}%</strong>
         </div>
-      )} */}
+      )}
     </div>
   );
 };
@@ -64,24 +47,18 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function NetOpenLine() {
   const { filteredPipeline } = useDateRange();
 
-  // Derive the months present in filteredPipeline
-  const activeMonths = [...new Set(filteredPipeline.map(d => d.openedMonth))];
-
-  // Filter orionRolesPerPeriod to only include periods that match active months
-  // orionRolesPerPeriod rows have a `month` field in "YYYY-MM" format
-  const filteredPeriodData = orionRolesPerPeriod.filter(d =>
-    activeMonths.includes(d.month)
-  );
-
-  const chartData = filteredPeriodData.map(d => ({
-    period:              d.period,
-    'Roles Opened':      d.rolesOpened,
-    'Closed (Hired)':    d.rolesClosedHired,
-    'Closed (No Hire)':  d.rolesClosedNoHire,
-    'On Hold':           d.rolesOnHold,
-    'In Process':        d.rolesInProcess,
-    'Not Started':       d.rolesNotStarted,
-  }));
+  // Auto-derive from filteredPipeline; drop months with zero activity
+  const rolesPerPeriod = getOrionRolesPerPeriod(filteredPipeline);
+  const chartData = rolesPerPeriod
+    .filter(d => d.rolesOpened > 0)
+    .map(d => ({
+      period:             d.period,
+      'Roles Opened':     d.rolesOpened,
+      'Closed (Hired)':   d.rolesClosedHired,
+      'Closed (No Hire)': d.rolesClosedNoHire,
+      'On Hold':          d.rolesOnHold,
+      'In Process':       d.rolesInProcess,
+    }));
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -98,8 +75,7 @@ export default function NetOpenLine() {
         <XAxis
           dataKey="period"
           tick={{ fill: PALETTE.muted, fontSize: 14, fontFamily: "Inter, sans-serif" }}
-          axisLine={{ stroke: PALETTE.border }}
-          tickLine={false}
+          axisLine={{ stroke: PALETTE.border }} tickLine={false}
         />
         <YAxis
           tick={{ fill: PALETTE.muted, fontSize: 14, fontFamily: "Inter, sans-serif" }}

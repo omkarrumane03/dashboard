@@ -17,5 +17,5 @@ export const PALETTE = {
 export const CHART_DEFAULTS = {
   margin: { top: 10, right: 20, bottom: 40, left: 50 },
   fontFamily: "Inter, sans-serif",
-  fontSize: 11,
+  fontSize: 14,
 };

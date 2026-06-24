@@ -1,7 +1,5 @@
 // components/charts/TimeToFill.jsx
-// Shows months from Position Opened → Closed for each resolved role.
-// Closed-Hired = green  |  Closed-No Hire = red
-// Excludes On Hold / In Process (no closed month).
+// v2 — same-month closure = 1 month · dual avg reference lines per outcome
 
 import { useMemo, useState } from 'react';
 import {
@@ -22,10 +20,11 @@ const toMonths = (yyyyMM) => {
   return y * 12 + m;
 };
 
+// Same-month closure = 1 (not 0) — represents work done within that month
 const getMonthsToClose = (openedMonth, closedMonth) => {
   if (!openedMonth || !closedMonth) return null;
   const diff = toMonths(closedMonth) - toMonths(openedMonth);
-  return Math.max(0, diff); // same-month closure = 0
+  return Math.max(1, diff); // floor at 1 — same month = 1 month of effort
 };
 
 const truncateLabel = (label, maxLength = 12) =>
@@ -47,7 +46,7 @@ const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 13, minWidth: 210 }}>
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 15, minWidth: 210 }}>
       <div style={{ color: '#fff', fontWeight: 700, marginBottom: 6, paddingBottom: 6, borderBottom: `1px solid ${PALETTE.border}` }}>
         {d.jobTitle}
       </div>
@@ -78,7 +77,7 @@ const CustomTooltip = ({ active, payload }) => {
         </div>
       </div>
       {d.comment && (
-        <div style={{ marginTop: 8, paddingTop: 6, borderTop: `1px solid ${PALETTE.border}`, color: PALETTE.muted, fontSize: 12, lineHeight: 1.5 }}>
+        <div style={{ marginTop: 8, paddingTop: 6, borderTop: `1px solid ${PALETTE.border}`, color: PALETTE.muted, fontSize: 15, lineHeight: 1.5 }}>
           {d.comment}
         </div>
       )}
@@ -87,10 +86,17 @@ const CustomTooltip = ({ active, payload }) => {
 };
 
 const VIEWS = [
-  { key: 'all',      label: 'All Closed'    },
-  { key: 'hired',    label: 'Closed-Hired'  },
-  { key: 'no-hire',  label: 'Closed-No Hire'},
+  { key: 'all',      label: 'All Closed'     },
+  { key: 'hired',    label: 'Closed-Hired'   },
+  { key: 'no-hire',  label: 'Closed-No Hire' },
 ];
+
+const calcAvg = (roles) => {
+  if (!roles.length) return null;
+  return parseFloat(
+    (roles.reduce((s, r) => s + r.monthsToClose, 0) / roles.length).toFixed(1)
+  );
+};
 
 export default function TimeToFill() {
   const { filteredPipeline } = useDateRange();
@@ -106,11 +112,18 @@ export default function TimeToFill() {
       .filter(r => r.monthsToClose !== null),
   [filteredPipeline]);
 
+  const hiredRoles  = useMemo(() => closedRoles.filter(r => r.status === 'Closed-Hired'),  [closedRoles]);
+  const noHireRoles = useMemo(() => closedRoles.filter(r => r.status === 'Closed-No Hire'), [closedRoles]);
+
+  // Per-outcome averages
+  const avgHired  = useMemo(() => calcAvg(hiredRoles),  [hiredRoles]);
+  const avgNoHire = useMemo(() => calcAvg(noHireRoles), [noHireRoles]);
+
   const filteredByView = useMemo(() => {
-    if (view === 'hired')   return closedRoles.filter(r => r.status === 'Closed-Hired');
-    if (view === 'no-hire') return closedRoles.filter(r => r.status === 'Closed-No Hire');
+    if (view === 'hired')   return hiredRoles;
+    if (view === 'no-hire') return noHireRoles;
     return closedRoles;
-  }, [closedRoles, view]);
+  }, [closedRoles, hiredRoles, noHireRoles, view]);
 
   const chartData = useMemo(() =>
     filteredByView
@@ -118,17 +131,6 @@ export default function TimeToFill() {
       .sort((a, b) => b.monthsToClose - a.monthsToClose)
       .map(r => ({ ...r, role: r.shortTitle })),
   [filteredByView]);
-
-  const avgMonths = useMemo(() => {
-    if (!chartData.length) return 0;
-    return parseFloat(
-      (chartData.reduce((s, r) => s + r.monthsToClose, 0) / chartData.length).toFixed(1)
-    );
-  }, [chartData]);
-
-  // Counts
-  const hiredCount  = closedRoles.filter(r => r.status === 'Closed-Hired').length;
-  const noHireCount = closedRoles.filter(r => r.status === 'Closed-No Hire').length;
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 10, fontFamily: "Inter, sans-serif" }}>
@@ -138,7 +140,7 @@ export default function TimeToFill() {
         <div style={{ display: 'flex', gap: 4 }}>
           {VIEWS.map(({ key, label }) => (
             <button key={key} onClick={() => setView(key)} style={{
-              padding: '4px 12px', borderRadius: 6, fontSize: 13,
+              padding: '4px 12px', borderRadius: 6, fontSize: 15,
               border: `1px solid ${view === key ? PALETTE.accent : PALETTE.border}`,
               background: view === key ? PALETTE.accentSoft : 'transparent',
               color: view === key ? PALETTE.accent : PALETTE.muted,
@@ -146,46 +148,63 @@ export default function TimeToFill() {
             }}>{label}</button>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 12, fontSize: 13, color: PALETTE.muted }}>
-          <span><strong style={{ color: '#3fb950' }}>{hiredCount}</strong> hired</span>
-          <span><strong style={{ color: '#f85149' }}>{noHireCount}</strong> no-hire</span>
-          <span>Avg: <strong style={{ color: PALETTE.accent }}>{avgMonths} mo</strong></span>
+        <div style={{ display: 'flex', gap: 12, fontSize: 15, color: PALETTE.muted }}>
+          <span><strong style={{ color: '#3fb950' }}>{hiredRoles.length}</strong> hired</span>
+          <span><strong style={{ color: '#f85149' }}>{noHireRoles.length}</strong> no-hire</span>
+          {avgHired  !== null && <span>Hired avg: <strong style={{ color: '#3fb950' }}>{avgHired}mo</strong></span>}
+          {avgNoHire !== null && <span>No-hire avg: <strong style={{ color: '#f85149' }}>{avgNoHire}mo</strong></span>}
         </div>
       </div>
 
       {/* Legend */}
-      <div style={{ display: 'flex', gap: 14, fontSize: 13, color: PALETTE.muted }}>
+      <div style={{ display: 'flex', gap: 14, fontSize: 15, color: PALETTE.muted }}>
         {Object.entries(STATUS_COLORS).map(([label, color]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} />
             {label}
           </div>
         ))}
+        {avgHired  !== null && <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 16, height: 2, background: '#3fb950', borderRadius: 1 }} /><span>Hired avg</span></div>}
+        {avgNoHire !== null && <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><div style={{ width: 16, height: 2, background: '#f85149', borderRadius: 1 }} /><span>No-hire avg</span></div>}
       </div>
 
       {chartData.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontSize: 13, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontSize: 15, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
           No closed roles in selected range
         </div>
       ) : (
         <div style={{ flex: 1 }}>
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} barCategoryGap="20%"
-              margin={{ top: 10, right: 16, left: -10, bottom: 50 }}>
+              margin={{ top: 10, right: 80, left: -10, bottom: 50 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} vertical={false} />
               <XAxis dataKey="role" tick={<CustomXAxisTick />}
                 axisLine={{ stroke: PALETTE.border }} tickLine={false} interval={0} height={56} />
               <YAxis
-                tick={{ fill: PALETTE.muted, fontSize: 13 }}
+                tick={{ fill: PALETTE.muted, fontSize: 15 }}
                 axisLine={false} tickLine={false} allowDecimals={false}
-                label={{ value: 'Months', angle: -90, position: 'insideLeft', fill: PALETTE.muted, fontSize: 12, dx: 14 }}
+                label={{ value: 'Months', angle: -90, position: 'insideLeft', fill: PALETTE.muted, fontSize: 15, dx: 14 }}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
-              <ReferenceLine
-                y={avgMonths} stroke={PALETTE.accent}
-                strokeDasharray="5 3" strokeWidth={1.5}
-                label={{ value: `Avg ${avgMonths}mo`, position: 'right', fill: PALETTE.accent, fontSize: 12 }}
-              />
+
+              {/* Hired avg reference line — green */}
+              {avgHired !== null && (view === 'all' || view === 'hired') && (
+                <ReferenceLine
+                  y={avgHired}
+                  stroke="#3fb950" strokeDasharray="5 3" strokeWidth={1.5}
+                  label={{ value: `Hired avg ${avgHired}mo`, position: 'right', fill: '#3fb950', fontSize: 15 }}
+                />
+              )}
+
+              {/* No-hire avg reference line — red */}
+              {avgNoHire !== null && (view === 'all' || view === 'no-hire') && (
+                <ReferenceLine
+                  y={avgNoHire}
+                  stroke="#f85149" strokeDasharray="5 3" strokeWidth={1.5}
+                  label={{ value: `No-hire avg ${avgNoHire}mo`, position: 'right', fill: '#f85149', fontSize: 15 }}
+                />
+              )}
+
               <Bar dataKey="monthsToClose" radius={[4, 4, 0, 0]} maxBarSize={40}>
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status]} fillOpacity={0.85} />
@@ -196,8 +215,8 @@ export default function TimeToFill() {
         </div>
       )}
 
-      <div style={{ fontSize: 12, color: PALETTE.muted, opacity: 0.6, paddingBottom: 2 }}>
-        Month granularity · same-month open/close = 0 · excludes On Hold & In Process
+      <div style={{ fontSize: 15, color: PALETTE.muted, opacity: 0.6, paddingBottom: 2 }}>
+        Month granularity · same-month open/close = 1mo · excludes On Hold & In Process
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   });
 
   return (
-    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '8px 12px', fontFamily: "Inter, sans-serif", fontSize: 14 }}>
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '8px 12px', fontFamily: "Inter, sans-serif", fontSize: 15 }}>
       <div style={{ color: PALETTE.muted, marginBottom: 6, fontWeight: 'bold' }}>
         {label} ({roles.length} role{roles.length !== 1 ? 's' : ''})
       </div>
@@ -40,13 +40,13 @@ const CustomTooltip = ({ active, payload, label }) => {
         if (!grouped[bucket]) return null;
         return (
           <div key={bucket} style={{ marginBottom: 6 }}>
-            <div style={{ color: BUCKET_COLORS[bucket], fontWeight: 'bold', fontSize: 14, marginBottom: 2 }}>
+            <div style={{ color: BUCKET_COLORS[bucket], fontWeight: 'bold', fontSize: 15, marginBottom: 2 }}>
               {BUCKET_LABELS[bucket]}
             </div>
             {grouped[bucket].map((role, idx) => (
-              <div key={idx} style={{ color: '#ffffff', paddingLeft: 6, fontSize: 13, lineHeight: '1.4' }}>
+              <div key={idx} style={{ color: '#ffffff', paddingLeft: 6, fontSize: 15, lineHeight: '1.4' }}>
                 • {role.shortTitle}
-                <span style={{ color: PALETTE.muted, fontSize: 12 }}> ({role.experience})</span>
+                <span style={{ color: PALETTE.muted, fontSize: 15 }}></span>
               </div>
             ))}
           </div>
@@ -86,7 +86,7 @@ export default function ExperienceDemandBar() {
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, paddingTop: 8, fontFamily: "Inter, sans-serif", fontSize: 14, minHeight: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, paddingTop: 8, fontFamily: "Inter, sans-serif", fontSize: 15, minHeight: 20, flexWrap: 'wrap' }}>
         {BUCKETS.map(bucket => {
           const isHidden = hiddenBuckets[bucket];
           return (
@@ -110,11 +110,11 @@ export default function ExperienceDemandBar() {
             <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} vertical={false} />
             <XAxis
               dataKey="month"
-              tick={{ fill: PALETTE.muted, fontSize: 14, fontFamily: "Inter, sans-serif" }}
+              tick={{ fill: PALETTE.muted, fontSize: 15, fontFamily: "Inter, sans-serif" }}
               axisLine={{ stroke: PALETTE.border }} tickLine={false}
             />
             <YAxis
-              tick={{ fill: PALETTE.muted, fontSize: 14, fontFamily: "Inter, sans-serif" }}
+              tick={{ fill: PALETTE.muted, fontSize: 15, fontFamily: "Inter, sans-serif" }}
               axisLine={false} tickLine={false} allowDecimals={false}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />

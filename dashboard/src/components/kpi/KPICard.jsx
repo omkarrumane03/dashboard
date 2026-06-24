@@ -24,8 +24,8 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
       }} />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontSize: 15, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "Inter, sans-serif", fontWeight: 900 }}>
+        <span style={{ fontSize: 16 }}>{icon}</span>
+        <span style={{ fontSize: 16, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "Inter, sans-serif", fontWeight: 900 }}>
           {label}
         </span>
       </div>
@@ -35,14 +35,14 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
       </div>
 
       {sub && (
-        <div style={{ fontSize: 15, color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+        <div style={{ fontSize: 16, color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
           {sub}
         </div>
       )}
 
       {trend !== undefined && (
         <div style={{
-          fontSize: 12, fontFamily: "Inter, sans-serif",
+          fontSize: 15, fontFamily: "Inter, sans-serif",
           color: trend >= 0 ? PALETTE.green : PALETTE.red,
         }}>
           {trend >= 0 ? '▲' : '▼'} {Math.abs(trend)}%

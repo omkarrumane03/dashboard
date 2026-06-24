@@ -1,4 +1,6 @@
 // components/charts/RolesLocation.jsx
+// v2 — bubble size legend added inline above chart
+
 import { useState, useMemo } from 'react';
 import {
   ResponsiveContainer, ScatterChart, Scatter,
@@ -44,6 +46,37 @@ const getColor = (value) => {
   return '#164e9e';
 };
 
+// ── Bubble Size Legend ────────────────────────────────────────────────────────
+// ZAxis range is [100, 500] → maps to SVG circle area. We display 3 reference sizes.
+// SVG r = sqrt(area / π); area here maps proportionally within the ZAxis range.
+const LEGEND_ITEMS = [
+  { label: '1 opening',   openings: 1,  r: 6  },
+  { label: '3 openings',  openings: 3,  r: 10 },
+  { label: '5+ openings', openings: 5,  r: 14 },
+];
+
+function BubbleLegend() {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingLeft: 8, flexWrap: 'wrap' }}>
+      <span style={{ fontSize: 15, color: PALETTE.muted, marginRight: 4 }}>Bubble size:</span>
+      {LEGEND_ITEMS.map(({ label, openings, r }) => (
+        <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <svg width={r * 2 + 2} height={r * 2 + 2} style={{ flexShrink: 0 }}>
+            <circle
+              cx={r + 1} cy={r + 1} r={r}
+              fill={getColor(openings)}
+              fillOpacity={0.85}
+              stroke={PALETTE.border}
+              strokeWidth={1}
+            />
+          </svg>
+          <span style={{ fontSize: 15, color: PALETTE.muted }}>{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function RolesLocation() {
   const { filteredPipeline } = useDateRange();
 
@@ -70,7 +103,6 @@ export default function RolesLocation() {
     Array.from(new Set(filteredPipeline.map(item => item.jobTitle))).sort(),
   [filteredPipeline]);
 
-  // Use locationGroup — 'Multi-location' consolidates comma-separated locations
   const uniqueLocations = useMemo(() =>
     Array.from(new Set(filteredPipeline.map(item => item.locationGroup || 'Remote'))).sort(),
   [filteredPipeline]);
@@ -94,7 +126,7 @@ export default function RolesLocation() {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 13 }}>
+      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 15 }}>
         <div style={{ color: PALETTE.muted, marginBottom: 4 }}>
           Role: <span style={{ color: '#fff', fontWeight: 600 }}>{d.roleName}</span>
         </div>
@@ -109,9 +141,13 @@ export default function RolesLocation() {
   };
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+      {/* Bubble size legend */}
+      <BubbleLegend />
+
       {matrixData.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontSize: 13, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontSize: 15, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
           No roles opened in {activePeriod}
         </div>
       ) : (

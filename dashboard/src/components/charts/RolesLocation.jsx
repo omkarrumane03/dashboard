@@ -18,7 +18,7 @@ const CustomXAxisTick = ({ x, y, payload, uniqueRoles }) => {
   const fullLabel = uniqueRoles[payload.value] || '';
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dy={10} textAnchor="end" fill={PALETTE.muted} fontSize={13}
+      <text x={0} y={0} dy={10} textAnchor="end" fill={PALETTE.muted} fontSize={18}
         fontFamily="'Inter', sans-serif" transform="rotate(-45)" style={{ cursor: 'pointer' }}>
         <title>{fullLabel}</title>
         {truncateLabel(fullLabel, 12)}
@@ -31,7 +31,7 @@ const CustomYAxisTick = ({ x, y, payload, uniqueLocations }) => {
   const fullLabel = uniqueLocations[payload.value] || '';
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={-10} y={4} textAnchor="end" fill={PALETTE.muted} fontSize={13}
+      <text x={-10} y={4} textAnchor="end" fill={PALETTE.muted} fontSize={18}
         fontFamily="'Inter', sans-serif" style={{ cursor: 'pointer' }}>
         <title>{fullLabel}</title>
         {truncateLabel(fullLabel, 15)}
@@ -58,7 +58,7 @@ const LEGEND_ITEMS = [
 function BubbleLegend() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingLeft: 8, flexWrap: 'wrap' }}>
-      <span style={{ fontSize: 15, color: PALETTE.muted, marginRight: 4 }}>Bubble size:</span>
+      <span style={{ fontSize: 18, color: PALETTE.muted, marginRight: 4 }}>Bubble size:</span>
       {LEGEND_ITEMS.map(({ label, openings, r }) => (
         <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width={r * 2 + 2} height={r * 2 + 2} style={{ flexShrink: 0 }}>
@@ -70,7 +70,7 @@ function BubbleLegend() {
               strokeWidth={1}
             />
           </svg>
-          <span style={{ fontSize: 15, color: PALETTE.muted }}>{label}</span>
+          <span style={{ fontSize: 18, color: PALETTE.muted }}>{label}</span>
         </div>
       ))}
     </div>
@@ -116,7 +116,7 @@ export default function RolesLocation() {
         );
         const totalOpenings = matches.reduce((sum, item) => sum + (parseInt(item.openings, 10) || 0), 0);
         if (totalOpenings > 0)
-          data.push({ x: xIdx, y: yIdx, roleName: role, locationName: loc, openings: totalOpenings });
+          data.push({ x: xIdx, y: yIdx, roleName: role, locationName: loc, locationFull: matches[0]?.location || loc, openings: totalOpenings });
       });
     });
     return data;
@@ -126,12 +126,12 @@ export default function RolesLocation() {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 15 }}>
+      <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 18 }}>
         <div style={{ color: PALETTE.muted, marginBottom: 4 }}>
           Role: <span style={{ color: '#fff', fontWeight: 600 }}>{d.roleName}</span>
         </div>
         <div style={{ color: PALETTE.muted, marginBottom: 4 }}>
-          Location: <span style={{ color: '#fff', fontWeight: 600 }}>{d.locationName}</span>
+          Location: <span style={{ color: '#fff', fontWeight: 600 }}>{d.locationFull}</span>
         </div>
         <div style={{ color: '#58a6ff', marginTop: 6 }}>
           Openings: <strong>{d.openings}</strong>
@@ -147,7 +147,7 @@ export default function RolesLocation() {
       <BubbleLegend />
 
       {matrixData.length === 0 ? (
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontSize: 15, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontSize: 18, border: `1px dashed ${PALETTE.border}`, borderRadius: 8 }}>
           No roles opened in {activePeriod}
         </div>
       ) : (

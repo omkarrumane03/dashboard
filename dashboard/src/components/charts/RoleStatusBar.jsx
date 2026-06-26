@@ -26,8 +26,8 @@ const CustomTooltip = ({ active, payload, label, pipeline }) => {
   const total = payload.filter(p => p.value > 0).reduce((s, p) => s + p.value, 0);
 
   return (
-    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 15, minWidth: 220, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
-      <div style={{ color: '#fff', fontWeight: 700, fontSize: 15, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${PALETTE.border}` }}>
+    <div style={{ background: '#0d1117', border: `1px solid ${PALETTE.border}`, borderRadius: 8, padding: '10px 14px', fontFamily: "Inter, sans-serif", fontSize: 18, minWidth: 220, boxShadow: '0 8px 24px rgba(0,0,0,0.5)' }}>
+      <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 8, paddingBottom: 8, borderBottom: `1px solid ${PALETTE.border}` }}>
         {row.jobTitle}
       </div>
       {STATUS_ORDER.map(s => {
@@ -43,7 +43,7 @@ const CustomTooltip = ({ active, payload, label, pipeline }) => {
           </div>
         );
       })}
-      <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${PALETTE.border}`, display: 'flex', flexDirection: 'column', gap: 3, fontSize: 15 }}>
+      <div style={{ marginTop: 8, paddingTop: 8, borderTop: `1px solid ${PALETTE.border}`, display: 'flex', flexDirection: 'column', gap: 3, fontSize: 18 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <span style={{ color: PALETTE.muted }}>Total Openings</span>
           <strong style={{ color: '#fff' }}>{total}</strong>
@@ -118,27 +118,27 @@ export default function RoleStatusBar() {
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: "Inter, sans-serif", gap: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', paddingTop: 4 }}>
-        <span style={{ fontSize: 15, color: PALETTE.muted, marginRight: 2 }}>Month:</span>
+        <span style={{ fontSize: 14, color: PALETTE.muted, marginRight: 2 }}>Month:</span>
         {[ALL_OPTION, ...availableMonths].map(m => (
           <button key={m} onClick={() => setSelectedMonth(m)} style={{
             padding: '4px 12px', borderRadius: 20,
             border: `1px solid ${activeMonth === m ? PALETTE.accent : PALETTE.border}`,
             background: activeMonth === m ? `${PALETTE.accent}22` : 'transparent',
             color: activeMonth === m ? PALETTE.accent : PALETTE.muted,
-            fontSize: 15, fontFamily: "Inter, sans-serif",
+            fontSize: 14, fontFamily: "Inter, sans-serif",
             cursor: 'pointer', fontWeight: activeMonth === m ? 700 : 400,
             transition: 'all 0.15s',
           }}>{m}</button>
         ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, fontSize: 15, color: PALETTE.muted, alignItems: 'center' }}>
-          <span><strong style={{ color: '#fff' }}>{summary.totalRoles}</strong> roles</span>
-          <span><strong style={{ color: PALETTE.accent }}>{summary.totalOpenings}</strong> openings</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, fontSize: 20, color: PALETTE.muted, alignItems: 'center' }}>
+          <span><strong style={{ color: '#fff' }}>{summary.totalRoles}</strong> Roles</span>
+          <span><strong style={{ color: PALETTE.accent }}>{summary.totalOpenings}</strong> Openings</span>
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', justifyContent: 'center' }}>
         {STATUS_ORDER.filter(s => filteredRoles.some(r => r.status === s)).map(s => (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 15, color: PALETTE.muted }}>
+          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 18, color: PALETTE.muted }}>
             <div style={{ width: 10, height: 10, borderRadius: 2, background: STATUS_COLORS[s] }} />
             {s}
             <span style={{ color: STATUS_COLORS[s], fontWeight: 700 }}>({summary.statusCounts[s] ?? 0})</span>
@@ -156,13 +156,13 @@ export default function RoleStatusBar() {
             >
               <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} horizontal={false} />
               <XAxis type="number"
-                tick={{ fill: PALETTE.muted, fontSize: 15, fontFamily: "Inter, sans-serif" }}
+                tick={{ fill: PALETTE.muted, fontSize: 14, fontFamily: "Inter, sans-serif" }}
                 axisLine={{ stroke: PALETTE.border }} tickLine={false} allowDecimals={false}
               />
               <YAxis type="category" dataKey="role" width={106}
                 tick={({ x, y, payload }) => (
                   <g transform={`translate(${x},${y})`}>
-                    <text x={-4} y={0} dy={4} textAnchor="end" fill={PALETTE.muted} fontSize={15} fontFamily="'JetBrains Mono', monospace">
+                    <text x={-4} y={0} dy={4} textAnchor="end" fill={PALETTE.muted} fontSize={18} fontFamily="'JetBrains Mono', monospace">
                       <title>{filteredPipeline.find(r => r.shortTitle === payload.value)?.jobTitle}</title>
                       {payload.value}
                     </text>
@@ -182,9 +182,9 @@ export default function RoleStatusBar() {
         </div>
       </div>
 
-      <div style={{ fontSize: 15, color: PALETTE.muted, opacity: 0.6, paddingBottom: 2 }}>
+      {/* <div style={{ fontSize: 15, color: PALETTE.muted, opacity: 0.6, paddingBottom: 2 }}>
         Bar length = total openings · colour = status · toggle month above · hover for full breakdown
-      </div>
+      </div> */}
     </div>
   );
 }

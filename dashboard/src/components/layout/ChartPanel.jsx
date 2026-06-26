@@ -18,7 +18,7 @@ export default function ChartPanel({ title, subtitle, children, height = 280, sp
     }}>
       <div style={{ marginBottom: 8 }}>
         <div style={{
-          fontSize: 20,
+          fontSize: 23,
           fontWeight: 600,
           color: PALETTE.text,
           fontFamily: "Inter, sans-serif",
@@ -27,7 +27,7 @@ export default function ChartPanel({ title, subtitle, children, height = 280, sp
           {title}
         </div>
         {subtitle && (
-          <div style={{ fontSize: 18, color: PALETTE.muted, fontFamily: "Inter, sans-serif", marginTop: 2 }}>
+          <div style={{ fontSize: 20, color: PALETTE.muted, fontFamily: "Inter, sans-serif", marginTop: 2 }}>
             {subtitle}
           </div>
         )}

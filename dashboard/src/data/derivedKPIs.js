@@ -49,7 +49,7 @@ export function computeOrionKPIs(pipeline = orionPipeline) {
 
   // Filled = selections from Closed-Hired roles only (confirmed hires, excludes backouts)
   const filledOpenings = sum(
-    pipeline.filter(d => d.status === 'Closed-Hired').map(d => d.selections ?? 0)
+    pipeline.filter(d => d.status === 'Closed-Hired').map(d => d.finalConfirmed ?? 0)
   );
 
   // Active = openings currently In Process

@@ -35,7 +35,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend }) {
       </div>
 
       {sub && (
-        <div style={{ fontSize: 16, color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
+        <div style={{ fontSize: 20, color: PALETTE.muted, fontFamily: "Inter, sans-serif", fontWeight: 700 }}>
           {sub}
         </div>
       )}

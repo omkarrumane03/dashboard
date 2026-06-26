@@ -1,11 +1,12 @@
 // components/charts/CandidateFunnel.jsx
-// v3 — count always inside bar; pass rate shown on bar hover via tooltip
+// v4 — Added Hires Confirmed stage to track post-selection drops
 
 import React, { useState, useMemo } from 'react';
 import { useDateRange } from '../../context/DateRangeContext';
 import { PALETTE } from '../../utils/theme';
 
-const STAGE_COLORS = ['#58a6ff', '#3fb950', '#f0883e', '#d2a8ff'];
+// Extended to 5 colors to support the new stage
+const STAGE_COLORS = ['#58a6ff', '#3fb950', '#f0883e', '#d2a8ff', '#da3637'];
 
 function BarRow({ pct, color, count, passRate }) {
   const [hovered, setHovered] = useState(false);
@@ -56,7 +57,7 @@ function BarRow({ pct, color, count, passRate }) {
           boxSizing: 'border-box',
         }}
       >
-        <span style={{ fontFamily: "Inter, sans-serif", fontSize: 15, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', padding: '0 6px' }}>
+        <span style={{ fontFamily: "Inter, sans-serif", fontSize: 18, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', padding: '0 6px' }}>
           {count.toLocaleString()}
         </span>
       </div>
@@ -73,6 +74,7 @@ export default function CandidateFunnel() {
     const totalL1Reject   = filteredPipeline.reduce((s, r) => s + (r.l1Reject      || 0), 0);
     const totalL2Reject   = filteredPipeline.reduce((s, r) => s + (r.l2Reject      || 0), 0);
     const totalSelections = filteredPipeline.reduce((s, r) => s + (r.selections    ?? 0), 0);
+    const totalConfirmed  = filteredPipeline.reduce((s, r) => s + (r.finalConfirmed ?? 0), 0);
 
     const l1Passed = totalShared - totalL1Reject;
     const l2Passed = l1Passed   - totalL2Reject;
@@ -82,6 +84,7 @@ export default function CandidateFunnel() {
       { stage: 'L1 Passed',       count: Math.max(0, l1Passed),   passRate: totalShared > 0   ? Math.round((Math.max(0, l1Passed) / totalShared) * 100)   : null },
       { stage: 'L2 Passed',       count: Math.max(0, l2Passed),   passRate: l1Passed > 0      ? Math.round((Math.max(0, l2Passed) / Math.max(1, l1Passed)) * 100) : null },
       { stage: 'Selections',      count: totalSelections,          passRate: l2Passed > 0      ? Math.round((totalSelections / Math.max(1, l2Passed)) * 100) : null },
+      { stage: 'Hires Confirmed', count: totalConfirmed,           passRate: totalSelections > 0 ? Math.round((totalConfirmed / totalSelections) * 100) : null },
     ];
   }, [filteredPipeline]);
 
@@ -101,6 +104,15 @@ export default function CandidateFunnel() {
         const drop     = l2Passed - (role.selections ?? 0);
         if (drop > 0 && role.comment && role.comment !== 'In Process')
           breakdowns.push({ name: `${role.shortTitle} — ${role.comment}`, count: drop });
+      } else if (stageIndex === 4) {
+        // Drop-off breakdown between Selections and Hires Confirmed
+        const selectionCount = role.selections ?? 0;
+        const confirmedCount = role.finalConfirmed ?? 0;
+        const drop = selectionCount - confirmedCount;
+        if (drop > 0) {
+          const reason = role.comment ? ` — ${role.comment}` : ' (Post-Selection Drop)';
+          breakdowns.push({ name: `${role.shortTitle}${reason}`, count: drop });
+        }
       }
     });
     return breakdowns.sort((a, b) => b.count - a.count);
@@ -117,7 +129,7 @@ export default function CandidateFunnel() {
 
           return (
             <div key={d.stage} style={{ position: 'relative' }}>
-              {dropPct !== null && (
+              {dropPct !== null && dropPct > 0 && (
                 <div
                   style={{ fontFamily: "Inter, sans-serif", fontSize: 15, color: PALETTE.red ?? '#F85149', marginBottom: 2, textAlign: 'center', cursor: 'pointer', display: 'inline-block', width: '100%' }}
                   onMouseEnter={() => setHoveredStage(i)}
@@ -142,7 +154,7 @@ export default function CandidateFunnel() {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {/* Stage label */}
-                <div style={{ width: 110, fontSize: 15, color: PALETTE.muted, fontFamily: "Inter, sans-serif", textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ width: 110, fontSize: 18, color: PALETTE.muted, fontFamily: "Inter, sans-serif", textAlign: 'right', flexShrink: 0 }}>
                   {d.stage}
                 </div>
 

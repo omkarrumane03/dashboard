@@ -1,27 +1,36 @@
 // components/kpi/KPICard.jsx
-// A single KPI tile — icon, label, value, optional sub-label
 
 import { PALETTE } from '../../utils/theme';
+import InfoIcon from '../common/InfoIcon';
 
-export default function KPICard({ icon, label, value, sub, accent, trend }) {
+export default function KPICard({ icon, label, value, sub, accent, trend, info, cardStyle }) {
   const color = accent || PALETTE.accent;
   return (
-    <div style={{
-      background: PALETTE.surface,
-      border: `1px solid ${PALETTE.border}`,
-      borderRadius: 14,
-      padding: '20px 24px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 6,
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Top glow strip */}
+    <div
+      data-tooltip-boundary="true"
+      style={{
+        background: PALETTE.surface,
+        border: `1px solid ${PALETTE.border}`,
+        borderRadius: 14,
+        padding: '20px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+        position: 'relative',
+        ...cardStyle,
+      }}
+    >
+
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-        background: color, borderRadius: '12px 12px 0 0',
+        background: color, borderRadius: '14px 14px 0 0',
       }} />
+
+      {info && (
+        <div style={{ position: 'absolute', top: 12, right: 12 }}>
+          <InfoIcon text={info} />
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 16 }}>{icon}</span>

@@ -1,13 +1,6 @@
 // components/charts/RolesActivityOverview.jsx
-// v2.1 — KPI absorption update
-//
-// Changes from v2.0:
-//   • Summary strip: avgPerRole restored (was commented out) — now shows
-//     Total Roles · Total Openings · Avg Openings/Role
-//   • totals memo: avgPerRole calculation uncommented
-//   • Tooltip: avgPerRole block uncommented and restored
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ComposedChart, Bar, Line,
   XAxis, YAxis, CartesianGrid,
@@ -15,13 +8,21 @@ import {
 } from 'recharts';
 import { getOrionRolesPerPeriod } from '../../data/notebookData';
 import { useDateRange } from '../../context/DateRangeContext';
+import { formatMonthLabel } from '../../utils/dateRangeUtils';
 import { PALETTE } from '../../utils/theme';
 
 const STATUS_COLORS = {
-  'Closed-Hired':   '#3fb950',
-  'Closed-No Hire': '#f85149',
-  'On Hold':        '#f0883e',
-  'In Process':     '#58a6ff',
+  'In Process':     '#38BDF8',
+  'On Hold':        '#F59E0B',
+  'Closed-Hired':   '#22C55E',
+  'Closed-No Hire': '#EF4444',
+};
+
+const STATUS_TEXT_COLORS = {
+  'In Process':     '#0369A1', // sky-700
+  'On Hold':        '#B45309', // amber-700
+  'Closed-Hired':   '#15803D', // green-700
+  'Closed-No Hire': '#B91C1C', // red-700
 };
 
 const STATUS_KEYS = ['Closed-Hired', 'Closed-No Hire', 'On Hold', 'In Process'];
@@ -45,7 +46,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 
   return (
     <div style={{
-      background: '#0d1117',
+      background: PALETTE.surface,
       border: `1px solid ${PALETTE.border}`,
       borderRadius: 8,
       padding: '10px 14px',
@@ -53,7 +54,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       fontSize: 18,
       minWidth: 230,
     }}>
-      <div style={{ color: PALETTE.muted, marginBottom: 8, fontWeight: 600 }}>{label}</div>
+      <div style={{ color: PALETTE.muted, marginBottom: 8, fontWeight: 600 }}>{formatMonthLabel(label)}</div>
 
       {/* Roles opened + openings summary */}
       <div style={{
@@ -62,16 +63,16 @@ const CustomTooltip = ({ active, payload, label }) => {
         borderBottom: `1px solid ${PALETTE.border}`,
       }}>
         <div>
-          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Roles Opened</div>
-          <div style={{ color: '#d2a8ff', fontWeight: 700, fontSize: 18 }}>{rolesOpened}</div>
+          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Roles</div>
+          <div style={{ color: PALETTE.purple, fontWeight: 700, fontSize: 18 }}>{rolesOpened}</div>
         </div>
         <div>
-          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Total Openings</div>
+          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Total Positions</div>
           <div style={{ color: PALETTE.accent, fontWeight: 700, fontSize: 18 }}>{totalOpenings}</div>
         </div>
         <div>
-          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Avg / Role</div>
-          <div style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>{avgPerRole}x</div>
+          <div style={{ color: PALETTE.muted, fontSize: 18 }}>Avg Pos/ Role</div>
+          <div style={{ color: PALETTE.text, fontWeight: 700, fontSize: 18 }}>{avgPerRole}x</div>
         </div>
       </div>
 
@@ -90,9 +91,9 @@ const CustomTooltip = ({ active, payload, label }) => {
                 width: 8, height: 8, borderRadius: 2,
                 background: STATUS_COLORS[key], flexShrink: 0,
               }} />
-              <span style={{ color: STATUS_COLORS[key] }}>{key}</span>
+              <span style={{ color: STATUS_TEXT_COLORS[key] }}>{key}</span>
             </div>
-            <span style={{ color: '#fff', fontWeight: 600 }}>
+            <span style={{ color: PALETTE.text, fontWeight: 600 }}>
               {val} <span style={{ color: PALETTE.muted, fontWeight: 400 }}>({pct}%)</span>
             </span>
           </div>
@@ -113,28 +114,29 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-// ── Legend ────────────────────────────────────────────────────────────────────
-const CustomLegend = () => (
-  <div style={{
-    display: 'flex', justifyContent: 'center', flexWrap: 'wrap',
-    gap: 14, fontFamily: "Inter, sans-serif", fontSize: 18, paddingBottom: 4,
-  }}>
-    {STATUS_KEYS.map(key => (
-      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: STATUS_COLORS[key] }} />
-        <span style={{ color: '#fff' }}>{key}</span>
-      </div>
-    ))}
-    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-      <div style={{ width: 16, height: 2, background: '#d2a8ff', borderRadius: 1 }} />
-      <span style={{ color: '#d2a8ff' }}>Roles Opened</span>
-    </div>
-  </div>
-);
-
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function RolesActivityOverview() {
   const { filteredPipeline } = useDateRange();
+  const [activeStatuses, setActiveStatuses] = useState({});
+
+  const hasSelection = useMemo(() => {
+    return Object.keys(activeStatuses).some(key => activeStatuses[key] === true);
+  }, [activeStatuses]);
+
+  const toggleStatus = (status) => {
+    setActiveStatuses(prev => {
+      const activeKeys = Object.keys(prev).filter(k => prev[k]);
+      if (activeKeys.length === 0) {
+        return { [status]: true };
+      }
+      if (prev[status]) {
+        const next = { ...prev, [status]: false };
+        const remaining = Object.keys(next).filter(k => next[k]);
+        return remaining.length === 0 ? {} : next;
+      }
+      return { ...prev, [status]: true };
+    });
+  };
 
   const rolesPerPeriod = useMemo(
     () => getOrionRolesPerPeriod(filteredPipeline),
@@ -146,7 +148,7 @@ export default function RolesActivityOverview() {
       .filter(d => d.rolesOpened > 0)
       .map(d => {
         const rows  = filteredPipeline.filter(r => r.month === d.period);
-        const entry = { month: d.period, rolesOpened: d.rolesOpened };
+        const entry = { month: d.month, rolesOpened: d.rolesOpened };
         STATUS_KEYS.forEach(key => {
           entry[key] = rows
             .filter(r => r.status === key)
@@ -178,19 +180,52 @@ export default function RolesActivityOverview() {
       <div style={{ display: 'flex', gap: 24, paddingTop: 4, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ fontSize: 18, color: PALETTE.muted }}>
           Total Roles:
-          <strong style={{ color: '#fff', marginLeft: 6 }}>{totals.totalRoles}</strong>
+          <strong style={{ color: PALETTE.purple, marginLeft: 6 }}>{totals.totalRoles}</strong>
         </div>
         <div style={{ fontSize: 18, color: PALETTE.muted }}>
-          Total Openings:
+          Total Positions:
           <strong style={{ color: PALETTE.accent, marginLeft: 6 }}>{totals.totalOpenings}</strong>
         </div>
         <div style={{ fontSize: 18, color: PALETTE.muted }}>
-          Avg Openings / Role:
-          <strong style={{ color: '#d2a8ff', marginLeft: 6 }}>{totals.avgPerRole}x</strong>
+          Avg Positions / Role:
+          <strong style={{ color: PALETTE.text, marginLeft: 6 }}>{totals.avgPerRole}x</strong>
         </div>
       </div>
 
-      <CustomLegend />
+      {/* Embedded Interacting Legend */}
+      <div style={{
+        display: 'flex', justifyContent: 'center', flexWrap: 'wrap',
+        gap: 14, fontFamily: "Inter, sans-serif", fontSize: 18, paddingBottom: 4,
+      }}>
+        {STATUS_KEYS.map(key => {
+          const isMuted = hasSelection && !activeStatuses[key];
+          return (
+            <div 
+              key={key} 
+              onClick={() => toggleStatus(key)}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 5, 
+                cursor: 'pointer', 
+                opacity: isMuted ? 0.35 : 1,
+                userSelect: 'none',
+                transition: 'opacity 0.2s ease'
+              }}
+            >
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: STATUS_COLORS[key] }} />
+              <span style={{ 
+                color: isMuted ? PALETTE.muted : PALETTE.text,
+                fontWeight: !isMuted && hasSelection ? 'bold' : 'normal'
+              }}>{key}</span>
+            </div>
+          );
+        })}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <div style={{ width: 16, height: 2, background: PALETTE.purple, borderRadius: 1 }} />
+          <span style={{ color: PALETTE.purple }}>Roles</span>
+        </div>
+      </div>
 
       <div style={{ flex: 1 }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -198,6 +233,7 @@ export default function RolesActivityOverview() {
             <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} vertical={false} />
             <XAxis
               dataKey="month"
+              tickFormatter={formatMonthLabel}
               tick={{ fill: PALETTE.muted, fontSize: 18, fontFamily: "Inter, sans-serif" }}
               axisLine={{ stroke: PALETTE.border }}
               tickLine={false}
@@ -210,48 +246,52 @@ export default function RolesActivityOverview() {
               tickLine={false}
               allowDecimals={false}
               label={{
-                value: 'Openings', angle: -90, position: 'insideLeft',
+                value: 'Positions', angle: -90, position: 'insideLeft',
                 fill: PALETTE.muted, fontSize: 18, dx: 16,
               }}
             />
             <YAxis
               yAxisId="roles"
               orientation="right"
-              tick={{ fill: '#d2a8ff', fontSize: 18 }}
+              tick={{ fill: PALETTE.purple, fontSize: 18 }}
               axisLine={false}
               tickLine={false}
               allowDecimals={false}
               label={{
                 value: 'Roles', angle: 90, position: 'insideRight',
-                fill: '#d2a8ff', fontSize: 18, dx: -6,
+                fill: PALETTE.purple, fontSize: 18, dx: -6,
               }}
             />
             <Tooltip
               content={<CustomTooltip />}
-              cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+              cursor={{ fill: 'rgba(15,42,34,0.04)' }}
             />
 
-            {STATUS_KEYS.map((key, i) => (
-              <Bar
-                key={key}
-                yAxisId="openings"
-                dataKey={key}
-                stackId="openings"
-                fill={STATUS_COLORS[key]}
-                fillOpacity={0.85}
-                radius={i === STATUS_KEYS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-                maxBarSize={52}
-              />
-            ))}
+            {STATUS_KEYS.map((key, i) => {
+              const shouldHideBar = hasSelection && !activeStatuses[key];
+              return (
+                <Bar
+                  key={key}
+                  yAxisId="openings"
+                  dataKey={key}
+                  stackId="openings"
+                  fill={STATUS_COLORS[key]}
+                  fillOpacity={0.85}
+                  hide={shouldHideBar}
+                  radius={i === STATUS_KEYS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                  maxBarSize={52}
+                />
+              );
+            })}
 
             <Line
               yAxisId="roles"
               type="monotone"
               dataKey="rolesOpened"
-              name="Roles Opened"
-              stroke="#d2a8ff"
+              name="Roles"
+              stroke={PALETTE.purple}
               strokeWidth={2.5}
-              dot={{ fill: '#d2a8ff', r: 5, strokeWidth: 0 }}
+              dot={{ fill: PALETTE.purple, r: 5, strokeWidth: 0 }}
               activeDot={{ r: 7 }}
             />
           </ComposedChart>

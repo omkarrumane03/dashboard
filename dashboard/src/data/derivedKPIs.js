@@ -1,13 +1,4 @@
 // src/data/derivedKPIs.js
-// v6.0
-//
-// Changes from v5:
-//   • filledOpenings   → selections from Closed-Hired roles only (excludes backouts)
-//   • activeOpenings   → openings where status === 'In Process' (replaces broken d.isOpen)
-//   • onHoldOpenings   → openings where status === 'On Hold' (unchanged, now explicit)
-//   • closedNoHireOpenings → NEW: openings where status === 'Closed-No Hire'
-//   • hireSuccessRate  → filledOpenings ÷ totalOpenings (openings-level, not role-level)
-//   • hireSuccessRateDenominator exported for sub-label display in KPI card
 
 import {
   orionPipeline,
@@ -49,7 +40,7 @@ export function computeOrionKPIs(pipeline = orionPipeline) {
 
   // Filled = selections from Closed-Hired roles only (confirmed hires, excludes backouts)
   const filledOpenings = sum(
-    pipeline.filter(d => d.status === 'Closed-Hired').map(d => d.selections ?? 0)
+    pipeline.filter(d => d.status === 'Closed-Hired').map(d => d.finalConfirmed ?? 0)
   );
 
   // Active = openings currently In Process
@@ -74,7 +65,7 @@ export function computeOrionKPIs(pipeline = orionPipeline) {
     : 0;
 
   // Sub-label string for KPI card e.g. "42% · 18 of 43 openings"
-  const hireSuccessRateLabel = `${filledOpenings} of ${totalOpenings} openings`;
+  const hireSuccessRateLabel = `${filledOpenings} of ${totalOpenings} Positions`;
 
   // ── Pass rates ────────────────────────────
   const l1PassRate = totalProfiles > 0

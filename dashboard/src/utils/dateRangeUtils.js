@@ -1,53 +1,65 @@
-/**
- * Returns start and end month strings based on selected range option.
- * Month format matches notebookData.js: "YYYY-MM"
- */
-export function getDateRange(option) {
+export function getCurrentMonth() {
   const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth(); // 0-indexed
-
-  const toMonthStr = (year, month) => {
-    const m = ((month % 12) + 12) % 12;
-    const y = year + Math.floor(month / 12);
-    return `${y}-${String(m + 1).padStart(2, "0")}`;
-  };
-
-  const endMonth = toMonthStr(currentYear, currentMonth);
-
-  let startMonth;
-
-  switch (option) {
-    case "Current Month":
-      startMonth = endMonth;
-      break;
-    case "Last 3 Months":
-      startMonth = toMonthStr(currentYear, currentMonth - 2);
-      break;
-    case "Last 6 Months":
-      startMonth = toMonthStr(currentYear, currentMonth - 5);
-      break;
-    case "Last 9 Months":
-      startMonth = toMonthStr(currentYear, currentMonth - 8);
-      break;
-    case "Last 12 Months":
-      startMonth = toMonthStr(currentYear, currentMonth - 11);
-      break;
-      startMonth = endMonth;
-  }
-
-  return { startMonth, endMonth };
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/**
- * Filters the orionPipeline array by the given date range.
- * Each entry in pipeline has an `openedMonth` field in "YYYY-MM" format.
- */
-export function filterPipelineByRange(pipeline, { startMonth, endMonth }) {
-  if (!pipeline || !pipeline.length) return [];
+export function getCustomMonthBounds() {
+  const currentYear = Number(getCurrentMonth().split("-")[0]);
+  return {
+    min: "2020-01",
+    max: `${currentYear + 1}-12`,
+  };
+}
 
-  return pipeline.filter((entry) => {
-    const month = entry.openedMonth;
-    return month >= startMonth && month <= endMonth;
-  });
+export function getEarliestMonth(pipeline) {
+  if (!pipeline?.length) return null;
+  return pipeline.reduce((min, entry) =>
+    entry.openedMonth < min ? entry.openedMonth : min,
+    pipeline[0].openedMonth
+  );
+}
+
+export const MONTH_ABBR = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+export function formatMonthLabel(month) {
+  if (!month || typeof month !== "string") return month;
+  const [year, mon] = month.split("-");
+  const monIndex = Number(mon) - 1;
+  if (!year || monIndex < 0 || monIndex > 11 || Number.isNaN(monIndex)) return month;
+  return `${MONTH_ABBR[monIndex]}/${year}`;
+}
+
+
+// Shifts a "YYYY-MM" string by `delta` months (negative = backwards).
+function shiftMonth(month, delta) {
+  const [year, mon] = month.split("-").map(Number);
+  const total = (mon - 1) + delta;           // 0-indexed
+  const newY  = year + Math.floor(total / 12);
+  const newM  = ((total % 12) + 12) % 12 + 1;
+  return `${newY}-${String(newM).padStart(2, "0")}`;
+}
+
+export function getDateRange(option, anchorMonth) {
+  if (!anchorMonth) return { startMonth: null, endMonth: null };
+
+  const endMonth = anchorMonth;
+  const monthsBack = {
+    "Present Month"   : 0,
+    "Last 3 Months"  : 2,
+    "Last 6 Months"  : 5,
+    "Last 9 Months"  : 8,
+    "Last 12 Months" : 11,
+  }[option] ?? 11;
+
+  return { startMonth: shiftMonth(anchorMonth, -monthsBack), endMonth };
+}
+
+export function filterPipelineByRange(pipeline, { startMonth, endMonth }) {
+  if (!pipeline?.length || !startMonth || !endMonth) return pipeline ?? [];
+  return pipeline.filter(({ openedMonth }) =>
+    openedMonth >= startMonth && openedMonth <= endMonth
+  );
 }

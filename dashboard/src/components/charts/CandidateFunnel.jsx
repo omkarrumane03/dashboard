@@ -1,35 +1,55 @@
 // components/charts/CandidateFunnel.jsx
-// v3 — count always inside bar; pass rate shown on bar hover via tooltip
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useDateRange } from '../../context/DateRangeContext';
 import { PALETTE } from '../../utils/theme';
 
-const STAGE_COLORS = ['#58a6ff', '#3fb950', '#f0883e', '#d2a8ff'];
+const STAGE_COLORS = ['#2563EB', '#0D9488', '#A16207', '#EA580C', '#DC2626'];
 
-function BarRow({ pct, color, count, passRate }) {
+const TOOLTIP_WIDTH_ESTIMATE = 150; // rough, since content is whitespace-nowrap
+const TOOLTIP_GAP = 6;
+
+function BarRow({ pct, color, count, passRate, containerRef }) {
   const [hovered, setHovered] = useState(false);
+  const [leftOffset, setLeftOffset] = useState(0); // px shift from the default centered position
+  const barRef = useRef(null);
   const barLeft = (100 - pct) / 2;
 
+  const handleMouseEnter = () => {
+    if (barRef.current && containerRef?.current) {
+      const barRect = barRef.current.getBoundingClientRect();
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const barCenter = barRect.left + barRect.width / 2;
+
+      let desiredLeft = barCenter - TOOLTIP_WIDTH_ESTIMATE / 2;
+      const minLeft = containerRect.left + TOOLTIP_GAP;
+      const maxLeft = containerRect.right - TOOLTIP_WIDTH_ESTIMATE - TOOLTIP_GAP;
+      desiredLeft = Math.min(Math.max(desiredLeft, minLeft), maxLeft);
+
+      setLeftOffset(desiredLeft - barCenter);
+    }
+    setHovered(true);
+  };
+
   return (
-    <div style={{ flex: 1, position: 'relative', height: 30 }}>
+    <div ref={barRef} style={{ flex: 1, position: 'relative', height: 38 }}>
       {/* Tooltip — outside the bar so overflow:hidden doesn't clip it */}
       {hovered && passRate !== null && (
         <div style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 6px)',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: '#161b22',
-          border: `1px solid ${PALETTE.border}`,
-          borderRadius: 6,
-          padding: '5px 10px',
-          zIndex: 200,
-          whiteSpace: 'nowrap',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          pointerEvents: 'none',
-        }}>
-          <span style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color }}>
+              position: 'absolute',
+              bottom: 'calc(100% + 6px)',
+              left: `calc(50% + ${leftOffset}px)`,
+              transform: 'translateX(-50%)',
+              backgroundColor: PALETTE.surface,
+              border: `1px solid ${PALETTE.border}`,
+              borderRadius: 6,
+              padding: '5px 10px',
+              zIndex: 200,
+              whiteSpace: 'nowrap',
+              boxShadow: '0 4px 12px rgba(15, 42, 34, 0.15)',
+              pointerEvents: 'none',
+            }}>
+          <span style={{ fontFamily: "Inter, sans-serif", fontSize: 18, fontWeight: 600, color }}>
             {passRate}% pass rate
           </span>
         </div>
@@ -37,7 +57,7 @@ function BarRow({ pct, color, count, passRate }) {
 
       {/* The coloured bar */}
       <div
-        onMouseEnter={() => setHovered(true)}
+        onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setHovered(false)}
         style={{
           position: 'absolute',
@@ -56,7 +76,7 @@ function BarRow({ pct, color, count, passRate }) {
           boxSizing: 'border-box',
         }}
       >
-        <span style={{ fontFamily: "Inter, sans-serif", fontSize: 15, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', padding: '0 6px' }}>
+        <span style={{ fontFamily: "Inter, sans-serif", fontSize: 18, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap', padding: '0 6px' }}>
           {count.toLocaleString()}
         </span>
       </div>
@@ -64,15 +84,50 @@ function BarRow({ pct, color, count, passRate }) {
   );
 }
 
+function FunnelConnector({ topPct, bottomPct, topColor, bottomColor, gradId }) {
+  const topLeft = (100 - topPct) / 2;
+  const topRight = topLeft + topPct;
+  const bottomLeft = (100 - bottomPct) / 2;
+  const bottomRight = bottomLeft + bottomPct;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, height: 16 }}>
+      {/* Spacer matching the stage-label column width so the taper lines up with the bars */}
+      <div style={{ width: 110, flexShrink: 0 }} />
+      <div style={{ flex: 1, position: 'relative' }}>
+        <svg
+          width="100%"
+          height="100%"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{ display: 'block' }}
+        >
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={topColor} stopOpacity="0.5" />
+              <stop offset="100%" stopColor={bottomColor} stopOpacity="0.5" />
+            </linearGradient>
+          </defs>
+          <polygon
+            points={`${topLeft},0 ${topRight},0 ${bottomRight},100 ${bottomLeft},100`}
+            fill={`url(#${gradId})`}
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export default function CandidateFunnel() {
   const { filteredPipeline } = useDateRange();
-  const [hoveredStage, setHoveredStage] = useState(null);
+  const containerRef = useRef(null);
 
   const funnelData = useMemo(() => {
     const totalShared     = filteredPipeline.reduce((s, r) => s + (r.profilesShared || 0), 0);
     const totalL1Reject   = filteredPipeline.reduce((s, r) => s + (r.l1Reject      || 0), 0);
     const totalL2Reject   = filteredPipeline.reduce((s, r) => s + (r.l2Reject      || 0), 0);
     const totalSelections = filteredPipeline.reduce((s, r) => s + (r.selections    ?? 0), 0);
+    const totalConfirmed  = filteredPipeline.reduce((s, r) => s + (r.finalConfirmed ?? 0), 0);
 
     const l1Passed = totalShared - totalL1Reject;
     const l2Passed = l1Passed   - totalL2Reject;
@@ -82,67 +137,34 @@ export default function CandidateFunnel() {
       { stage: 'L1 Passed',       count: Math.max(0, l1Passed),   passRate: totalShared > 0   ? Math.round((Math.max(0, l1Passed) / totalShared) * 100)   : null },
       { stage: 'L2 Passed',       count: Math.max(0, l2Passed),   passRate: l1Passed > 0      ? Math.round((Math.max(0, l2Passed) / Math.max(1, l1Passed)) * 100) : null },
       { stage: 'Selections',      count: totalSelections,          passRate: l2Passed > 0      ? Math.round((totalSelections / Math.max(1, l2Passed)) * 100) : null },
+      { stage: 'Hires Confirmed', count: totalConfirmed,           passRate: totalSelections > 0 ? Math.round((totalConfirmed / totalSelections) * 100) : null },
     ];
   }, [filteredPipeline]);
 
   const max = funnelData[0]?.count || 1;
-
-  const getDropOffBreakdown = (stageIndex) => {
-    const breakdowns = [];
-    filteredPipeline.forEach((role) => {
-      if (stageIndex === 1) {
-        if (role.l1Reject > 0)
-          breakdowns.push({ name: `${role.shortTitle} (L1 Fail)`, count: role.l1Reject });
-      } else if (stageIndex === 2) {
-        if (role.l2Reject > 0)
-          breakdowns.push({ name: `${role.shortTitle} (L2 Fail)`, count: role.l2Reject });
-      } else if (stageIndex === 3) {
-        const l2Passed = role.profilesShared - role.l1Reject - role.l2Reject;
-        const drop     = l2Passed - (role.selections ?? 0);
-        if (drop > 0 && role.comment && role.comment !== 'In Process')
-          breakdowns.push({ name: `${role.shortTitle} — ${role.comment}`, count: drop });
-      }
-    });
-    return breakdowns.sort((a, b) => b.count - a.count);
-  };
+  const pcts = useMemo(() => funnelData.map(d => (d.count / max) * 100), [funnelData, max]);
 
   return (
-    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 8, padding: '8px 8px 0', position: 'relative' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8, flex: 1 }}>
+    <div ref={containerRef} style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 8, padding: '8px 8px 0', position: 'relative' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 0, flex: 1 }}>
         {funnelData.map((d, i) => {
-          const pct            = (d.count / max) * 100;
-          const prev           = funnelData[i - 1];
-          const dropPct        = prev ? (((prev.count - d.count) / prev.count) * 100).toFixed(0) : null;
-          const stageBreakdown = dropPct !== null ? getDropOffBreakdown(i) : [];
-
+          const pct = pcts[i];
+  
           return (
-            <div key={d.stage} style={{ position: 'relative' }}>
-              {dropPct !== null && (
-                <div
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: 15, color: PALETTE.red ?? '#F85149', marginBottom: 2, textAlign: 'center', cursor: 'pointer', display: 'inline-block', width: '100%' }}
-                  onMouseEnter={() => setHoveredStage(i)}
-                  onMouseLeave={() => setHoveredStage(null)}
-                >
-                  <span style={{ borderBottom: '1px dashed' }}>▼ {dropPct}% drop-off</span>
-                  {hoveredStage === i && stageBreakdown.length > 0 && (
-                    <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#161b22', border: `1px solid ${PALETTE.border}`, borderRadius: 6, padding: '8px 12px', zIndex: 100, width: 280, boxShadow: '0 4px 12px rgba(0,0,0,0.5)', textAlign: 'left' }}>
-                      <div style={{ fontWeight: 'bold', fontSize: 15, color: '#fff', marginBottom: 4, borderBottom: '1px solid #30363d', paddingBottom: 4 }}>
-                        Loss Breakdown:
-                      </div>
-                      {stageBreakdown.map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 15, color: '#c9d1d9', margin: '2px 0' }}>
-                          <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>• {item.name}</span>
-                          <span style={{ color: PALETTE.red ?? '#F85149', fontWeight: 'bold', paddingLeft: 8 }}>-{item.count}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+            <React.Fragment key={d.stage}>
+              {i > 0 && (
+                <FunnelConnector
+                  topPct={pcts[i - 1]}
+                  bottomPct={pct}
+                  topColor={STAGE_COLORS[(i - 1) % STAGE_COLORS.length]}
+                  bottomColor={STAGE_COLORS[i % STAGE_COLORS.length]}
+                  gradId={`funnel-grad-${i}`}
+                />
               )}
-
+              <div style={{ position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {/* Stage label */}
-                <div style={{ width: 110, fontSize: 15, color: PALETTE.muted, fontFamily: "Inter, sans-serif", textAlign: 'right', flexShrink: 0 }}>
+                <div style={{ width: 110, fontSize: 18, color: PALETTE.muted, fontFamily: "Inter, sans-serif", textAlign: 'right', flexShrink: 0 }}>
                   {d.stage}
                 </div>
 
@@ -152,9 +174,11 @@ export default function CandidateFunnel() {
                   color={STAGE_COLORS[i % STAGE_COLORS.length]}
                   count={d.count}
                   passRate={d.passRate}
+                  containerRef={containerRef}
                 />
               </div>
-            </div>
+              </div>
+            </React.Fragment>
           );
         })}
       </div>

@@ -47,6 +47,10 @@ const getBucketLabelKey = (value) => {
   return '1–4 openings';
 };
 
+const TOOLTIP_WIDTH = 290;   
+const TOOLTIP_HEIGHT = 220; // Increased slightly to comfortably hold location text lines 
+const TOOLTIP_GAP = 15;
+
 // ── Core Roles List Component (Reused for Hover & Clicked states) ─────────────
 const RolesListContent = ({ data, isPinned, onUnpin }) => {
   return (
@@ -59,8 +63,8 @@ const RolesListContent = ({ data, isPinned, onUnpin }) => {
         padding: '0px 14px 10px',
         fontFamily: 'Inter, sans-serif',
         fontSize: 18,
-        maxWidth: 260,
-        maxHeight: 160, 
+        maxWidth: TOOLTIP_WIDTH,
+        maxHeight: TOOLTIP_HEIGHT, 
         overflowY: 'auto', 
         scrollbarWidth: 'none', 
         msOverflowStyle: 'none', 
@@ -69,63 +73,75 @@ const RolesListContent = ({ data, isPinned, onUnpin }) => {
     >
       {/* ── Fixed & Masked Header Part ── */}
       <div style={{ 
-        color: PALETTE.muted, 
-        fontWeight: 'bold', 
-        fontSize: 18,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        background: PALETTE.surface, 
         position: 'sticky',
         top: 0,
-        background: PALETTE.surface, 
         zIndex: 2,
         paddingTop: '10px',     
-        paddingBottom: '8px',
-        borderBottom: `1px solid ${PALETTE.border}`, 
+        paddingBottom: '6px',
+        borderBottom: `1px solid ${PALETTE.border}`,
       }}>
-        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: 4 }}>
-          {data.locationName}
-          <span style={{ color: PALETTE.text, fontWeight: 400, fontSize: 18 }}>
-            {' '}· {data.totalOpenings} Pos
+        <div style={{ 
+          color: PALETTE.muted, 
+          fontWeight: 'bold', 
+          fontSize: 18,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: 4 }}>
+            {data.locationName}
+            <span style={{ color: PALETTE.text, fontWeight: 400, fontSize: 18 }}>
+              {' '}· {data.totalOpenings} Pos
+            </span>
           </span>
-        </span>
-        {isPinned && (
-          <button 
-            onClick={(e) => { e.stopPropagation(); onUnpin(); }}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: PALETTE.muted,
-              cursor: 'pointer',
-              fontSize: 18,
-              padding: '0 4px',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            ✕
-          </button>
-        )}
+          {isPinned && (
+            <button 
+              onClick={(e) => { e.stopPropagation(); onUnpin(); }}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: PALETTE.muted,
+                cursor: 'pointer',
+                fontSize: 18,
+                padding: '0 4px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* ── Roles List Container (Margined to prevent overlap issues) ── */}
-      <div style={{ paddingTop: 6 }}>
+      {/* ── Roles List Container ── */}
+      <div style={{ paddingTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {data.roles.map((role, idx) => (
           <div key={idx} style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             gap: 12,
             paddingLeft: 2,
-            paddingBottom: 4,
             fontSize: 18,
-            lineHeight: '1.4',
             color: PALETTE.text,
           }}>
-            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              • {role.shortTitle}
-            </span>
-            <span style={{ color: '#0369A1', fontWeight: 600, flexShrink: 0 }}>
+            {/* Title & Location Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 }}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
+                • {role.shortTitle}
+              </span>
+              {/* Shows specific underlying city if grouped into Multi-location */}
+              {data.locationName === 'Multi-location' && role.location && (
+                <span style={{ fontSize: 14, color: PALETTE.muted, paddingLeft: 12, marginTop: 1 }}>
+                  {role.location}
+                </span>
+              )}
+            </div>
+
+            {/* Positions Count */}
+            <span style={{ color: '#0369A1', fontWeight: 600, flexShrink: 0, fontSize: 17, marginTop: 1 }}>
               {role.openings} Pos
             </span>
           </div>
@@ -172,27 +188,22 @@ export default function RolesLocation() {
     { label: '10+ openings',  openings: 12, r: 14 },
   ];
 
-  // Track the persistent locked tooltip state
   const [pinnedTooltip, setPinnedTooltip] = useState(null); 
 
-  // Clear frozen tooltip if clicking anywhere outside the chart panel
   useEffect(() => {
     const handleOutsideClick = () => setPinnedTooltip(null);
     window.addEventListener('click', handleOutsideClick);
     return () => window.removeEventListener('click', handleOutsideClick);
   }, []);
 
-  // ── Unique locations across the full selected range ───────────────────────
   const uniqueLocations = useMemo(() =>
     Array.from(new Set(filteredPipeline.map(item => item.locationGroup || 'Remote'))).sort(),
   [filteredPipeline]);
 
-  // index → label map for CustomXAxisTick
   const locationLabels = useMemo(() =>
     Object.fromEntries(uniqueLocations.map((loc, i) => [i, loc])),
   [uniqueLocations]);
 
-  // ── One bubble per location, aggregated across the full selected range ────
   const scatterData = useMemo(() => {
     return uniqueLocations
       .map((loc, xIdx) => {
@@ -216,35 +227,25 @@ export default function RolesLocation() {
       .filter(Boolean);
   }, [filteredPipeline, uniqueLocations]);
 
-  // ── Y axis max rounded to nearest 5 for clean ticks ──────────────────────
   const yMax = useMemo(() => {
     const max = Math.max(...scatterData.map(d => d.y), 0);
     return Math.ceil(max / 5) * 5 || 10;
   }, [scatterData]);
 
-  // Handle bubble left click
-  const TOOLTIP_WIDTH = 260;   // matches maxWidth in RolesListContent
-  const TOOLTIP_HEIGHT = 160;  // matches maxHeight in RolesListContent
-  const TOOLTIP_GAP = 15;
-
   const handleBubbleClick = (data, e) => {
     if (!e || !containerRef.current) return;
     
-    // Stop event propagation to avoid global window clear click trigger
     e.stopPropagation();
 
     const rect = containerRef.current.getBoundingClientRect();
     const xPos = e.clientX - rect.left;
     const yPos = e.clientY - rect.top;
 
-    // If the tooltip would overflow the right edge of the container,
-    // flip it to render to the left of the click point instead.
     const overflowsRight = xPos + TOOLTIP_GAP + TOOLTIP_WIDTH > rect.width;
     const left = overflowsRight
       ? Math.max(0, xPos - TOOLTIP_GAP - TOOLTIP_WIDTH)
       : xPos + TOOLTIP_GAP;
 
-    // Clamp vertical position so it doesn't overflow top/bottom either.
     const top = Math.min(
       Math.max(0, yPos - 40),
       rect.height - TOOLTIP_HEIGHT
@@ -262,7 +263,6 @@ export default function RolesLocation() {
       ref={containerRef} 
       style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 8, position: 'relative' }}
     >
-      {/* Global Style to hide webkit scrollbars */}
       <style>{`
         .custom-role-tooltip-box::-webkit-scrollbar {
           display: none !important;
@@ -321,7 +321,6 @@ export default function RolesLocation() {
             <ScatterChart margin={{ top: 20, right: 30, left: 10, bottom: 80 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.border} />
 
-              {/* X — location index rendered as location name */}
               <XAxis
                 type="number"
                 dataKey="x"
@@ -341,7 +340,6 @@ export default function RolesLocation() {
                 }}
               />
 
-              {/* Y — total openings (positions) */}
               <YAxis
                 type="number"
                 dataKey="y"
@@ -363,12 +361,12 @@ export default function RolesLocation() {
                 }}
               />
 
-              {/* Z — bubble area scales with total openings */}
               <ZAxis type="number" dataKey="totalOpenings" range={[100, 600]} />
 
               <Tooltip
                 content={<CustomTooltip isStickyActive={!!pinnedTooltip} />}
                 cursor={{ strokeDasharray: '3 3', stroke: 'rgba(15,42,34,0.15)' }}
+                wrapperStyle={{ padding: 0, border: 'none', background: 'transparent' }}
               />
 
               <Scatter data={scatterData}>

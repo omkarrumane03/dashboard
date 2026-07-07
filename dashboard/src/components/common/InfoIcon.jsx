@@ -1,6 +1,6 @@
 // components/common/InfoIcon.jsx
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { PALETTE } from '../../utils/theme';
 
 const TOOLTIP_HEIGHT_ESTIMATE = 70; // rough height incl. padding, for the space check
@@ -12,15 +12,33 @@ const STICKY_HEADER_HEIGHT = 56;
 
 export default function InfoIcon({ text, size = 18 }) {
   const [hovered, setHovered] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const [openBelow, setOpenBelow] = useState(false);
   const [tooltipLeft, setTooltipLeft] = useState(null);       // px, relative to icon's left edge
   const [tooltipWidth, setTooltipWidth] = useState(DEFAULT_TOOLTIP_WIDTH);
   const iconRef = useRef(null);
 
+  // Handle clicking outside to unpin the tooltip
+  useEffect(() => {
+    if (!isPinned) return;
+
+    const handleOutsideClick = (event) => {
+      if (iconRef.current && !iconRef.current.contains(event.target)) {
+        setIsPinned(false);
+        setHovered(false);
+      }
+    };
+
+    document.addEventListener('click', handleOutsideClick);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [isPinned]);
+
   if (!text) return null;
 
-  const handleMouseEnter = () => {
-    if (!iconRef.current) { setHovered(true); return; }
+  const calculatePosition = () => {
+    if (!iconRef.current) return;
 
     const rect = iconRef.current.getBoundingClientRect();
 
@@ -49,14 +67,36 @@ export default function InfoIcon({ text, size = 18 }) {
     const fitsAbove = Math.min(spaceAboveInCard, spaceAboveHeader) >= TOOLTIP_HEIGHT_ESTIMATE + GAP;
 
     setOpenBelow(fitsBelow || !fitsAbove);
+  };
+
+  const handleMouseEnter = () => {
+    calculatePosition();
     setHovered(true);
   };
+
+  const handleMouseLeave = () => {
+    // Only remove the hover state if the tooltip isn't pinned by a click
+    if (!isPinned) {
+      setHovered(false);
+    }
+  };
+
+  const handleClick = (e) => {
+    e.stopPropagation(); // Avoid immediately triggering the outside click trigger
+    calculatePosition();
+    setIsPinned((prev) => !prev);
+    setHovered(true);
+  };
+
+  // The tooltip displays if either hovered or pinned
+  const showTooltip = hovered || isPinned;
 
   return (
     <span
       ref={iconRef}
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={handleMouseLeave}
+      onClick={handleClick}
       style={{
         position: 'relative',
         display: 'inline-flex',
@@ -65,10 +105,10 @@ export default function InfoIcon({ text, size = 18 }) {
         width: size + 6,
         height: size + 6,
         borderRadius: '50%',
-        cursor: 'help',
+        cursor: 'pointer',
         flexShrink: 0,
-        color: hovered ? PALETTE.accent : PALETTE.muted,
-        background: hovered ? PALETTE.accentSoft : 'transparent',
+        color: showTooltip ? PALETTE.accent : PALETTE.muted,
+        background: showTooltip ? PALETTE.accentSoft : 'transparent',
         fontSize: size,
         lineHeight: 1,
         transition: 'color 0.15s ease, background 0.15s ease',
@@ -76,7 +116,7 @@ export default function InfoIcon({ text, size = 18 }) {
     >
       ℹ️
 
-      {hovered && (
+      {showTooltip && (
         <div style={{
           position: 'absolute',
           ...(openBelow

@@ -13,7 +13,8 @@ export const RANGE_OPTIONS = [
 ];
 
 export function DateRangeProvider({ children }) {
-  const [selectedRange, setSelectedRange] = useState("Last 12 Months");
+  // FIXED: Changed initial state to "Present Month" so refreshes always start here
+  const [selectedRange, setSelectedRange] = useState("Present Month");
   const [customMonth, setCustomMonth] = useState(null);
   const currentMonth = getCurrentMonth();
   const customMonthBounds = useMemo(() => getCustomMonthBounds(), [currentMonth]);

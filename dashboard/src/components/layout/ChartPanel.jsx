@@ -17,6 +17,7 @@ export default function ChartPanel({ title, subtitle, children, height = 280, sp
         flexDirection: 'column',
         gap: 4,
         height: 'fit-content',
+        minWidth: 0,
       }}
     >
       <div style={{ marginBottom: 8 }}>

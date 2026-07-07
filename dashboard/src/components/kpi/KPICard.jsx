@@ -17,6 +17,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend, info, 
         flexDirection: 'column',
         gap: 6,
         position: 'relative',
+        minWidth: 0,
         ...cardStyle,
       }}
     >
@@ -34,7 +35,7 @@ export default function KPICard({ icon, label, value, sub, accent, trend, info, 
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ fontSize: 16 }}>{icon}</span>
-        <span style={{ fontSize: 16, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "Inter, sans-serif", fontWeight: 900 }}>
+        <span style={{ fontSize: 16, color: PALETTE.muted, letterSpacing: '0.08em', textTransform: 'uppercase', fontFamily: "Inter, sans-serif", fontWeight: 900, minWidth: 0, overflow:'hidden' }}>
           {label}
         </span>
       </div>

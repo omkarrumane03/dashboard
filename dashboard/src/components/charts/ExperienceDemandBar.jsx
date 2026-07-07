@@ -14,28 +14,28 @@ const BUCKET_LABELS = {
 };
 
 const BUCKET_COLORS = {
-  Junior: '#14B8A6',
-  Senior: '#A855F7', 
-  Lead:   '#38BDF8', 
+  Junior: '#84CC16',
+  Senior: '#14B8A6', 
+  Lead:   '#0F766E', 
 };
 
 const BUCKET_TEXT_COLORS = {
-  Junior: '#0F766E', 
-  Senior: '#7E22CE', 
-  Lead:   '#0369A1', 
+  Junior: '#84CC16',
+  Senior: '#14B8A6', 
+  Lead:   '#0F766E', 
 };
 
-// Tooltip dimensions — kept as constants so the click-positioning logic
-// can clamp against them.
+// Precise Tooltip Window Dimensions matching RolesLocation framework perfectly
 const TOOLTIP_WIDTH = 260;
 const TOOLTIP_HEIGHT = 160;
 const TOOLTIP_GAP = 15;
 
-// ── Core Roles List Component (Reused for Hover & Clicked states) ─────────────
+// ── Core Roles List Component (Restored with your original nested category layout) ──
 const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
   const roles = data.roles || [];
   if (roles.length === 0) return null;
 
+  // Reconstruct your original grouping by experience bucket
   const grouped = {};
   roles.forEach(role => {
     const b = role.experienceBucket;
@@ -78,7 +78,7 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
         borderBottom: `1px solid ${PALETTE.border}`,
       }}>
         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginRight: 4 }}>
-          {formatMonthLabel(label)} ({roles.length} role{roles.length !== 1 ? 's' : ''})
+          {formatMonthLabel(label)} ({roles.length} roles)
         </span>
         {isPinned && (
           <button 
@@ -99,7 +99,7 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
         )}
       </div>
 
-      {/* ── Content Body Part ── */}
+      {/* ── Original Grouped Content Body Part ── */}
       <div style={{ paddingTop: 6 }}>
         {BUCKETS.map(bucket => {
           if (!grouped[bucket]) return null;
@@ -109,7 +109,18 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
                 {BUCKET_LABELS[bucket]}
               </div>
               {grouped[bucket].map((role, idx) => (
-                <div key={idx} style={{ color: PALETTE.text, paddingLeft: 2, fontSize: 18, lineHeight: '1.4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <div 
+                  key={idx} 
+                  style={{ 
+                    color: PALETTE.text, 
+                    paddingLeft: 2, 
+                    fontSize: 18, 
+                    lineHeight: '1.4', 
+                    overflow: 'hidden', 
+                    textOverflow: 'ellipsis', 
+                    whiteSpace: 'nowrap' 
+                  }}
+                >
                   • {role.shortTitle}
                 </div>
               ))}
@@ -131,19 +142,15 @@ const CustomTooltip = ({ active, payload, label, isStickyActive }) => {
 export default function ExperienceDemandBar() {
   const { filteredPipeline } = useDateRange();
   
-  // Track strictly active/isolated buckets (Empty object means no filters active = show all)
   const [activeBuckets, setActiveBuckets] = useState({});
   const containerRef = useRef(null);
 
-  // Track if any explicit legend selection exists right now
   const hasSelection = useMemo(() => {
     return Object.keys(activeBuckets).some(key => activeBuckets[key] === true);
   }, [activeBuckets]);
 
-  // Track the persistent locked tooltip state
   const [pinnedTooltip, setPinnedTooltip] = useState(null);
 
-  // Clear frozen tooltip if clicking anywhere outside the chart panel
   useEffect(() => {
     const handleOutsideClick = () => setPinnedTooltip(null);
     window.addEventListener('click', handleOutsideClick);
@@ -153,21 +160,14 @@ export default function ExperienceDemandBar() {
   const toggleBucket = (bucket) => {
     setActiveBuckets(prev => {
       const activeKeys = Object.keys(prev).filter(k => prev[k]);
-
-      // 1. If nothing is isolated yet, clicking one isolates it completely
       if (activeKeys.length === 0) {
         return { [bucket]: true };
       }
-
-      // 2. If it's already active, turn it off
       if (prev[bucket]) {
         const next = { ...prev, [bucket]: false };
         const remaining = Object.keys(next).filter(k => next[k]);
-        // If unchecking this leaves zero selections, return empty object to reset view
         return remaining.length === 0 ? {} : next;
       }
-
-      // 3. If other things are already isolated, add this one into the group
       return { ...prev, [bucket]: true };
     });
   };
@@ -193,27 +193,23 @@ export default function ExperienceDemandBar() {
     }),
   [filteredPipeline, activeMonths]);
 
-  // Handle bar segment left click
   const handleBarClick = (data, e) => {
     if (!e || !containerRef.current) return;
 
-    // Stop event propagation to avoid global window clear click trigger
     e.stopPropagation();
 
     const rect = containerRef.current.getBoundingClientRect();
     const xPos = e.clientX - rect.left;
     const yPos = e.clientY - rect.top;
 
-    // Flip left if the tooltip would overflow the panel's right edge.
     const overflowsRight = xPos + TOOLTIP_GAP + TOOLTIP_WIDTH > rect.width;
     const left = overflowsRight
       ? Math.max(0, xPos - TOOLTIP_GAP - TOOLTIP_WIDTH)
       : xPos + TOOLTIP_GAP;
 
-    // Clamp vertically so it doesn't overflow the top or bottom of the panel.
     const top = Math.min(
       Math.max(0, yPos - 40),
-      Math.max(0, rect.height - TOOLTIP_HEIGHT)
+      rect.height - TOOLTIP_HEIGHT
     );
 
     setPinnedTooltip({
@@ -229,7 +225,6 @@ export default function ExperienceDemandBar() {
       ref={containerRef}
       style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: 10, position: 'relative' }}
     >
-      {/* Global Style to hide webkit scrollbars */}
       <style>{`
         .custom-role-tooltip-box::-webkit-scrollbar {
           display: none !important;
@@ -284,9 +279,9 @@ export default function ExperienceDemandBar() {
             <Tooltip 
               content={<CustomTooltip isStickyActive={!!pinnedTooltip} />} 
               cursor={{ fill: 'rgba(15,42,34,0.05)'}} 
+              wrapperStyle={{ padding: 0, border: 'none', background: 'transparent' }}
             />
             {BUCKETS.map(bucket => {
-              // Hide the Recharts bar if an exclusive selection is running and this bucket is not included
               const shouldHideBar = hasSelection && !activeBuckets[bucket];
               return (
                 <Bar
@@ -301,7 +296,7 @@ export default function ExperienceDemandBar() {
         </ResponsiveContainer>
       </div>
 
-      {/* ── Pinned Persistent Tooltip Rendered Over Chart ── */}
+      {/* Pinned Persistent Tooltip Rendered Over Chart */}
       {pinnedTooltip && (
         <div style={{
           position: 'absolute',

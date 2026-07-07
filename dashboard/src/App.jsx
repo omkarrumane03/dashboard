@@ -10,6 +10,7 @@ import { computeOrionKPIs } from "./data/derivedKPIs";
 import KPICard       from "./components/kpi/KPICard";
 import ChartPanel    from "./components/layout/ChartPanel";
 import SectionHeader from "./components/layout/SectionHeader";
+import InfoIcon      from "./components/common/InfoIcon";
 
 import RolesActivityOverview from "./components/charts/RolesActivityOverview";
 import RolesLocation         from "./components/charts/RolesLocation";
@@ -130,12 +131,14 @@ function CustomMonthControl() {
         onClick={openPopover}
         style={{
           ...baseButtonStyle,
+          display:"inline-flex", alignItems:"center", gap:6,
           border: `1px solid ${isOpen ? PALETTE.accent : PALETTE.border}`,
           background: isOpen ? PALETTE.accentSoft : "transparent",
           color: isOpen ? PALETTE.accent : PALETTE.muted,
         }}
       >
-        Custom MM/YYYY ▼
+        <InfoIcon text="Select a base month to view a 12-month lookback of your data. Base month as 'Present Month'." size={16} />
+        <span>Custom MM/YYYY ▼</span>
       </button>
 
       {isOpen && (
@@ -155,10 +158,6 @@ function CustomMonthControl() {
             minWidth: 240,
           }}
         >
-          <label style={{ fontSize: 14, color: PALETTE.muted, fontFamily: "Inter, sans-serif" }}>
-            Pick a MM/YYYY — it becomes the Base for every range below.
-          </label>
-
           {/* Year header with paging arrows, clamped to customMonthBounds */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <button
@@ -268,7 +267,9 @@ function DateRangeFilter() {
   const { selectedRange, setSelectedRange } = useDateRange();
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap",
+      minWidth: 0,
+      justifyContent: "flex-end",  }}>
       <CustomMonthControl />
       {RANGE_OPTIONS.map((option) => {
         const isActive = selectedRange === option;
@@ -308,7 +309,7 @@ function DataCoverageNotice() {
       borderBottom: `1px solid ${PALETTE.border}`,
       padding: "6px 32px",
       fontFamily: "Inter, sans-serif",
-      fontSize: 14,
+      fontSize: 18,
       color: PALETTE.orange,
       display: "flex", alignItems: "center", gap: 6,
     }}>
@@ -323,7 +324,8 @@ function DataCoverageNotice() {
 
 function DashboardContent() {
   const [active, setActive] = useState("demand");
-  const { filteredPipeline } = useDateRange();
+  // Destructured selectedRange and customMonth to dynamically calculate container key
+  const { filteredPipeline, selectedRange, customMonth } = useDateRange();
   const orionKPIs = computeOrionKPIs(filteredPipeline);
 
   return (
@@ -341,8 +343,10 @@ function DashboardContent() {
         borderBottom: `1px solid ${PALETTE.border}`,
         padding: "0 32px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        height: 56,
+        minHeight: 56,
         gap: 16,
+        flexWrap:"wrap",
+        rowGap:8,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
           <div style={{
@@ -362,7 +366,6 @@ function DashboardContent() {
         </div>
 
         <DateRangeFilter />
-        {/* <div style={{ fontSize: 20, color: PALETTE.muted, flexShrink: 0 }}>FY 2026</div> */}
       </header>
 
       <DataCoverageNotice />
@@ -377,7 +380,7 @@ function DashboardContent() {
               {/* ── 4-Card KPI Row ─────────────────────────────────────── */}
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr 1fr 1fr 1fr 1fr",
+                gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
                 gap: 16,
                 marginBottom: 28,
               }}>
@@ -434,57 +437,80 @@ function DashboardContent() {
               </div>
 
               {/* ── Charts ───────────────────────────────────────── */}
-              <div style={{ ...grid, marginBottom: 16 }}>
+              {(() => {
+                const hasData = filteredPipeline && filteredPipeline.length > 0;
+                
+                // FIXED: Create an isolated key combining range strategy and active base custom month.
+                // Every time a user interacts or alters filters, this key value completely updates.
+                const chartContainerKey = `${selectedRange}-${customMonth ?? "none"}`;
 
-                <ChartPanel
-                  title="1. Roles by Status"
-                  subtitle={'Bar length reflects number of positions.'}
-                  info="Breaks down every role by its current status."
-                  height={450} span={2} >
-                  <RoleStatusBar />
-                </ChartPanel>
+                const noDataMessage = (
+                  <div style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "center", 
+                    height: "100%", 
+                    color: PALETTE.muted,
+                    fontSize: 20,
+                    fontFamily: "Inter, sans-serif"
+                  }}>
+                    No data for selected range.
+                  </div>
+                );
 
-                <ChartPanel
-                  title="2. Hiring Demand by Experience Level"
-                  subtitle={'Hover to see the specific roles.'}
-                  info="Number of roles per month, split by required experience level."
-                  height={326} >
-                  <ExperienceDemandBar />
-                </ChartPanel>
+                return (
+                  /* FIXED: Appending the dynamic key directly here clears all historical drill-downs or chart selections */
+                  <div style={{ ...grid, marginBottom: 16 }} key={chartContainerKey}>
+                    <ChartPanel
+                      title="1. Roles by Status"
+                      subtitle={'Bar length reflects number of positions.'}
+                      info="Breaks down every role by its current status."
+                      height={450} span={2} >
+                      {hasData ? <RoleStatusBar /> : noDataMessage}
+                    </ChartPanel>
 
-                <ChartPanel
-                  title="3. Roles by Location"
-                  subtitle={'Hover to see the specific roles.'}
-                  info="Number of roles per month, split by location."
-                  height={326} >
-                  <RolesLocation />
-                </ChartPanel>
+                    <ChartPanel
+                      title="2. Hiring Demand by Experience Level"
+                      subtitle={'Hover to see the specific roles.'}
+                      info="Number of roles per month, split by required experience level."
+                      height={326} >
+                      {hasData ? <ExperienceDemandBar /> : noDataMessage}
+                    </ChartPanel>
 
-                <ChartPanel
-                  title="4. Hiring Activity Overview"
-                  subtitle={'Hover for average positions per role and hire rate.'}
-                  info="Monthly view of hiring activity: stacked bars show positions by status, the line shows roles opened that month."
-                  height={400} span={2} >
-                  <RolesActivityOverview />
-                </ChartPanel>
+                    <ChartPanel
+                      title="3. Roles by Location"
+                      subtitle={'Hover to see the specific roles.'}
+                      info="Number of roles per month, split by location."
+                      height={326} >
+                      {hasData ? <RolesLocation /> : noDataMessage}
+                    </ChartPanel>
 
-                <ChartPanel
-                  title="5. Candidate Selection Funnel"
-                  subtitle="Hover to see pass rate."
-                  info="Tracks candidates as they move through the pipeline."
-                  height={300} >
-                  <CandidateFunnel />
-                </ChartPanel>
+                    <ChartPanel
+                      title="4. Hiring Activity Overview"
+                      subtitle={'Hover for average positions per role and hire rate.'}
+                      info="Monthly view of hiring activity: stacked bars show positions by status, the line shows roles opened that month."
+                      height={400} span={2} >
+                      {hasData ? <RolesActivityOverview /> : noDataMessage}
+                    </ChartPanel>
 
-                <ChartPanel
-                  title="6. Confirmed Hires"
-                  subtitle='Hover to see specifications.'
-                  info="Breaks down confirmed hires by role, location, and experience level."
-                  height={300} >
-                  <ConfirmedByDimension />
-                </ChartPanel>
+                    <ChartPanel
+                      title="5. Candidate Selection Funnel"
+                      subtitle="Hover to see pass rate."
+                      info="Tracks candidates as they move through the pipeline."
+                      height={300} >
+                      {hasData ? <CandidateFunnel /> : noDataMessage}
+                    </ChartPanel>
 
-              </div>
+                    <ChartPanel
+                      title="6. Confirmed Hires"
+                      subtitle='Hover to see specifications.'
+                      info="Breaks down confirmed hires by role, location, and experience level."
+                      height={300} >
+                      {hasData ? <ConfirmedByDimension /> : noDataMessage}
+                    </ChartPanel>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </main>

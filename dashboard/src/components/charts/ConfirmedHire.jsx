@@ -14,16 +14,9 @@ const BUCKET_LABELS = {
 };
 
 const BUCKET_COLORS = {
-  Junior: '#14B8A6',
-  Senior: '#A855F7', 
-  Lead:   '#38BDF8',
-};
-
-// Darker text colors for accessibility contrast matching RolesActivityOverview
-const BUCKET_TEXT_COLORS = {
-  Junior: '#0D9488', 
-  Senior: '#7E22CE', 
-  Lead:   '#0369A1', 
+  Junior: '#84CC16',
+  Senior: '#14B8A6', 
+  Lead:   '#0F766E', 
 };
 
 // Fixed cap on the tooltip's height — kept comfortably below the
@@ -32,25 +25,12 @@ const TOOLTIP_MAX_HEIGHT = 220;
 const TOOLTIP_WIDTH = 290;
 const TOOLTIP_GAP = 15;
 
-function hexToRgba(hex, alpha) {
-  const h = hex.replace('#', '');
-  const r = parseInt(h.substring(0, 2), 16);
-  const g = parseInt(h.substring(2, 4), 16);
-  const b = parseInt(h.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 // ── Core Roles List Content (reused for hover & pinned states) ─────────────
 const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
   const roles = data.roles || [];
   if (roles.length === 0) return null;
 
-  const grouped = {};
-  roles.forEach(role => {
-    const b = role.experienceBucket;
-    if (!grouped[b]) grouped[b] = [];
-    grouped[b].push(role);
-  });
+  const totalConfirmed = data.total || 0;
 
   return (
     <div
@@ -59,9 +39,9 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
         background: PALETTE.surface,
         border: `1px solid ${isPinned ? PALETTE.accent : PALETTE.border}`,
         borderRadius: 8,
-        boxShadow: '0 6px 20px rgba(15,42,34,0.12)',
+        padding: '10px 14px',
         fontFamily: "Inter, sans-serif",
-        fontSize: 17,
+        fontSize: 18,
         minWidth: 230,
         width: TOOLTIP_WIDTH,
         maxHeight: TOOLTIP_MAX_HEIGHT,
@@ -69,36 +49,24 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
         scrollbarWidth: 'none',
         msOverflowStyle: 'none',
         position: 'relative',
-        padding: '10px 14px',
       }}
     >
-      {/* ── Header styled exactly like RolesActivityOverview ── */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
+      {/* Top Header Row: Month/Year (Left) | "Hires:X" (Right) */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
         alignItems: 'center',
-        position: 'sticky',
-        top: -10, // offsets container padding
-        background: PALETTE.surface,
-        zIndex: 2,
-        paddingBottom: 8,
-        marginBottom: 8,
-        borderBottom: `1px solid ${PALETTE.border}`,
+        marginBottom: 8, 
       }}>
         <span style={{ color: PALETTE.muted, fontWeight: 600 }}>
           {formatMonthLabel(label)}
         </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{
-            background: hexToRgba(PALETTE.accent, 0.12),
-            color: PALETTE.accent,
-            fontWeight: 700,
-            fontSize: 17,
-            borderRadius: 999,
-            padding: '3px 10px',
-            whiteSpace: 'nowrap',
-          }}>
-            {data.total} confirmed
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <span style={{ color: PALETTE.text, fontWeight: 600 }}>
+            Hires:
+          </span>
+          <span style={{ color: PALETTE.accent, fontSize: 18, fontWeight: 700 }}>
+            {totalConfirmed}
           </span>
           {isPinned && (
             <button
@@ -110,6 +78,7 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
                 cursor: 'pointer',
                 fontSize: 18,
                 padding: 0,
+                marginLeft: 8,
                 lineHeight: 1,
               }}
             >
@@ -119,85 +88,32 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
         </div>
       </div>
 
-      {/* ── Body content logic remains untouched, updating row header layout style ── */}
-      <div>
-        {BUCKETS.map((bucket, bi) => {
-          const list = grouped[bucket];
-          if (!list || list.length === 0) return null;
-          return (
-            <div
-              key={bucket}
-              style={{
-                marginTop: bi === 0 ? 0 : 12,
-                paddingTop: bi === 0 ? 0 : 12,
-                borderTop: bi === 0 ? 'none' : `1px dashed ${PALETTE.border}`,
-              }}
-            >
-              {/* Row title strip matching layout blocks in RolesActivityOverview */}
-              <div style={{
-                display: 'flex', justifyContent: 'space-between',
-                alignItems: 'center', gap: 12, marginBottom: 6,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: 2,
-                    background: BUCKET_COLORS[bucket], flexShrink: 0,
-                  }} />
-                  <span style={{ color: BUCKET_TEXT_COLORS[bucket], fontWeight: 600, fontSize: 15 }}>
-                    {BUCKET_LABELS[bucket].toUpperCase()}
-                  </span>
-                </div>
-                <span style={{ fontSize: 16, color: PALETTE.muted }}>
-                  {list.length} Role{list.length !== 1 ? 's' : ''}
-                </span>
-              </div>
+      {/* Horizontal Divider Line */}
+      <div style={{
+        borderBottom: `1px solid ${PALETTE.border}`,
+        marginBottom: 10,
+      }} />
 
-              {/* Individual Role Rows Content */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                {list.map((role, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 10,
-                      background: PALETTE.bg,
-                      borderRadius: 6,
-                      padding: '6px 8px',
-                    }}
-                  >
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{
-                        fontWeight: 600, fontSize: 13.5, color: PALETTE.text,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {role.shortTitle}
-                      </div>
-                      <div style={{
-                        fontSize: 12, color: PALETTE.muted,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      }}>
-                        {role.location} · {role.experience} exp
-                      </div>
-                    </div>
-                    <span style={{
-                      flexShrink: 0,
-                      background: BUCKET_COLORS[bucket],
-                      color: PALETTE.surface,
-                      fontWeight: 700,
-                      fontSize: 12.5,
-                      borderRadius: 999,
-                      padding: '2px 9px',
-                    }}>
-                      {role.confirmed}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {/* Roles Dynamic Breakdown */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {roles.map((role, idx) => (
+          <div key={idx} style={{ display: 'flex', flexDirection: 'column' }}>
+            {/* Role Title and Count Line */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8 }}>
+              <span style={{ color: PALETTE.text, fontWeight: 600, fontSize: 18 }}>
+                {role.shortTitle || 'Unknown Role'}
+              </span>
+              <span style={{ color: PALETTE.text, fontWeight: 700, fontSize: 18 }}>
+                {role.confirmed}
+              </span>
             </div>
-          );
-        })}
+            
+            {/* Experience & Location Line */}
+            <div style={{ color: PALETTE.muted, fontSize: 18, marginTop: 2 }}>
+              {role.experience ? `${role.experience}y` : 'No exp.'}   • {role.location || 'Remote'}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -270,6 +186,18 @@ export default function ConfirmedHiresStackedBar() {
     }),
   [filteredPipeline, activeMonths]);
 
+  const rangeTotalHires = useMemo(() => {
+    return chartData.reduce((acc, monthEntry) => {
+      BUCKETS.forEach(bucket => {
+        const isBucketActive = !hasSelection || activeBuckets[bucket];
+        if (isBucketActive) {
+          acc += monthEntry[bucket] || 0;
+        }
+      });
+      return acc;
+    }, 0);
+  }, [chartData, hasSelection, activeBuckets]);
+
   const handleBarClick = (data, e) => {
     if (!e || !containerRef.current) return;
     e.stopPropagation();
@@ -278,13 +206,11 @@ export default function ConfirmedHiresStackedBar() {
     const xPos = e.clientX - rect.left;
     const yPos = e.clientY - rect.top;
 
-    // Flip left if the tooltip would overflow the panel's right edge.
     const overflowsRight = xPos + TOOLTIP_GAP + TOOLTIP_WIDTH > rect.width;
     const left = overflowsRight
       ? Math.max(0, xPos - TOOLTIP_GAP - TOOLTIP_WIDTH)
       : xPos + TOOLTIP_GAP;
 
-    // Clamp vertically so it doesn't overflow the top or bottom of the panel.
     const top = Math.min(
       Math.max(0, yPos - 40),
       Math.max(0, rect.height - TOOLTIP_MAX_HEIGHT)
@@ -304,34 +230,66 @@ export default function ConfirmedHiresStackedBar() {
         }
       `}</style>
 
-      {/* Legend */}
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, paddingTop: 8, fontFamily: "Inter, sans-serif", fontSize: 18, minHeight: 20, flexWrap: 'wrap' }}>
-        {BUCKETS.map(bucket => {
-          const isMuted = hasSelection && !activeBuckets[bucket];
-          return (
-            <div
-              key={bucket}
-              onClick={() => toggleBucket(bucket)}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 6, 
-                cursor: 'pointer', 
-                opacity: isMuted ? 0.35 : 1, 
-                userSelect: 'none', 
-                transition: 'opacity 0.2s ease' 
-              }}
-            >
-              <span style={{ width: 10, height: 10, borderRadius: 2, background: BUCKET_COLORS[bucket] }} />
-              <span style={{ 
-                color: isMuted ? PALETTE.muted : PALETTE.text,
-                fontWeight: !isMuted && hasSelection ? 'bold' : 'normal'
-              }}>
-                {BUCKET_LABELS[bucket]}
-              </span>
-            </div>
-          );
-        })}
+      {/* Header Container for Legend & Total Count badge */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        paddingTop: 8, 
+        fontFamily: "Inter, sans-serif", 
+        fontSize: 18, 
+        minHeight: 28, 
+        flexWrap: 'wrap',
+        gap: 16 
+      }}>
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
+          {BUCKETS.map(bucket => {
+            const isMuted = hasSelection && !activeBuckets[bucket];
+            return (
+              <div
+                key={bucket}
+                onClick={() => toggleBucket(bucket)}
+                style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 6, 
+                  cursor: 'pointer', 
+                  opacity: isMuted ? 0.35 : 1, 
+                  userSelect: 'none', 
+                  transition: 'opacity 0.2s ease' 
+                }}
+              >
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: BUCKET_COLORS[bucket] }} />
+                <span style={{ 
+                  color: isMuted ? PALETTE.muted : PALETTE.text,
+                  fontWeight: !isMuted && hasSelection ? 'bold' : 'normal'
+                }}>
+                  {BUCKET_LABELS[bucket]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ 
+          fontSize: 18, 
+          fontWeight: 600, 
+          color: PALETTE.muted, 
+          display: 'flex', 
+          alignItems: 'center'
+          
+        }}>
+          Hires:
+          <span style={{ 
+            color: PALETTE.text, 
+            fontWeight: 700, 
+            padding: '2px 8px', 
+            borderRadius: 6,
+            fontSize: 18
+          }}>
+          {rangeTotalHires}
+          </span>
+        </div>
       </div>
 
       {/* Chart */}

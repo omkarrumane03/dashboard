@@ -10,29 +10,15 @@ import { getOrionRolesPerPeriod } from '../../data/notebookData';
 import { useDateRange } from '../../context/DateRangeContext';
 import { formatMonthLabel } from '../../utils/dateRangeUtils';
 import { PALETTE } from '../../utils/theme';
-
-const STATUS_COLORS = {
-  'In Process':     '#38BDF8',
-  'On Hold':        '#F59E0B',
-  'Closed-Hired':   '#22C55E',
-  'Closed-No Hire': '#EF4444',
-};
-
-const STATUS_TEXT_COLORS = {
-  'In Process':     '#0369A1', // sky-700
-  'On Hold':        '#B45309', // amber-700
-  'Closed-Hired':   '#15803D', // green-700
-  'Closed-No Hire': '#B91C1C', // red-700
-};
-
-const STATUS_KEYS = ['Closed-Hired', 'Closed-No Hire', 'On Hold', 'In Process'];
+import useActiveToggle from '../../hooks/useActiveToggle';
+import { STATUS_COLORS, STATUS_ORDER, STATUS_TEXT_COLORS } from '../../utils/dashboardConstants';
 
 // ── Tooltip ───────────────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
 
   const rolesOpened   = payload.find(p => p.dataKey === 'rolesOpened')?.value ?? 0;
-  const totalOpenings = STATUS_KEYS.reduce(
+  const totalOpenings = STATUS_ORDER.reduce(
     (s, k) => s + (payload.find(p => p.dataKey === k)?.value ?? 0), 0
   );
   const avgPerRole = rolesOpened > 0
@@ -77,7 +63,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       </div>
 
       {/* Openings by status */}
-      {STATUS_KEYS.map(key => {
+      {STATUS_ORDER.map(key => {
         const val = payload.find(p => p.dataKey === key)?.value ?? 0;
         if (val === 0) return null;
         const pct = totalOpenings > 0 ? Math.round((val / totalOpenings) * 100) : 0;
@@ -117,26 +103,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function RolesActivityOverview() {
   const { filteredPipeline } = useDateRange();
-  const [activeStatuses, setActiveStatuses] = useState({});
-
-  const hasSelection = useMemo(() => {
-    return Object.keys(activeStatuses).some(key => activeStatuses[key] === true);
-  }, [activeStatuses]);
-
-  const toggleStatus = (status) => {
-    setActiveStatuses(prev => {
-      const activeKeys = Object.keys(prev).filter(k => prev[k]);
-      if (activeKeys.length === 0) {
-        return { [status]: true };
-      }
-      if (prev[status]) {
-        const next = { ...prev, [status]: false };
-        const remaining = Object.keys(next).filter(k => next[k]);
-        return remaining.length === 0 ? {} : next;
-      }
-      return { ...prev, [status]: true };
-    });
-  };
+  const { active: activeStatuses, hasSelection, toggle: toggleStatus } = useActiveToggle();
 
   const rolesPerPeriod = useMemo(
     () => getOrionRolesPerPeriod(filteredPipeline),
@@ -149,7 +116,7 @@ export default function RolesActivityOverview() {
       .map(d => {
         const rows  = filteredPipeline.filter(r => r.month === d.period);
         const entry = { month: d.month, rolesOpened: d.rolesOpened };
-        STATUS_KEYS.forEach(key => {
+        STATUS_ORDER.forEach(key => {
           entry[key] = rows
             .filter(r => r.status === key)
             .reduce((s, r) => s + (r.openings || 0), 0);
@@ -197,7 +164,7 @@ export default function RolesActivityOverview() {
         display: 'flex', justifyContent: 'center', flexWrap: 'wrap',
         gap: 14, fontFamily: "Inter, sans-serif", fontSize: 18, paddingBottom: 4,
       }}>
-        {STATUS_KEYS.map(key => {
+        {STATUS_ORDER.map(key => {
           const isMuted = hasSelection && !activeStatuses[key];
           return (
             <div 
@@ -267,7 +234,7 @@ export default function RolesActivityOverview() {
               cursor={{ fill: 'rgba(15,42,34,0.04)' }}
             />
 
-            {STATUS_KEYS.map((key, i) => {
+            {STATUS_ORDER.map((key, i) => {
               const shouldHideBar = hasSelection && !activeStatuses[key];
               return (
                 <Bar
@@ -278,7 +245,7 @@ export default function RolesActivityOverview() {
                   fill={STATUS_COLORS[key]}
                   fillOpacity={0.85}
                   hide={shouldHideBar}
-                  radius={i === STATUS_KEYS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
+                  radius={i === STATUS_ORDER.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                   maxBarSize={52}
                 />
               );

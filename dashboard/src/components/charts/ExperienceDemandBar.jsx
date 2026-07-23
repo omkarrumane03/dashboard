@@ -4,31 +4,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useDateRange } from '../../context/DateRangeContext';
 import { formatMonthLabel } from '../../utils/dateRangeUtils';
 import { PALETTE } from '../../utils/theme';
+import useActiveToggle from '../../hooks/useActiveToggle';
+import {
+  EXPERIENCE_BUCKETS,
+  EXPERIENCE_BUCKET_LABELS,
+  EXPERIENCE_BUCKET_COLORS,
+  EXPERIENCE_BUCKET_TEXT_COLORS,
+  EXPERIENCE_BUCKET_TOOLTIP,
+} from '../../utils/dashboardConstants';
 
-const BUCKETS = ['Junior', 'Senior', 'Lead'];
-
-const BUCKET_LABELS = {
-  Junior: 'Junior (2–4y)',
-  Senior: 'Senior (5–7y)',
-  Lead:   'Lead (8y+)',
-};
-
-const BUCKET_COLORS = {
-  Junior: '#84CC16',
-  Senior: '#14B8A6', 
-  Lead:   '#0F766E', 
-};
-
-const BUCKET_TEXT_COLORS = {
-  Junior: '#84CC16',
-  Senior: '#14B8A6', 
-  Lead:   '#0F766E', 
-};
-
-// Precise Tooltip Window Dimensions matching RolesLocation framework perfectly
-const TOOLTIP_WIDTH = 260;
-const TOOLTIP_HEIGHT = 160;
-const TOOLTIP_GAP = 15;
+const { width: TOOLTIP_WIDTH, height: TOOLTIP_HEIGHT, gap: TOOLTIP_GAP } = EXPERIENCE_BUCKET_TOOLTIP;
 
 // ── Core Roles List Component (Restored with your original nested category layout) ──
 const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
@@ -101,12 +86,12 @@ const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
 
       {/* ── Original Grouped Content Body Part ── */}
       <div style={{ paddingTop: 6 }}>
-        {BUCKETS.map(bucket => {
+        {EXPERIENCE_BUCKETS.map(bucket => {
           if (!grouped[bucket]) return null;
           return (
             <div key={bucket} style={{ marginBottom: 6 }}>
-              <div style={{ color: BUCKET_TEXT_COLORS[bucket], fontWeight: 'bold', fontSize: 18, marginBottom: 2 }}>
-                {BUCKET_LABELS[bucket]}
+              <div style={{ color: EXPERIENCE_BUCKET_TEXT_COLORS[bucket], fontWeight: 'bold', fontSize: 18, marginBottom: 2 }}>
+                {EXPERIENCE_BUCKET_LABELS[bucket]}
               </div>
               {grouped[bucket].map((role, idx) => (
                 <div 
@@ -141,14 +126,8 @@ const CustomTooltip = ({ active, payload, label, isStickyActive }) => {
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function ExperienceDemandBar() {
   const { filteredPipeline } = useDateRange();
-  
-  const [activeBuckets, setActiveBuckets] = useState({});
+  const { active: activeBuckets, hasSelection, toggle: toggleBucket } = useActiveToggle();
   const containerRef = useRef(null);
-
-  const hasSelection = useMemo(() => {
-    return Object.keys(activeBuckets).some(key => activeBuckets[key] === true);
-  }, [activeBuckets]);
-
   const [pinnedTooltip, setPinnedTooltip] = useState(null);
 
   useEffect(() => {
@@ -156,21 +135,6 @@ export default function ExperienceDemandBar() {
     window.addEventListener('click', handleOutsideClick);
     return () => window.removeEventListener('click', handleOutsideClick);
   }, []);
-
-  const toggleBucket = (bucket) => {
-    setActiveBuckets(prev => {
-      const activeKeys = Object.keys(prev).filter(k => prev[k]);
-      if (activeKeys.length === 0) {
-        return { [bucket]: true };
-      }
-      if (prev[bucket]) {
-        const next = { ...prev, [bucket]: false };
-        const remaining = Object.keys(next).filter(k => next[k]);
-        return remaining.length === 0 ? {} : next;
-      }
-      return { ...prev, [bucket]: true };
-    });
-  };
 
   const activeMonths = useMemo(() => {
     const seen = new Set(); const months = [];
@@ -233,7 +197,7 @@ export default function ExperienceDemandBar() {
 
       {/* Legend */}
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, paddingTop: 8, fontFamily: "Inter, sans-serif", fontSize: 18,  flexWrap: 'wrap' }}>
-        {BUCKETS.map(bucket => {
+        {EXPERIENCE_BUCKETS.map(bucket => {
           const isMuted = hasSelection && !activeBuckets[bucket];
           return (
             <div
@@ -249,12 +213,12 @@ export default function ExperienceDemandBar() {
                 transition: 'opacity 0.2s ease' 
               }}
             >
-              <span style={{ width: 10, height: 10, borderRadius: 2, background: BUCKET_COLORS[bucket] }} />
+              <span style={{ width: 10, height: 10, borderRadius: 2, background: EXPERIENCE_BUCKET_COLORS[bucket] }} />
               <span style={{ 
-                color: isMuted ? PALETTE.text : PALETTE.text,
+                color: PALETTE.text,
                 fontWeight: !isMuted && hasSelection ? 'bold' : 'normal'
               }}>
-                {BUCKET_LABELS[bucket]}
+                {EXPERIENCE_BUCKET_LABELS[bucket]}
               </span>
             </div>
           );
@@ -281,12 +245,12 @@ export default function ExperienceDemandBar() {
               cursor={{ fill: 'rgba(15,42,34,0.05)'}} 
               wrapperStyle={{ padding: 0, border: 'none', background: 'transparent' }}
             />
-            {BUCKETS.map(bucket => {
+            {EXPERIENCE_BUCKETS.map(bucket => {
               const shouldHideBar = hasSelection && !activeBuckets[bucket];
               return (
                 <Bar
                   key={bucket} dataKey={bucket} stackId="experience"
-                  fill={BUCKET_COLORS[bucket]} hide={shouldHideBar}
+                  fill={EXPERIENCE_BUCKET_COLORS[bucket]} hide={shouldHideBar}
                   style={{ cursor: 'pointer' }}
                   onClick={(data, index, e) => handleBarClick(data, e)}
                 />

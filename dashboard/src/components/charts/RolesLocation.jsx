@@ -1,12 +1,14 @@
 // components/charts/RolesLocation.jsx
 
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import {
   ResponsiveContainer, ScatterChart, Scatter,
   XAxis, YAxis, ZAxis, Tooltip, Cell, CartesianGrid,
 } from 'recharts';
 import { useDateRange } from '../../context/DateRangeContext';
 import { PALETTE } from '../../utils/theme';
+import useActiveToggle from '../../hooks/useActiveToggle';
+import { LOCATION_BUBBLE_RANGES, LOCATION_BUBBLE_TOOLTIP } from '../../utils/dashboardConstants';
 
 const truncateLabel = (label, maxLength = 14) => {
   if (!label) return '';
@@ -36,20 +38,15 @@ const CustomXAxisTick = ({ x, y, payload, locationLabels }) => {
 
 // ── Colour by total openings ──────────────────────────────────────────────────
 const getColor = (value) => {
-  if (value >= 10) return '#0284C7';
-  if (value >= 5)  return '#0D9488';
-  return '#7C3AED';
+  const range = LOCATION_BUBBLE_RANGES.find(r => value >= r.min && value <= r.max);
+  return range?.color || LOCATION_BUBBLE_RANGES[0].color;
 };
 
 const getBucketLabelKey = (value) => {
-  if (value >= 10) return '10+ openings';
-  if (value >= 5)  return '5–9 openings';
-  return '1–4 openings';
+  return LOCATION_BUBBLE_RANGES.find(r => value >= r.min && value <= r.max)?.key || LOCATION_BUBBLE_RANGES[0].key;
 };
 
-const TOOLTIP_WIDTH = 290;   
-const TOOLTIP_HEIGHT = 220; // Increased slightly to comfortably hold location text lines 
-const TOOLTIP_GAP = 15;
+const { width: TOOLTIP_WIDTH, height: TOOLTIP_HEIGHT, gap: TOOLTIP_GAP } = LOCATION_BUBBLE_TOOLTIP;
 
 // ── Core Roles List Component (Reused for Hover & Clicked states) ─────────────
 const RolesListContent = ({ data, isPinned, onUnpin }) => {
@@ -161,26 +158,7 @@ const CustomTooltip = ({ active, payload, isStickyActive }) => {
 export default function RolesLocation() {
   const { filteredPipeline } = useDateRange();
   const containerRef = useRef(null);
-  const [activeSizes, setActiveSizes] = useState({});
-
-  const hasSelection = useMemo(() => {
-    return Object.keys(activeSizes).some(key => activeSizes[key] === true);
-  }, [activeSizes]);
-
-  const toggleSize = (label) => {
-    setActiveSizes(prev => {
-      const activeKeys = Object.keys(prev).filter(k => prev[k]);
-      if (activeKeys.length === 0) {
-        return { [label]: true };
-      }
-      if (prev[label]) {
-        const next = { ...prev, [label]: false };
-        const remaining = Object.keys(next).filter(k => next[k]);
-        return remaining.length === 0 ? {} : next;
-      }
-      return { ...prev, [label]: true };
-    });
-  };
+  const { active: activeSizes, hasSelection, toggle: toggleSize } = useActiveToggle();
 
   const LEGEND_ITEMS = [
     { label: '1–4 openings',  openings: 2,  r: 6  },
@@ -188,7 +166,7 @@ export default function RolesLocation() {
     { label: '10+ openings',  openings: 12, r: 14 },
   ];
 
-  const [pinnedTooltip, setPinnedTooltip] = useState(null); 
+  const [pinnedTooltip, setPinnedTooltip] = useState(null);
 
   useEffect(() => {
     const handleOutsideClick = () => setPinnedTooltip(null);

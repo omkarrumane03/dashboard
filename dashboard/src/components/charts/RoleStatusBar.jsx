@@ -1,5 +1,5 @@
 // components/charts/RoleStatusBar.jsx
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
@@ -7,22 +7,8 @@ import {
 import { useDateRange } from '../../context/DateRangeContext';
 import { formatMonthLabel } from '../../utils/dateRangeUtils';
 import { PALETTE } from '../../utils/theme';
-
-const STATUS_COLORS = {
-  'In Process':     '#38BDF8',
-  'On Hold':        '#F59E0B',
-  'Closed-Hired':   '#22C55E',
-  'Closed-No Hire': '#EF4444',
-};
-
-const STATUS_TEXT_COLORS = {
-  'In Process':     '#0369A1', 
-  'On Hold':        '#B45309', 
-  'Closed-Hired':   '#15803D', 
-  'Closed-No Hire': '#B91C1C', 
-};
-
-const STATUS_ORDER = ['In Process', 'On Hold', 'Closed-Hired', 'Closed-No Hire'];
+import useActiveToggle from '../../hooks/useActiveToggle';
+import { STATUS_COLORS, STATUS_ORDER, STATUS_TEXT_COLORS } from '../../utils/dashboardConstants';
 
 const ALL_OPTION = 'All';
 
@@ -81,26 +67,7 @@ const CustomTooltip = ({ active, payload, label, pipeline }) => {
 export default function RoleStatusBar() {
   const { filteredPipeline } = useDateRange();
   const [selectedMonth, setSelectedMonth] = useState(ALL_OPTION);
-  const [activeStatuses, setActiveStatuses] = useState({});
-
-  const hasSelection = useMemo(() => {
-    return Object.keys(activeStatuses).some(key => activeStatuses[key] === true);
-  }, [activeStatuses]);
-
-  const toggleStatus = (status) => {
-    setActiveStatuses(prev => {
-      const activeKeys = Object.keys(prev).filter(k => prev[k]);
-      if (activeKeys.length === 0) {
-        return { [status]: true };
-      }
-      if (prev[status]) {
-        const next = { ...prev, [status]: false };
-        const remaining = Object.keys(next).filter(k => next[k]);
-        return remaining.length === 0 ? {} : next;
-      }
-      return { ...prev, [status]: true };
-    });
-  };
+  const { active: activeStatuses, hasSelection, toggle: toggleStatus } = useActiveToggle();
 
   const availableMonths = useMemo(() => {
     const seen = new Set(); const months = [];

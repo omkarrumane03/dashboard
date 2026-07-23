@@ -1,0 +1,62 @@
+export const DASHBOARD_BRANDING = {
+  title: 'HIRING DASHBOARD',
+  badge: 'ORION',
+  logoText: 'HD',
+};
+
+export const CHART_PANELS = [
+  {
+    id: 'roleStatus',
+    title: '1. Roles by Status',
+    subtitle: 'Bar length reflects number of positions.',
+    info: 'Breaks down every role by its current status.',
+    height: 450,
+    span: 2,
+    componentKey: 'RoleStatusBar',
+  },
+  {
+    id: 'experienceDemand',
+    title: '2. Hiring Demand by Experience Level',
+    subtitle: 'Hover to see the specific roles.',
+    info: 'Number of roles per month, split by required experience level.',
+    height: 326,
+    span: 1,
+    componentKey: 'ExperienceDemandBar',
+  },
+  {
+    id: 'location',
+    title: '3. Roles by Location',
+    subtitle: 'Hover to see the specific roles.',
+    info: 'Number of roles per month, split by location.',
+    height: 326,
+    span: 1,
+    componentKey: 'RolesLocation',
+  },
+  {
+    id: 'activityOverview',
+    title: '4. Hiring Activity Overview',
+    subtitle: 'Hover for average positions per role and hire rate.',
+    info: 'Monthly view of hiring activity: stacked bars show positions by status, the line shows roles opened that month.',
+    height: 400,
+    span: 2,
+    componentKey: 'RolesActivityOverview',
+  },
+  {
+    id: 'candidateFunnel',
+    title: '5. Candidate Selection Funnel',
+    subtitle: 'Hover to see pass rate.',
+    info: 'Tracks candidates as they move through the pipeline.',
+    height: 300,
+    span: 1,
+    componentKey: 'CandidateFunnel',
+  },
+  {
+    id: 'confirmedHires',
+    title: '6. Confirmed Hires',
+    subtitle: 'Hover to see specifications.',
+    info: 'Breaks down confirmed hires by role, location, and experience level.',
+    height: 300,
+    span: 1,
+    componentKey: 'ConfirmedByDimension',
+  },
+];

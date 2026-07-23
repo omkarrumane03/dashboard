@@ -4,26 +4,17 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useDateRange } from '../../context/DateRangeContext';
 import { formatMonthLabel } from '../../utils/dateRangeUtils';
 import { PALETTE } from '../../utils/theme';
-
-const BUCKETS = ['Junior', 'Senior', 'Lead'];
-
-const BUCKET_LABELS = {
-  Junior: 'Junior (2–4y)',
-  Senior: 'Senior (5–7y)',
-  Lead:   'Lead (8y+)',
-};
-
-const BUCKET_COLORS = {
-  Junior: '#84CC16',
-  Senior: '#14B8A6', 
-  Lead:   '#0F766E', 
-};
+import useActiveToggle from '../../hooks/useActiveToggle';
+import {
+  EXPERIENCE_BUCKETS,
+  EXPERIENCE_BUCKET_LABELS,
+  EXPERIENCE_BUCKET_COLORS,
+  EXPERIENCE_BUCKET_TOOLTIP,
+} from '../../utils/dashboardConstants';
 
 // Fixed cap on the tooltip's height — kept comfortably below the
 // ChartPanel's default height (280) so it never spills outside the panel.
-const TOOLTIP_MAX_HEIGHT = 220;
-const TOOLTIP_WIDTH = 290;
-const TOOLTIP_GAP = 15;
+const { width: TOOLTIP_WIDTH, height: TOOLTIP_MAX_HEIGHT, gap: TOOLTIP_GAP } = EXPERIENCE_BUCKET_TOOLTIP;
 
 // ── Core Roles List Content (reused for hover & pinned states) ─────────────
 const RolesListContent = ({ data, label, isPinned, onUnpin }) => {
@@ -128,34 +119,15 @@ const CustomTooltip = ({ active, payload, label, isStickyActive }) => {
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function ConfirmedHiresStackedBar() {
   const { filteredPipeline } = useDateRange();
-  const [activeBuckets, setActiveBuckets] = useState({});
+  const { active: activeBuckets, hasSelection, toggle: toggleBucket } = useActiveToggle();
   const containerRef = useRef(null);
   const [pinnedTooltip, setPinnedTooltip] = useState(null);
-
-  const hasSelection = useMemo(() => {
-    return Object.keys(activeBuckets).some(key => activeBuckets[key] === true);
-  }, [activeBuckets]);
 
   useEffect(() => {
     const handleOutsideClick = () => setPinnedTooltip(null);
     window.addEventListener('click', handleOutsideClick);
     return () => window.removeEventListener('click', handleOutsideClick);
   }, []);
-
-  const toggleBucket = (bucket) => {
-    setActiveBuckets(prev => {
-      const activeKeys = Object.keys(prev).filter(k => prev[k]);
-      if (activeKeys.length === 0) {
-        return { [bucket]: true };
-      }
-      if (prev[bucket]) {
-        const next = { ...prev, [bucket]: false };
-        const remaining = Object.keys(next).filter(k => next[k]);
-        return remaining.length === 0 ? {} : next;
-      }
-      return { ...prev, [bucket]: true };
-    });
-  };
 
   const activeMonths = useMemo(() => {
     const seen = new Set(); const months = [];
@@ -188,7 +160,7 @@ export default function ConfirmedHiresStackedBar() {
 
   const rangeTotalHires = useMemo(() => {
     return chartData.reduce((acc, monthEntry) => {
-      BUCKETS.forEach(bucket => {
+      EXPERIENCE_BUCKETS.forEach(bucket => {
         const isBucketActive = !hasSelection || activeBuckets[bucket];
         if (isBucketActive) {
           acc += monthEntry[bucket] || 0;
@@ -243,7 +215,7 @@ export default function ConfirmedHiresStackedBar() {
         gap: 16 
       }}>
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', flex: 1, justifyContent: 'center' }}>
-          {BUCKETS.map(bucket => {
+          {EXPERIENCE_BUCKETS.map(bucket => {
             const isMuted = hasSelection && !activeBuckets[bucket];
             return (
               <div
@@ -259,12 +231,12 @@ export default function ConfirmedHiresStackedBar() {
                   transition: 'opacity 0.2s ease' 
                 }}
               >
-                <span style={{ width: 10, height: 10, borderRadius: 2, background: BUCKET_COLORS[bucket] }} />
+                <span style={{ width: 10, height: 10, borderRadius: 2, background: EXPERIENCE_BUCKET_COLORS[bucket] }} />
                 <span style={{ 
                   color: isMuted ? PALETTE.muted : PALETTE.text,
                   fontWeight: !isMuted && hasSelection ? 'bold' : 'normal'
                 }}>
-                  {BUCKET_LABELS[bucket]}
+                  {EXPERIENCE_BUCKET_LABELS[bucket]}
                 </span>
               </div>
             );
@@ -311,12 +283,12 @@ export default function ConfirmedHiresStackedBar() {
               content={<CustomTooltip isStickyActive={!!pinnedTooltip} />}
               cursor={{ fill: 'rgba(15,42,34,0.05)' }}
             />
-            {BUCKETS.map(bucket => {
+            {EXPERIENCE_BUCKETS.map(bucket => {
               const shouldHideBar = hasSelection && !activeBuckets[bucket];
               return (
                 <Bar
                   key={bucket} dataKey={bucket} stackId="confirmedHires"
-                  fill={BUCKET_COLORS[bucket]} hide={shouldHideBar}
+                  fill={EXPERIENCE_BUCKET_COLORS[bucket]} hide={shouldHideBar}
                   style={{ cursor: 'pointer' }}
                   onClick={(data, index, e) => handleBarClick(data, e)}
                 />

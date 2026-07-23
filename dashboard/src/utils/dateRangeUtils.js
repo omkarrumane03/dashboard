@@ -19,6 +19,28 @@ export function getEarliestMonth(pipeline) {
   );
 }
 
+export function getLatestMonth(pipeline) {
+  if (!pipeline?.length) return null;
+  return pipeline.reduce((max, entry) =>
+    entry.openedMonth > max ? entry.openedMonth : max,
+    pipeline[0].openedMonth
+  );
+}
+
+// The real, data-driven bounds of the dataset — used to power the
+// "Data is only available from X to Y" alert with exact values,
+// rather than a hardcoded UI range.
+export function getDataBounds(pipeline) {
+  return {
+    min: getEarliestMonth(pipeline),
+    max: getLatestMonth(pipeline),
+  };
+}
+
+export function isValidMonthString(month) {
+  return typeof month === "string" && /^\d{4}-\d{2}$/.test(month);
+}
+
 export const MONTH_ABBR = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
@@ -29,7 +51,7 @@ export function formatMonthLabel(month) {
   const [year, mon] = month.split("-");
   const monIndex = Number(mon) - 1;
   if (!year || monIndex < 0 || monIndex > 11 || Number.isNaN(monIndex)) return month;
-  return `${MONTH_ABBR[monIndex]}/${year}`;
+  return `${MONTH_ABBR[monIndex]}-${year}`;
 }
 
 
@@ -47,7 +69,7 @@ export function getDateRange(option, anchorMonth) {
 
   const endMonth = anchorMonth;
   const monthsBack = {
-    "Present Month"   : 0,
+    "Current Month"   : 0,
     "Last 3 Months"  : 2,
     "Last 6 Months"  : 5,
     "Last 9 Months"  : 8,
@@ -62,4 +84,9 @@ export function filterPipelineByRange(pipeline, { startMonth, endMonth }) {
   return pipeline.filter(({ openedMonth }) =>
     openedMonth >= startMonth && openedMonth <= endMonth
   );
+}
+
+// True if the dataset has at least one record inside [startMonth, endMonth].
+export function hasDataInRange(pipeline, range) {
+  return filterPipelineByRange(pipeline, range).length > 0;
 }

@@ -1,11 +1,18 @@
-import React, { createContext, useContext, useState, useMemo } from "react";
+import React, { createContext, useContext, useState, useMemo, useCallback } from "react";
 import { orionPipeline } from "../data/notebookData";
-import {getCurrentMonth, getCustomMonthBounds, getDateRange, filterPipelineByRange, getEarliestMonth,} from "../utils/dateRangeUtils";
+import {
+  getCurrentMonth,
+  getDateRange,
+  filterPipelineByRange,
+  getDataBounds,
+  hasDataInRange,
+  formatMonthLabel,
+} from "../utils/dateRangeUtils";
 
 const DateRangeContext = createContext(null);
 
 export const RANGE_OPTIONS = [
-  "Present Month",
+  "Current Month",
   "Last 3 Months",
   "Last 6 Months",
   "Last 9 Months",
@@ -13,32 +20,74 @@ export const RANGE_OPTIONS = [
 ];
 
 export function DateRangeProvider({ children }) {
-  // FIXED: Changed initial state to "Present Month" so refreshes always start here
-  const [selectedRange, setSelectedRange] = useState("Present Month");
-  const [customMonth, setCustomMonth] = useState(null);
+  const [selectedRange, setSelectedRangeState] = useState("Current Month");
+
+  // The custom range is a fully independent filter: { startMonth, endMonth } | null.
+  // It is never combined with selectedRange — whichever one was set most
+  // recently is the one driving filteredPipeline.
+  const [customRange, setCustomRange] = useState(null);
+  const [customRangeAlert, setCustomRangeAlert] = useState(null);
+
   const currentMonth = getCurrentMonth();
-  const customMonthBounds = useMemo(() => getCustomMonthBounds(), [currentMonth]);
 
-  function confirmCustomMonth(month) {
-    setCustomMonth(month);
-    setSelectedRange("Present Month");
+  // Real, data-driven bounds (not a hardcoded UI range) so alerts can quote
+  // the exact dates data is available for.
+  const dataBounds = useMemo(() => getDataBounds(orionPipeline), []);
+
+  // Picking one of the standard preset buttons always clears any active
+  // custom range — the two controls are disconnected from one another.
+  function setSelectedRange(option) {
+    setCustomRange(null);
+    setCustomRangeAlert(null);
+    setSelectedRangeState(option);
   }
 
-  function clearCustomMonth() {
-    setCustomMonth(null);
-    setSelectedRange("Present Month");
+  // Validates a manually typed start/end month against the real dataset.
+  // Returns true/false so the caller (the popover UI) knows whether to close.
+  const applyCustomRange = useCallback((startMonth, endMonth) => {
+    if (!startMonth || !endMonth) {
+      setCustomRangeAlert("Please provide both a start and end month.");
+      return false;
+    }
+    if (startMonth > endMonth) {
+      setCustomRangeAlert("Start month must be on or before the end month.");
+      return false;
+    }
+
+    const candidateRange = { startMonth, endMonth };
+
+    if (!hasDataInRange(orionPipeline, candidateRange)) {
+      const { min, max } = dataBounds;
+      setCustomRangeAlert(
+        min && max
+          ? `Data is only available from ${formatMonthLabel(min)} to ${formatMonthLabel(max)}.`
+          : "No data is available for this dataset."
+      );
+      return false;
+    }
+
+    setCustomRangeAlert(null);
+    setCustomRange(candidateRange);
+    return true;
+  }, [dataBounds]);
+
+  // Cancel (X): clear the custom range entirely and revert the dashboard
+  // to the "Current Month" preset.
+  function clearCustomRange() {
+    setCustomRange(null);
+    setCustomRangeAlert(null);
+    setSelectedRangeState("Current Month");
   }
 
-  const anchorMonth = customMonth ?? currentMonth;
-  const earliestMonth = useMemo(() => getEarliestMonth(orionPipeline), []);
-
-  const range = useMemo(
-    () => getDateRange(selectedRange, anchorMonth),
-    [selectedRange, anchorMonth]
-  );
+  // Whichever filter is active drives the range — custom range, when set,
+  // completely overrides the preset buttons rather than combining with them.
+  const range = useMemo(() => {
+    if (customRange) return customRange;
+    return getDateRange(selectedRange, currentMonth);
+  }, [customRange, selectedRange, currentMonth]);
 
   const dataStartsAfterRange = Boolean(
-    earliestMonth && range.startMonth && range.startMonth < earliestMonth
+    dataBounds.min && range.startMonth && range.startMonth < dataBounds.min
   );
 
   const filteredPipeline = useMemo(() => {
@@ -49,15 +98,14 @@ export function DateRangeProvider({ children }) {
     <DateRangeContext.Provider value={{
       selectedRange,
       setSelectedRange,
-      customMonth,          
-      confirmCustomMonth,   
-      clearCustomMonth,     
-      customMonthBounds,    
+      customRange,
+      applyCustomRange,
+      clearCustomRange,
+      customRangeAlert,
+      dataBounds,
       filteredPipeline,
       rangeOptions: RANGE_OPTIONS,
-      currentMonth,         
-      anchorMonth,          
-      earliestMonth,        
+      currentMonth,
       dataStartsAfterRange,
     }}>
       {children}

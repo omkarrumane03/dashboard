@@ -9,7 +9,6 @@ import { computeOrionKPIs } from "./data/derivedKPIs";
 
 import KPICard       from "./components/kpi/KPICard";
 import ChartPanel    from "./components/layout/ChartPanel";
-import SectionHeader from "./components/layout/SectionHeader";
 import InfoIcon      from "./components/common/InfoIcon";
 
 import RolesActivityOverview from "./components/charts/RolesActivityOverview";
@@ -21,22 +20,262 @@ import ConfirmedByDimension  from "./components/charts/ConfirmedHire";
 
 const grid = { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 };
 
+const DASHBOARD_BRANDING = {
+  title: 'HIRING DASHBOARD',
+  badge: 'ORION',
+  logoText: 'HD',
+};
 
-function CustomMonthControl() {
+const CHART_PANELS = [
+  {
+    id: 'roleStatus',
+    title: '1. Roles by Status',
+    subtitle: 'Bar length reflects number of positions.',
+    info: 'Breaks down every role by its current status.',
+    height: 450,
+    span: 2,
+    componentKey: 'RoleStatusBar',
+  },
+  {
+    id: 'experienceDemand',
+    title: '2. Hiring Demand by Experience Level',
+    subtitle: 'Hover to see the specific roles.',
+    info: 'Number of roles per month, split by required experience level.',
+    height: 326,
+    span: 1,
+    componentKey: 'ExperienceDemandBar',
+  },
+  {
+    id: 'location',
+    title: '3. Roles by Location',
+    subtitle: 'Hover to see the specific roles.',
+    info: 'Number of roles per month, split by location.',
+    height: 326,
+    span: 1,
+    componentKey: 'RolesLocation',
+  },
+  {
+    id: 'activityOverview',
+    title: '4. Hiring Activity Overview',
+    subtitle: 'Hover for average positions per role and hire rate.',
+    info: 'Monthly view of hiring activity: stacked bars show positions by status, the line shows roles opened that month.',
+    height: 400,
+    span: 2,
+    componentKey: 'RolesActivityOverview',
+  },
+  {
+    id: 'candidateFunnel',
+    title: '5. Candidate Selection Funnel',
+    subtitle: 'Hover to see pass rate.',
+    info: 'Tracks candidates as they move through the pipeline.',
+    height: 300,
+    span: 1,
+    componentKey: 'CandidateFunnel',
+  },
+  {
+    id: 'confirmedHires',
+    title: '6. Confirmed Hires',
+    subtitle: 'Hover to see specifications.',
+    info: 'Breaks down confirmed hires by role, location, and experience level.',
+    height: 300,
+    span: 1,
+    componentKey: 'ConfirmedByDimension',
+  },
+];
+
+const PANEL_COMPONENTS = {
+  RoleStatusBar,
+  ExperienceDemandBar,
+  RolesLocation,
+  RolesActivityOverview,
+  CandidateFunnel,
+  ConfirmedByDimension,
+};
+
+
+// "YYYY-MM" -> "MM/YYYY" for display in the typeable field
+function monthToDisplay(month) {
+  if (!month) return "";
+  const [year, mon] = month.split("-");
+  return `${mon}/${year}`;
+}
+
+// Accepts "MM/YYYY", "MM-YYYY", or "YYYY-MM" typed by hand -> "YYYY-MM" | null
+function parseTypedMonth(text) {
+  const trimmed = (text || "").trim();
+
+  let match = trimmed.match(/^(\d{1,2})[\/\-](\d{4})$/);
+  if (match) {
+    const mon = Number(match[1]);
+    const year = Number(match[2]);
+    return mon >= 1 && mon <= 12 ? `${year}-${String(mon).padStart(2, "0")}` : null;
+  }
+
+  match = trimmed.match(/^(\d{4})-(\d{1,2})$/);
+  if (match) {
+    const year = Number(match[1]);
+    const mon = Number(match[2]);
+    return mon >= 1 && mon <= 12 ? `${year}-${String(mon).padStart(2, "0")}` : null;
+  }
+
+  return null;
+}
+
+// A single month field that supports BOTH typing (MM/YYYY) and picking from
+// an inline calendar-style month grid via the 📅 toggle.
+function MonthPickerField({ label, value, onChange }) {
+  const [textValue, setTextValue] = useState(() => monthToDisplay(value));
+  const [showGrid, setShowGrid] = useState(false);
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 15;
+  const maxYear = currentYear + 1;
+  const [viewYear, setViewYear] = useState(() => value ? Number(value.split("-")[0]) : currentYear);
+
+  useEffect(() => {
+    setTextValue(monthToDisplay(value));
+  }, [value]);
+
+  const commitTypedValue = () => {
+    if (textValue.trim() === "") {
+      onChange("");
+      return;
+    }
+    const parsed = parseTypedMonth(textValue);
+    if (parsed) {
+      onChange(parsed);
+      setTextValue(monthToDisplay(parsed));
+    } else {
+      // Invalid text — revert to the last valid value rather than silently accepting garbage.
+      setTextValue(monthToDisplay(value));
+    }
+  };
+
+  const toggleGrid = (e) => {
+    e.stopPropagation();
+    setViewYear(value ? Number(value.split("-")[0]) : currentYear);
+    setShowGrid((s) => !s);
+  };
+
+  const selectMonth = (monthValue) => {
+    onChange(monthValue);
+    setTextValue(monthToDisplay(monthValue));
+    setShowGrid(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <label style={{ fontFamily: "Inter, sans-serif", fontSize: 16, color: PALETTE.muted }}>
+        {label}
+      </label>
+      <div style={{ display: "flex", gap: 6 }}>
+        <input
+          type="text"
+          value={textValue}
+          placeholder="MM/YYYY"
+          onChange={(e) => setTextValue(e.target.value)}
+          onBlur={commitTypedValue}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); commitTypedValue(); } }}
+          style={{
+            fontFamily: "Inter, sans-serif", fontSize: 14,
+            padding: "6px 8px", borderRadius: 6,
+            border: `1px solid ${PALETTE.border}`,
+            color: PALETTE.text, background: "transparent",
+            flex: 1, minWidth: 0,
+          }}
+        />
+        <button
+          type="button"
+          onClick={toggleGrid}
+          title="Pick from calendar"
+          style={{
+            fontFamily: "Inter, sans-serif", fontSize: 14,
+            padding: "6px 10px", borderRadius: 6,
+            border: `1px solid ${showGrid ? PALETTE.accent : PALETTE.border}`,
+            background: showGrid ? PALETTE.accentSoft : "transparent",
+            color: showGrid ? PALETTE.accent : PALETTE.muted,
+            cursor: "pointer", flexShrink: 0,
+          }}
+        >
+          📅
+        </button>
+      </div>
+
+      {showGrid && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            border: `1px solid ${PALETTE.border}`,
+            borderRadius: 8, padding: 10,
+            display: "flex", flexDirection: "column", gap: 8,
+            // background: PALETTE.bg,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <button
+              onClick={(e) => { e.stopPropagation(); setViewYear((y) => Math.max(minYear, y - 1)); }}
+              disabled={viewYear <= minYear}
+              style={{
+                fontFamily: "Inter, sans-serif", fontSize: 14,
+                width: 22, height: 22, borderRadius: 6,
+                border: `1px solid ${PALETTE.border}`, background: "transparent",
+                color: viewYear <= minYear ? PALETTE.border : PALETTE.muted,
+                cursor: viewYear <= minYear ? "not-allowed" : "pointer",
+              }}
+            >‹</button>
+            <span style={{ fontFamily: "Inter, sans-serif", fontSize: 14, fontWeight: 700, color: PALETTE.text }}>
+              {viewYear}
+            </span>
+            <button
+              onClick={(e) => { e.stopPropagation(); setViewYear((y) => Math.min(maxYear, y + 1)); }}
+              disabled={viewYear >= maxYear}
+              style={{
+                fontFamily: "Inter, sans-serif", fontSize: 14,
+                width: 22, height: 22, borderRadius: 6,
+                border: `1px solid ${PALETTE.border}`, background: "transparent",
+                color: viewYear >= maxYear ? PALETTE.border : PALETTE.muted,
+                cursor: viewYear >= maxYear ? "not-allowed" : "pointer",
+              }}
+            >›</button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 4 }}>
+            {MONTH_ABBR.map((abbr, i) => {
+              const monthValue = `${viewYear}-${String(i + 1).padStart(2, "0")}`;
+              const isSelected = value === monthValue;
+              return (
+                <button
+                  key={abbr}
+                  onClick={(e) => { e.stopPropagation(); selectMonth(monthValue); }}
+                  style={{
+                    fontFamily: "Inter, sans-serif", fontSize: 13,
+                    padding: "5px 0", borderRadius: 6,
+                    border: `1px solid ${PALETTE.border}`,
+                    background: isSelected ? PALETTE.accent : "transparent",
+                    color: isSelected ? PALETTE.surface : PALETTE.text,
+                    cursor: "pointer",
+                    fontWeight: isSelected ? 700 : 400,
+                  }}
+                >
+                  {abbr}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CustomDateRangeControl() {
   const {
-    customMonth, confirmCustomMonth, clearCustomMonth,
-    customMonthBounds, currentMonth,
+    customRange, applyCustomRange, clearCustomRange, customRangeAlert,
   } = useDateRange();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [pendingValue, setPendingValue] = useState(customMonth ?? "");
-  const [viewYear, setViewYear] = useState(() =>
-    Number((customMonth ?? currentMonth).split("-")[0])
-  );
+  const [startDate, setStartDate] = useState(customRange?.startMonth ?? "");
+  const [endDate, setEndDate] = useState(customRange?.endMonth ?? "");
   const containerRef = useRef(null);
-
-  const minYear = Number(customMonthBounds.min.split("-")[0]);
-  const maxYear = Number(customMonthBounds.max.split("-")[0]);
 
   // Close the popover on any click outside it, without applying anything.
   useEffect(() => {
@@ -52,38 +291,27 @@ function CustomMonthControl() {
 
   const openPopover = (e) => {
     e.stopPropagation();
-    const base = customMonth ?? currentMonth;
-    setPendingValue(customMonth ?? "");
-    setViewYear(Number(base.split("-")[0]));
+    setStartDate(customRange?.startMonth ?? "");
+    setEndDate(customRange?.endMonth ?? "");
     setIsOpen(true);
   };
 
   const handleApply = (e) => {
     e.stopPropagation();
-    if (!pendingValue) return;
-    confirmCustomMonth(pendingValue);
-    setIsOpen(false);
+    const applied = applyCustomRange(startDate, endDate);
+    if (applied) setIsOpen(false);
   };
 
   const handleCancel = (e) => {
     e.stopPropagation();
-    setPendingValue(customMonth ?? "");
     setIsOpen(false);
   };
 
+  // The X on the active badge: clears the custom range AND reverts the
+  // whole dashboard to the "Current Month" preset.
   const handleClear = (e) => {
     e.stopPropagation();
-    clearCustomMonth();
-  };
-
-  const goPrevYear = (e) => {
-    e.stopPropagation();
-    setViewYear((y) => Math.max(minYear, y - 1));
-  };
-
-  const goNextYear = (e) => {
-    e.stopPropagation();
-    setViewYear((y) => Math.min(maxYear, y + 1));
+    clearCustomRange();
   };
 
   const baseButtonStyle = {
@@ -97,8 +325,8 @@ function CustomMonthControl() {
     whiteSpace: "nowrap",
   };
 
-  // Active anchor confirmed — show the badge instead of the picker button.
-  if (customMonth) {
+  // Active custom range confirmed — show the badge instead of the picker button.
+  if (customRange) {
     return (
       <div style={{
         ...baseButtonStyle,
@@ -107,10 +335,12 @@ function CustomMonthControl() {
         background: PALETTE.accentSoft,
         color: PALETTE.accent,
       }}>
-        <span>Base: {formatMonthLabel(customMonth)}</span>
+        <span>
+          {formatMonthLabel(customRange.startMonth)} – {formatMonthLabel(customRange.endMonth)}
+        </span>
         <span
           onClick={handleClear}
-          title="Exit custom month — return to today"
+          title="Clear custom range — return to Current Month"
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
             width: 16, height: 16, borderRadius: "50%",
@@ -124,7 +354,7 @@ function CustomMonthControl() {
     );
   }
 
-  // No active anchor — show the "Custom Month" button + popover.
+  // No active custom range — show the "Custom Range" button + popover.
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
       <button
@@ -137,8 +367,8 @@ function CustomMonthControl() {
           color: isOpen ? PALETTE.accent : PALETTE.muted,
         }}
       >
-        <InfoIcon text="Select a base month to view a 12-month lookback of your data. Base month as 'Present Month'." size={16} />
-        <span>Custom MM/YYYY ▼</span>
+        <InfoIcon text="Set a custom range to view data for a specific period." size={16} />
+        <span>Custom Range ▼</span>
       </button>
 
       {isOpen && (
@@ -155,78 +385,26 @@ function CustomMonthControl() {
             padding: 12,
             boxShadow: "0 8px 24px rgba(15,42,34,0.15)",
             display: "flex", flexDirection: "column", gap: 10,
-            minWidth: 240,
+            minWidth: 260,
           }}
         >
-          {/* Year header with paging arrows, clamped to customMonthBounds */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <button
-              onClick={goPrevYear}
-              disabled={viewYear <= minYear}
-              style={{
-                fontFamily: "Inter, sans-serif", fontSize: 16,
-                width: 26, height: 26, borderRadius: 6,
-                border: `1px solid ${PALETTE.border}`,
-                background: "transparent",
-                color: viewYear <= minYear ? PALETTE.border : PALETTE.muted,
-                cursor: viewYear <= minYear ? "not-allowed" : "pointer",
-              }}
-            >
-              ‹
-            </button>
-            <span style={{ fontFamily: "Inter, sans-serif", fontSize: 16, fontWeight: 700, color: PALETTE.text }}>
-              {viewYear}
-            </span>
-            <button
-              onClick={goNextYear}
-              disabled={viewYear >= maxYear}
-              style={{
-                fontFamily: "Inter, sans-serif", fontSize: 16,
-                width: 26, height: 26, borderRadius: 6,
-                border: `1px solid ${PALETTE.border}`,
-                background: "transparent",
-                color: viewYear >= maxYear ? PALETTE.border : PALETTE.muted,
-                cursor: viewYear >= maxYear ? "not-allowed" : "pointer",
-              }}
-            >
-              ›
-            </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <MonthPickerField label="Start month" value={startDate} onChange={setStartDate} />
+            <MonthPickerField label="End month" value={endDate} onChange={setEndDate} />
           </div>
 
-          {/* 3x4 month grid for the year in view */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
-            {MONTH_ABBR.map((abbr, i) => {
-              const monthValue = `${viewYear}-${String(i + 1).padStart(2, "0")}`;
-              const isOutOfBounds = monthValue < customMonthBounds.min || monthValue > customMonthBounds.max;
-              const isSelected = pendingValue === monthValue;
-              const isRealCurrent = monthValue === currentMonth;
-
-              return (
-                <button
-                  key={abbr}
-                  disabled={isOutOfBounds}
-                  onClick={(e) => { e.stopPropagation(); setPendingValue(monthValue); }}
-                  style={{
-                    fontFamily: "Inter, sans-serif", fontSize: 14,
-                    padding: "6px 0", borderRadius: 6,
-                    border: isRealCurrent && !isSelected
-                      ? `1px solid ${PALETTE.accent}`
-                      : `1px solid ${PALETTE.border}`,
-                    background: isSelected ? PALETTE.accent : "transparent",
-                    color: isOutOfBounds
-                      ? PALETTE.border
-                      : isSelected ? PALETTE.surface : PALETTE.text,
-                    cursor: isOutOfBounds ? "not-allowed" : "pointer",
-                    fontWeight: isSelected ? 700 : 400,
-                    opacity: isOutOfBounds ? 0.4 : 1,
-                    transition: "all 0.1s ease",
-                  }}
-                >
-                  {abbr}
-                </button>
-              );
-            })}
-          </div>
+          {customRangeAlert && (
+            <div style={{
+              display: "flex", alignItems: "flex-start", gap: 6,
+              fontFamily: "Inter, sans-serif", fontSize: 13,
+              color: PALETTE.orange,
+              background: `${PALETTE.orange}18`,
+              borderRadius: 6, padding: "6px 8px",
+            }}>
+              <span>⚠</span>
+              <span>{customRangeAlert}</span>
+            </div>
+          )}
 
           <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
             <button
@@ -243,15 +421,15 @@ function CustomMonthControl() {
             </button>
             <button
               onClick={handleApply}
-              disabled={!pendingValue}
+              disabled={!startDate || !endDate}
               style={{
                 fontFamily: "Inter, sans-serif", fontSize: 14,
                 padding: "4px 10px", borderRadius: 6,
                 border: `1px solid ${PALETTE.accent}`,
                 background: PALETTE.accent,
                 color: PALETTE.surface,
-                cursor: pendingValue ? "pointer" : "not-allowed",
-                opacity: pendingValue ? 1 : 0.5,
+                cursor: (startDate && endDate) ? "pointer" : "not-allowed",
+                opacity: (startDate && endDate) ? 1 : 0.5,
               }}
             >
               Apply
@@ -264,15 +442,19 @@ function CustomMonthControl() {
 }
 
 function DateRangeFilter() {
-  const { selectedRange, setSelectedRange } = useDateRange();
+  const { selectedRange, setSelectedRange, customRange } = useDateRange();
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap",
       minWidth: 0,
       justifyContent: "flex-end",  }}>
-      <CustomMonthControl />
+      <CustomDateRangeControl />
       {RANGE_OPTIONS.map((option) => {
-        const isActive = selectedRange === option;
+        // A preset only reads as "active" when no custom range is set —
+        // once a custom range exists it takes visual precedence, but the
+        // preset buttons stay fully clickable. Clicking one clears the
+        // custom range (via setSelectedRange) and applies the preset.
+        const isActive = selectedRange === option && !customRange;
         return (
           <button
             key={option}
@@ -300,8 +482,8 @@ function DateRangeFilter() {
 }
 
 function DataCoverageNotice() {
-  const { dataStartsAfterRange, earliestMonth } = useDateRange();
-  if (!dataStartsAfterRange || !earliestMonth) return null;
+  const { dataStartsAfterRange, dataBounds } = useDateRange();
+  if (!dataStartsAfterRange || !dataBounds.min) return null;
 
   return (
     <div style={{
@@ -315,18 +497,17 @@ function DataCoverageNotice() {
     }}>
       <span>⚠</span>
       <span>
-        Data is only available from <strong>{formatMonthLabel(earliestMonth)}</strong> onward —
-        wider ranges won't show anything beyond that.
+        Data is only available from <strong>{formatMonthLabel(dataBounds.min)}</strong> to{" "}
+        <strong>{formatMonthLabel(dataBounds.max)}</strong> — wider ranges won't show anything beyond that.
       </span>
     </div>
   );
 }
 
 function DashboardContent() {
-  const [active, setActive] = useState("demand");
-  // Destructured selectedRange and customMonth to dynamically calculate container key
-  const { filteredPipeline, selectedRange, customMonth } = useDateRange();
+  const { filteredPipeline, selectedRange, customRange } = useDateRange();
   const orionKPIs = computeOrionKPIs(filteredPipeline);
+  const { title: brandTitle, badge: brandBadge, logoText: brandLogo } = DASHBOARD_BRANDING;
 
   return (
     <div style={{
@@ -354,15 +535,15 @@ function DashboardContent() {
             background: PALETTE.accent,
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 16, fontWeight: 700, color: PALETTE.surface,
-          }}> HD </div>
+          }}>{brandLogo}</div>
           <span style={{fontFamily: "Inter, sans-serif", fontSize: 20, fontWeight: 700, letterSpacing: "0.06em" }}>
-            HIRING DASHBOARD
+            {brandTitle}
           </span>
           <span style={{
             fontSize: 20, padding: "2px 8px",
             background: PALETTE.accentSoft, color: PALETTE.accent,
             borderRadius: 4, letterSpacing: "0.08em", fontWeight: 600,
-          }}>ORION</span>
+          }}>{brandBadge}</span>
         </div>
 
         <DateRangeFilter />
@@ -373,8 +554,6 @@ function DashboardContent() {
       {/* ── Content ─────────────────────────────────────────────── */}
       <div style={{ display: "flex" }}>
         <main style={{ flex: 1, padding: "28px 32px", overflowY: "auto" }}>
-
-          {active === "demand" && (
             <div>
 
               {/* ── 4-Card KPI Row ─────────────────────────────────────── */}
@@ -439,10 +618,7 @@ function DashboardContent() {
               {/* ── Charts ───────────────────────────────────────── */}
               {(() => {
                 const hasData = filteredPipeline && filteredPipeline.length > 0;
-                
-                // FIXED: Create an isolated key combining range strategy and active base custom month.
-                // Every time a user interacts or alters filters, this key value completely updates.
-                const chartContainerKey = `${selectedRange}-${customMonth ?? "none"}`;
+                const chartContainerKey = `${selectedRange}-${customRange ? `${customRange.startMonth}_${customRange.endMonth}` : "none"}`;
 
                 const noDataMessage = (
                   <div style={{ 
@@ -459,60 +635,26 @@ function DashboardContent() {
                 );
 
                 return (
-                  /* FIXED: Appending the dynamic key directly here clears all historical drill-downs or chart selections */
                   <div style={{ ...grid, marginBottom: 16 }} key={chartContainerKey}>
-                    <ChartPanel
-                      title="1. Roles by Status"
-                      subtitle={'Bar length reflects number of positions.'}
-                      info="Breaks down every role by its current status."
-                      height={450} span={2} >
-                      {hasData ? <RoleStatusBar /> : noDataMessage}
-                    </ChartPanel>
-
-                    <ChartPanel
-                      title="2. Hiring Demand by Experience Level"
-                      subtitle={'Hover to see the specific roles.'}
-                      info="Number of roles per month, split by required experience level."
-                      height={326} >
-                      {hasData ? <ExperienceDemandBar /> : noDataMessage}
-                    </ChartPanel>
-
-                    <ChartPanel
-                      title="3. Roles by Location"
-                      subtitle={'Hover to see the specific roles.'}
-                      info="Number of roles per month, split by location."
-                      height={326} >
-                      {hasData ? <RolesLocation /> : noDataMessage}
-                    </ChartPanel>
-
-                    <ChartPanel
-                      title="4. Hiring Activity Overview"
-                      subtitle={'Hover for average positions per role and hire rate.'}
-                      info="Monthly view of hiring activity: stacked bars show positions by status, the line shows roles opened that month."
-                      height={400} span={2} >
-                      {hasData ? <RolesActivityOverview /> : noDataMessage}
-                    </ChartPanel>
-
-                    <ChartPanel
-                      title="5. Candidate Selection Funnel"
-                      subtitle="Hover to see pass rate."
-                      info="Tracks candidates as they move through the pipeline."
-                      height={300} >
-                      {hasData ? <CandidateFunnel /> : noDataMessage}
-                    </ChartPanel>
-
-                    <ChartPanel
-                      title="6. Confirmed Hires"
-                      subtitle='Hover to see specifications.'
-                      info="Breaks down confirmed hires by role, location, and experience level."
-                      height={300} >
-                      {hasData ? <ConfirmedByDimension /> : noDataMessage}
-                    </ChartPanel>
+                    {CHART_PANELS.map((panel) => {
+                      const PanelComponent = PANEL_COMPONENTS[panel.componentKey];
+                      return (
+                        <ChartPanel
+                          key={panel.id}
+                          title={panel.title}
+                          subtitle={panel.subtitle}
+                          info={panel.info}
+                          height={panel.height}
+                          span={panel.span}
+                        >
+                          {hasData ? <PanelComponent /> : noDataMessage}
+                        </ChartPanel>
+                      );
+                    })}
                   </div>
                 );
               })()}
             </div>
-          )}
         </main>
       </div>
     </div>
